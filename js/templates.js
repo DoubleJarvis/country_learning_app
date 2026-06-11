@@ -83,7 +83,7 @@ export const templates = {
   )}
   <div class="finished-banner" data-quiz-target="finishedBanner" style="display: none;">
     <div class="finished-content">
-      <h2>Quiz Complete!</h2>
+      <h2>Game Complete!</h2>
       <div class="finished-time" data-quiz-target="finalTime"></div>
       <div class="finished-stats">
         <div class="finished-stat green"><span class="finished-label">First try:</span><span class="finished-value" data-quiz-target="finalGreen">0</span></div>
@@ -123,7 +123,7 @@ export const templates = {
   )}
   <div class="finished-banner" data-quiz-hard-target="finishedBanner" style="display: none;">
     <div class="finished-content">
-      <h2>Quiz Complete!</h2>
+      <h2>Game Complete!</h2>
       <div class="finished-time" data-quiz-hard-target="finalTime"></div>
       <div class="finished-stats">
         <div class="finished-stat green"><span class="finished-label">First try:</span><span class="finished-value" data-quiz-hard-target="finalGreen">0</span></div>
@@ -234,7 +234,7 @@ export const templates = {
   ${REGION_SELECTION('quiz-name-all-easy', 'Name All, Easy Mode', 'All country outlines are shown on the map. Identify each one by name — they colour in as you guess.')}
   <div class="finished-banner" data-quiz-name-all-easy-target="finishedBanner" style="display: none;">
     <div class="finished-content">
-      <h2>Quiz Complete!</h2>
+      <h2>Game Complete!</h2>
       <div class="finished-time" data-quiz-name-all-easy-target="finalTime"></div>
       <div class="finished-stats">
         <div class="finished-stat green"><span class="finished-label">Correct:</span><span class="finished-value" data-quiz-name-all-easy-target="finalCorrect">0</span></div>
@@ -272,7 +272,7 @@ export const templates = {
   ${REGION_SELECTION('quiz-name-all', 'Name All, Normal Mode', 'No outlines shown. Identify every country by name — each guess adds it to the map to give you context.')}
   <div class="finished-banner" data-quiz-name-all-target="finishedBanner" style="display: none;">
     <div class="finished-content">
-      <h2>Quiz Complete!</h2>
+      <h2>Game Complete!</h2>
       <div class="finished-time" data-quiz-name-all-target="finalTime"></div>
       <div class="finished-stats">
         <div class="finished-stat green"><span class="finished-label">Correct:</span><span class="finished-value" data-quiz-name-all-target="finalCorrect">0</span></div>
@@ -310,7 +310,7 @@ export const templates = {
   ${REGION_SELECTION('quiz-name-all-hard', 'Name All, Hard Mode', 'No outlines, no map feedback. Identify every country by name — guesses only appear in a list, with no geographic context.')}
   <div class="finished-banner" data-quiz-name-all-hard-target="finishedBanner" style="display: none;">
     <div class="finished-content">
-      <h2>Quiz Complete!</h2>
+      <h2>Game Complete!</h2>
       <div class="finished-time" data-quiz-name-all-hard-target="finalTime"></div>
       <div class="finished-stats">
         <div class="finished-stat green"><span class="finished-label">Correct:</span><span class="finished-value" data-quiz-name-all-hard-target="finalCorrect">0</span></div>
