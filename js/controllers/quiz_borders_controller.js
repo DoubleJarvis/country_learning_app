@@ -4,7 +4,7 @@ import { allCountryNames, nameToCode, countriesMapping, countryBounds } from "co
 import { getRandomCountryWithBorders, getBorders } from "adjacency_helper"
 
 export default class extends Controller {
-  static targets = ["container", "searchInput", "dropdown", "startScreen", "statsBar",
+  static targets = ["container", "searchInput", "searchBox", "dropdown", "startScreen", "statsBar",
                     "remainingCount", "correctCount", "incorrectCount", "countryName",
                     "actionBtn", "finishedBanner", "finalCorrect", "finalIncorrect",
                     "navButtons", "finalTime", "bordersTotal"]
@@ -209,8 +209,9 @@ export default class extends Controller {
     // Hide navigation buttons
     this.navButtonsTarget.style.display = "none"
 
-    // Show stats bar
+    // Show stats bar and search box
     this.statsBarTarget.style.display = "flex"
+    this.searchBoxTarget.style.display = "flex"
 
     // Update UI with country info
     const displayName = countriesMapping[this.currentCountry]?.display_name || this.currentCountry
@@ -526,8 +527,9 @@ export default class extends Controller {
     const seconds = Math.floor((elapsedMs % 60000) / 1000)
     const timeString = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`
 
-    // Hide stats bar
+    // Hide stats bar and search box
     this.statsBarTarget.style.display = "none"
+    this.searchBoxTarget.style.display = "none"
 
     // Show finished banner
     this.finishedBannerTarget.style.display = "block"

@@ -4,7 +4,7 @@ import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion, c
 import { quizDb } from "db"
 
 export default class extends Controller {
-  static targets = ["container", "searchInput", "dropdown", "regionSelection", "statsBar",
+  static targets = ["container", "searchInput", "searchBox", "dropdown", "regionSelection", "statsBar",
                     "remainingCount", "greenCount", "yellowCount", "redCount",
                     "actionBtn", "finishedBanner", "finalGreen", "finalYellow", "finalRed",
                     "debugSearchInput", "debugDropdown", "navButtons", "finalTime"]
@@ -212,8 +212,9 @@ export default class extends Controller {
     // Hide navigation buttons
     this.navButtonsTarget.style.display = "none"
 
-    // Show stats bar
+    // Show stats bar and search box
     this.statsBarTarget.style.display = "flex"
+    this.searchBoxTarget.style.display = "flex"
 
     // Update stats
     this.updateStats()
@@ -614,8 +615,9 @@ export default class extends Controller {
     this.map.setFilter("current-country-border", ["==", "ADM0_A3", ""])
     this.map.setFilter("country-names", ["in", "ADM0_A3", ""])
 
-    // Hide stats and finished banner
+    // Hide stats, search box and finished banner
     this.statsBarTarget.style.display = "none"
+    this.searchBoxTarget.style.display = "none"
     this.finishedBannerTarget.style.display = "none"
 
     // Hide scale control
@@ -665,8 +667,9 @@ export default class extends Controller {
     this.finalRedTarget.textContent = this.stats.red
     this.finalTimeTarget.textContent = `Time: ${timeString}`
 
-    // Hide top left stats banner
+    // Hide top left stats banner and search box
     this.statsBarTarget.style.display = "none"
+    this.searchBoxTarget.style.display = "none"
 
     // Show finished banner and navigation buttons
     this.finishedBannerTarget.style.display = "block"

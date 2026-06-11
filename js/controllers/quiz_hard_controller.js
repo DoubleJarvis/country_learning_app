@@ -4,7 +4,7 @@ import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion, c
 import { quizDb } from "db"
 
 export default class extends Controller {
-  static targets = ["mainContainer", "overlayContainer", "searchInput", "dropdown",
+  static targets = ["mainContainer", "overlayContainer", "searchInput", "searchBox", "dropdown",
                     "regionSelection", "statsBar", "remainingCount", "greenCount",
                     "yellowCount", "redCount", "actionBtn", "finishedBanner",
                     "finalGreen", "finalYellow", "finalRed", "debugSearchInput", "debugDropdown",
@@ -274,6 +274,7 @@ export default class extends Controller {
     this.regionSelectionTarget.style.display = "none"
     this.navButtonsTarget.style.display = "none"
     this.statsBarTarget.style.display = "flex"
+    this.searchBoxTarget.style.display = "flex"
     this.updateStats()
 
     // Set main map view to show entire region (no zooming later)
@@ -741,8 +742,9 @@ export default class extends Controller {
     this.overlayMap.setFilter("isolated-country", ["==", "ADM0_A3", ""])
     this.overlayMap.setFilter("isolated-country-outline", ["==", "ADM0_A3", ""])
 
-    // Hide stats and finished banner
+    // Hide stats, search box and finished banner
     this.statsBarTarget.style.display = "none"
+    this.searchBoxTarget.style.display = "none"
     this.finishedBannerTarget.style.display = "none"
 
     // Hide scale control
@@ -804,8 +806,9 @@ export default class extends Controller {
     this.finalRedTarget.textContent = this.stats.red
     this.finalTimeTarget.textContent = `Time: ${timeString}`
 
-    // Hide top left stats banner
+    // Hide top left stats banner and search box
     this.statsBarTarget.style.display = "none"
+    this.searchBoxTarget.style.display = "none"
 
     // Show finished banner and navigation buttons
     this.finishedBannerTarget.style.display = "block"

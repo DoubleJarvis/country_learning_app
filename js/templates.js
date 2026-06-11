@@ -93,7 +93,7 @@ export const templates = {
     </div>
   </div>
   <div id="quiz-map" data-quiz-target="container"></div>
-  <div class="search-box">
+  <div class="search-box" data-quiz-target="searchBox" style="display: none;">
     <input type="text" data-quiz-target="searchInput" data-action="input->quiz#handleSearch keydown->quiz#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-quiz-target="dropdown"></div>
     <button class="skip-btn" data-action="click->quiz#skip">Skip</button>
@@ -134,7 +134,7 @@ export const templates = {
   </div>
   <div id="main-map" data-quiz-hard-target="mainContainer"></div>
   <div id="overlay-map" data-quiz-hard-target="overlayContainer"></div>
-  <div class="search-box">
+  <div class="search-box" data-quiz-hard-target="searchBox" style="display: none;">
     <input type="text" data-quiz-hard-target="searchInput" data-action="input->quiz-hard#handleSearch keydown->quiz-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-quiz-hard-target="dropdown"></div>
     <button class="skip-btn" data-action="click->quiz-hard#skip">Skip</button>
@@ -190,7 +190,7 @@ export const templates = {
     </div>
   </div>
   <div id="quiz-map" data-quiz-borders-target="container"></div>
-  <div class="search-box">
+  <div class="search-box" data-quiz-borders-target="searchBox" style="display: none;">
     <input type="text" data-quiz-borders-target="searchInput" data-action="input->quiz-borders#handleSearch keydown->quiz-borders#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-quiz-borders-target="dropdown"></div>
   </div>
@@ -221,7 +221,7 @@ export const templates = {
   </div>
   <div class="missed-countries" data-quiz-borders-hard-target="missedList" style="display: none;"></div>
   <div id="quiz-map" data-quiz-borders-hard-target="container"></div>
-  <div class="search-box">
+  <div class="search-box" data-quiz-borders-hard-target="searchBox" style="display: none;">
     <input type="text" data-quiz-borders-hard-target="searchInput" data-action="input->quiz-borders-hard#handleSearch keydown->quiz-borders-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-quiz-borders-hard-target="dropdown"></div>
   </div>

@@ -4,7 +4,7 @@ import { allCountryNames, nameToCode, countriesMapping, countryBounds, getCountr
 import { getRandomCountryWithBordersFromRegion, getBorders } from "adjacency_helper"
 
 export default class extends Controller {
-  static targets = ["container", "searchInput", "dropdown", "regionSelection", "statsBar",
+  static targets = ["container", "searchInput", "searchBox", "dropdown", "regionSelection", "statsBar",
                     "remainingCount", "correctCount", "mistakesCount",
                     "actionBtn", "finishedBanner", "finalCorrect", "finalMistakes",
                     "navButtons", "finalTime", "missedList"]
@@ -221,8 +221,9 @@ export default class extends Controller {
     // Hide navigation buttons
     this.navButtonsTarget.style.display = "none"
 
-    // Show stats bar
+    // Show stats bar and search box
     this.statsBarTarget.style.display = "flex"
+    this.searchBoxTarget.style.display = "flex"
 
     // Wait for map to be ready before starting
     if (this.map.loaded()) {
@@ -643,8 +644,9 @@ export default class extends Controller {
     const seconds = Math.floor((elapsedMs % 60000) / 1000)
     const timeString = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`
 
-    // Hide stats bar
+    // Hide stats bar and search box
     this.statsBarTarget.style.display = "none"
+    this.searchBoxTarget.style.display = "none"
 
     // Show finished banner
     this.finishedBannerTarget.style.display = "block"
