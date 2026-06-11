@@ -83,7 +83,8 @@ export default class extends Controller {
       },
       center: [0, 20],
       zoom: 1.5,
-      projection: "mercator"
+      projection: "mercator",
+      interactive: false
     })
 
     this.map.addControl(new maplibregl.NavigationControl(), "top-right")
@@ -93,10 +94,14 @@ export default class extends Controller {
     })
     this.map.addControl(this.scaleControl, 'bottom-left')
 
-    // Hide scale control initially
+    // Hide scale and navigation controls initially
     const scaleElement = document.querySelector('.maplibregl-ctrl-scale')
     if (scaleElement) {
       scaleElement.style.display = 'none'
+    }
+    const navElement = document.querySelector('.maplibregl-ctrl-top-right')
+    if (navElement) {
+      navElement.style.display = 'none'
     }
 
     this.map.on("load", () => {
@@ -233,11 +238,24 @@ export default class extends Controller {
       this.setupLayers()
     }
 
-    // Show scale control when quiz starts
+    // Show scale and navigation controls when quiz starts
     const scaleElement = document.querySelector('.maplibregl-ctrl-scale')
     if (scaleElement) {
       scaleElement.style.display = 'block'
     }
+    const navElement = document.querySelector('.maplibregl-ctrl-top-right')
+    if (navElement) {
+      navElement.style.display = 'block'
+    }
+
+    // Enable map interaction now that the game has started
+    this.map.boxZoom.enable()
+    this.map.scrollZoom.enable()
+    this.map.dragPan.enable()
+    this.map.dragRotate.enable()
+    this.map.keyboard.enable()
+    this.map.doubleClickZoom.enable()
+    this.map.touchZoomRotate.enable()
 
     // Start the quiz
     this.nextCountry()
@@ -620,10 +638,25 @@ export default class extends Controller {
     this.searchBoxTarget.style.display = "none"
     this.finishedBannerTarget.style.display = "none"
 
-    // Hide scale control
+    // Hide scale and navigation controls
     const scaleElement = document.querySelector('.maplibregl-ctrl-scale')
     if (scaleElement) {
       scaleElement.style.display = 'none'
+    }
+    const navElement = document.querySelector('.maplibregl-ctrl-top-right')
+    if (navElement) {
+      navElement.style.display = 'none'
+    }
+
+    // Disable map interaction again for the region selection screen
+    if (this.map) {
+      this.map.boxZoom.disable()
+      this.map.scrollZoom.disable()
+      this.map.dragPan.disable()
+      this.map.dragRotate.disable()
+      this.map.keyboard.disable()
+      this.map.doubleClickZoom.disable()
+      this.map.touchZoomRotate.disable()
     }
 
     // Show region selection and navigation buttons
