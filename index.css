@@ -132,13 +132,50 @@
   font-size: 32px;
 }
 
+.region-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0 0 20px 0;
+}
+
+.region-header h1 {
+  margin: 0;
+}
+
+/* Difficulty rendered as a small tag/badge next to the mode name */
 .region-difficulty {
-  color: #4a9eff;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  margin: 0 0 24px 0;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid;
+  margin: 0;
+  color: #4a9eff;
+  background: rgba(74, 158, 255, 0.12);
+  border-color: rgba(74, 158, 255, 0.4);
+}
+
+.region-difficulty.easy {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.4);
+}
+
+.region-difficulty.normal {
+  color: #4a9eff;
+  background: rgba(74, 158, 255, 0.12);
+  border-color: rgba(74, 158, 255, 0.4);
+}
+
+.region-difficulty.hard {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.4);
 }
 
 .region-description {

@@ -29,8 +29,10 @@ const NAV = (activeMode, activeDifficulty, controllerName = null) => `
 
 const REGION_SELECTION = (controllerName, mode, difficulty, description = '') => `
 <div class="region-selection" data-${controllerName}-target="regionSelection">
-  <h1>${mode}</h1>
-  <div class="region-difficulty">${difficulty}</div>
+  <div class="region-header">
+    <h1>${mode}</h1>
+    <div class="region-difficulty ${difficulty.toLowerCase()}">${difficulty}</div>
+  </div>
   ${description ? `<p class="region-description">${description}</p>` : ''}
   <h2 class="region-select-label">Select a region</h2>
   <div class="region-buttons">
@@ -156,8 +158,10 @@ export const templates = {
 <div data-controller="quiz-borders" class="quiz-container">
   ${NAV('borders', 'n', 'quiz-borders')}
   <div class="start-screen" data-quiz-borders-target="startScreen">
-    <h1>Borders</h1>
-    <div class="region-difficulty">Normal</div>
+    <div class="region-header">
+      <h1>Borders</h1>
+      <div class="region-difficulty normal">Normal</div>
+    </div>
     <p class="region-description">Guess all the bordering countries of a randomly selected country.</p>
     <p class="game-rules">
       <strong>Rules:</strong><br>
