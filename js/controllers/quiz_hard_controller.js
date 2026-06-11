@@ -59,6 +59,26 @@ export default class extends Controller {
             paint: {
               "background-color": "#1a1a1a"
             }
+          },
+          {
+            id: "countries-preview-fill",
+            type: "fill",
+            source: "countries",
+            "source-layer": "countries",
+            paint: {
+              "fill-color": "#2a2a2a",
+              "fill-opacity": 1
+            }
+          },
+          {
+            id: "countries-preview-outline",
+            type: "line",
+            source: "countries",
+            "source-layer": "countries",
+            paint: {
+              "line-color": "#555555",
+              "line-width": 1
+            }
           }
         ]
       },
@@ -331,6 +351,10 @@ export default class extends Controller {
       if (!this.overlayMap.getLayer("isolated-country")) {
         this.setupOverlayMapLayers()
       }
+
+      // Hide the preview map once the game starts
+      this.mainMap.setFilter("countries-preview-fill", ["in", "ADM0_A3"])
+      this.mainMap.setFilter("countries-preview-outline", ["in", "ADM0_A3"])
 
       // Show scale control when quiz starts
       const scaleElements = document.querySelectorAll('.maplibregl-ctrl-scale')
@@ -738,6 +762,10 @@ export default class extends Controller {
     this.mainMap.setFilter("country-names-white", ["in", "ADM0_A3", ""])
     this.mainMap.setFilter("country-names-red", ["in", "ADM0_A3", ""])
     this.mainMap.setFilter("countries-outline", ["in", "ADM0_A3", ""])
+
+    // Show the preview map again behind the region selection screen
+    this.mainMap.setFilter("countries-preview-fill", null)
+    this.mainMap.setFilter("countries-preview-outline", null)
 
     this.overlayMap.setFilter("isolated-country", ["==", "ADM0_A3", ""])
     this.overlayMap.setFilter("isolated-country-outline", ["==", "ADM0_A3", ""])

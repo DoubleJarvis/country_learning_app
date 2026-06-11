@@ -50,12 +50,33 @@ export default class extends Controller {
             paint: {
               "background-color": "#1a1a1a"
             }
+          },
+          {
+            id: "countries-preview-fill",
+            type: "fill",
+            source: "countries",
+            "source-layer": "countries",
+            paint: {
+              "fill-color": "#2a2a2a",
+              "fill-opacity": 1
+            }
+          },
+          {
+            id: "countries-preview-outline",
+            type: "line",
+            source: "countries",
+            "source-layer": "countries",
+            paint: {
+              "line-color": "#555555",
+              "line-width": 1
+            }
           }
         ]
       },
       center: [0, 20],
       zoom: 1.5,
-      projection: "mercator"
+      projection: "mercator",
+      interactive: false
     })
 
     this.map.addControl(new maplibregl.NavigationControl(), "top-right")
@@ -65,10 +86,14 @@ export default class extends Controller {
     })
     this.map.addControl(this.scaleControl, 'bottom-left')
 
-    // Hide scale control initially
+    // Hide scale and navigation controls initially
     const scaleElement = document.querySelector('.maplibregl-ctrl-scale')
     if (scaleElement) {
       scaleElement.style.display = 'none'
+    }
+    const navElement = document.querySelector('.maplibregl-ctrl-top-right')
+    if (navElement) {
+      navElement.style.display = 'none'
     }
 
     this.map.on("load", () => {
@@ -233,6 +258,19 @@ export default class extends Controller {
     if (scaleElement) {
       scaleElement.style.display = 'block'
     }
+    const navElement = document.querySelector('.maplibregl-ctrl-top-right')
+    if (navElement) {
+      navElement.style.display = 'block'
+    }
+
+    // Enable map interaction now that the game has started
+    this.map.boxZoom.enable()
+    this.map.scrollZoom.enable()
+    this.map.dragPan.enable()
+    this.map.dragRotate.enable()
+    this.map.keyboard.enable()
+    this.map.doubleClickZoom.enable()
+    this.map.touchZoomRotate.enable()
 
     // Focus the input
     this.searchInputTarget.focus()
@@ -243,6 +281,10 @@ export default class extends Controller {
     if (!this.map.getLayer("target-country")) {
       this.setupLayers()
     }
+
+    // Hide the preview map once the game starts
+    this.map.setFilter("countries-preview-fill", ["in", "ADM0_A3"])
+    this.map.setFilter("countries-preview-outline", ["in", "ADM0_A3"])
 
     // Highlight the target country
     this.map.setFilter("target-country", ["==", "ADM0_A3", this.currentCountry])
@@ -582,6 +624,10 @@ export default class extends Controller {
     this.map.setFilter("countries-red-outline", ["in", "ADM0_A3"])
     this.map.setFilter("country-names", ["in", "ADM0_A3", ""])
 
+    // Show the preview map again behind the start screen
+    this.map.setFilter("countries-preview-fill", null)
+    this.map.setFilter("countries-preview-outline", null)
+
     // Hide finished banner
     this.finishedBannerTarget.style.display = "none"
 
@@ -598,10 +644,25 @@ export default class extends Controller {
     // Show navigation buttons
     this.navButtonsTarget.style.display = "flex"
 
-    // Hide scale control
+    // Hide scale and navigation controls
     const scaleElement = document.querySelector('.maplibregl-ctrl-scale')
     if (scaleElement) {
       scaleElement.style.display = 'none'
+    }
+    const navElement = document.querySelector('.maplibregl-ctrl-top-right')
+    if (navElement) {
+      navElement.style.display = 'none'
+    }
+
+    // Disable map interaction again for the start screen
+    if (this.map) {
+      this.map.boxZoom.disable()
+      this.map.scrollZoom.disable()
+      this.map.dragPan.disable()
+      this.map.dragRotate.disable()
+      this.map.keyboard.disable()
+      this.map.doubleClickZoom.disable()
+      this.map.touchZoomRotate.disable()
     }
   }
 }
