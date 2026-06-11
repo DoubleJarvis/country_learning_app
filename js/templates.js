@@ -158,7 +158,7 @@ export const templates = {
   <div class="start-screen" data-quiz-borders-target="startScreen">
     <h1>Borders</h1>
     <div class="region-difficulty">Normal</div>
-    <p>Guess all the bordering countries of a randomly selected country.</p>
+    <p class="region-description">Guess all the bordering countries of a randomly selected country.</p>
     <p class="game-rules">
       <strong>Rules:</strong><br>
       - You'll see a highlighted country and its name<br>

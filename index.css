@@ -146,6 +146,13 @@
   font-size: 15px;
   margin: 0 0 25px 0;
   line-height: 1.5;
+  /* Boxed like .game-rules on the borders start screen */
+  text-align: left;
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .region-select-label {
