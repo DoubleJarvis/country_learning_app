@@ -74,7 +74,7 @@ export const templates = {
   quiz: () => `
 <div data-controller="quiz" class="quiz-container">
   ${NAV('quiz', 'n', 'quiz')}
-  ${REGION_SELECTION('quiz', 'Quiz', 'Normal', 'A country is highlighted on the map. Identify it by name on the first or second try.')}
+  ${REGION_SELECTION('quiz', 'Quiz', 'Normal', 'A country is highlighted on the map. Identify it by name.')}
   ${STATS_BAR_TOP_LEFT('quiz',
     [
       { label: 'Remaining', target: 'remainingCount' },
@@ -114,7 +114,7 @@ export const templates = {
   quiz_hard: () => `
 <div data-controller="quiz-hard" class="quiz-container">
   ${NAV('quiz', 'h', 'quiz-hard')}
-  ${REGION_SELECTION('quiz-hard', 'Quiz', 'Hard', 'A country is shown without context. Identify it by name on the first or second try.')}
+  ${REGION_SELECTION('quiz-hard', 'Quiz', 'Hard', 'A country is shown without context. Identify it by name.')}
   ${STATS_BAR_TOP_LEFT('quiz-hard',
     [
       { label: 'Remaining', target: 'remainingCount' },
