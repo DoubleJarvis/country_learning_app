@@ -428,7 +428,12 @@ export const templates = {
     </div>
     <div class="actions-section">
       <button data-action="click->stats#exportData" class="btn btn-export">Export Data as JSON</button>
-      <button data-action="click->stats#clearData" class="btn btn-danger">Clear All Data</button>
+      <button data-stats-target="clearBtn" data-action="click->stats#clearData" class="btn btn-danger">Clear All Data</button>
+      <div class="clear-confirm" data-stats-target="clearConfirm" style="display: none;">
+        <span class="clear-confirm-text">Clear all statistics? This cannot be undone.</span>
+        <button data-action="click->stats#confirmClear" class="btn btn-danger">Yes, clear everything</button>
+        <button data-action="click->stats#cancelClear" class="btn btn-neutral">Cancel</button>
+      </div>
     </div>
   </div>
 </div>`

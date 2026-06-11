@@ -9,7 +9,7 @@ export default class extends Controller {
     "hardCorrect", "hardShaky", "hardIncorrect",
     "nameAllCorrect", "nameAllRemaining", "nameAllIncorrect",
     "countryList", "searchInput", "sortSelect", "runsList",
-    "worstList", "slowestList"
+    "worstList", "slowestList", "clearBtn", "clearConfirm"
   ]
 
   async connect() {
@@ -270,10 +270,19 @@ export default class extends Controller {
     URL.revokeObjectURL(url)
   }
 
-  async clearData() {
-    if (!confirm("Are you sure you want to clear all statistics? This cannot be undone.")) {
-      return
-    }
+  clearData() {
+    // Swap the button for an inline confirmation instead of a browser popup
+    this.clearBtnTarget.style.display = "none"
+    this.clearConfirmTarget.style.display = "flex"
+  }
+
+  cancelClear() {
+    this.clearConfirmTarget.style.display = "none"
+    this.clearBtnTarget.style.display = ""
+  }
+
+  async confirmClear() {
+    this.cancelClear()
 
     quizDb.clearAllData()
     this.allCountryStats = []
