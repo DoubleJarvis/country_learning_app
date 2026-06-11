@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Country Learning</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Country Learning">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <link rel="icon" href="./icon.png" type="image/png">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon.png">
+
+  <link rel="stylesheet" href="./index.css">
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+
+  <script src="https://sql.js.org/dist/sql-wasm.js"></script>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "@hotwired/stimulus": "https://unpkg.com/@hotwired/stimulus@3.2.2/dist/stimulus.js",
+      "maplibre-gl": "https://ga.jspm.io/npm:maplibre-gl@4.7.1/dist/maplibre-gl.js",
+      "country_names": "./js/country_names.js",
+      "adjacency_helper": "./js/adjacency_helper.js",
+      "db": "./js/db.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+const NAV = (activeMode, activeDifficulty) => `
+<div class="nav-container">
+  <a href="#stats" class="nav-item single-nav${activeMode === 'stats' ? ' active' : ''}">
+    <div class="nav-label">Stats</div>
+  </a>
+  <div class="nav-item game-mode-nav${activeMode === 'quiz' ? ' active' : ''}">
+    <div class="nav-label">Quiz</div>
+    <div class="difficulty-buttons">
+      <a href="#quiz" class="difficulty-btn${activeMode === 'quiz' && activeDifficulty === 'n' ? ' active' : ''}">N</a>
+      <a href="#quiz_hard" class="difficulty-btn${activeMode === 'quiz' && activeDifficulty === 'h' ? ' active' : ''}">H</a>
+    </div>
+  </div>
+  <div class="nav-item game-mode-nav${activeMode === 'borders' ? ' active' : ''}">
+    <div class="nav-label">Borders</div>
+    <div class="difficulty-buttons">
+      <a href="#quiz_borders" class="difficulty-btn${activeMode === 'borders' && activeDifficulty === 'n' ? ' active' : ''}">N</a>
+      <a href="#quiz_borders_hard" class="difficulty-btn${activeMode === 'borders' && activeDifficulty === 'h' ? ' active' : ''}">H</a>
+    </div>
+  </div>
+  <div class="nav-item game-mode-nav${activeMode === 'name_all' ? ' active' : ''}">
+    <div class="nav-label">Name All</div>
+    <div class="difficulty-buttons">
+      <a href="#quiz_name_all_easy" class="difficulty-btn${activeMode === 'name_all' && activeDifficulty === 'e' ? ' active' : ''}">E</a>
+      <a href="#quiz_name_all" class="difficulty-btn${activeMode === 'name_all' && activeDifficulty === 'n' ? ' active' : ''}">N</a>
+      <a href="#quiz_name_all_hard" class="difficulty-btn${activeMode === 'name_all' && activeDifficulty === 'h' ? ' active' : ''}">H</a>
+    </div>
+  </div>
+</div>`;
+
+const REGION_SELECTION = (controllerName, title) => `
+<div class="region-selection" data-${controllerName}-target="regionSelection">
+  <h1>${title}</h1>
+  <div class="region-buttons">
+    <button data-action="click->${controllerName}#selectRegion" data-region="world">Entire world</button>
+    <button data-action="click->${controllerName}#selectRegion" data-region="africa">Africa</button>
+    <button data-action="click->${controllerName}#selectRegion" data-region="asia">Asia</button>
+    <button data-action="click->${controllerName}#selectRegion" data-region="europe">Europe</button>
+    <button data-action="click->${controllerName}#selectRegion" data-region="north_america">North America</button>
+    <button data-action="click->${controllerName}#selectRegion" data-region="south_america">South America</button>
+    <button data-action="click->${controllerName}#selectRegion" data-region="oceania">Oceania</button>
+  </div>
+</div>`;
+
+const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, buttonTarget) => `
+<div class="stats-bar stats-bar-top-left" data-${controllerName}-target="statsBar" style="display: none;">
+  <div class="stats-group">
+    ${stats.map(s => `
+    <div class="stat ${s.color_class || ''}">
+      <span class="stat-label">${s.label}:</span>
+      <span class="stat-value" data-${controllerName}-target="${s.target}">0</span>
+    </div>`).join('')}
+  </div>
+  <button class="action-btn"${buttonTarget ? ` data-${controllerName}-target="${buttonTarget}"` : ''} data-action="${buttonAction}">${buttonText}</button>
+</div>`;
+
+const STATS_BAR_BOTTOM = (controllerName, stats, buttonText, buttonAction, buttonTarget) => `
+<div class="stats-bar stats-bar-bottom" data-${controllerName}-target="statsBar">
+  <div class="stats-group">
+    ${stats.map(s => `
+    <div class="stat ${s.color_class || ''}">
+      <span class="stat-label">${s.label}:</span>
+      <span class="stat-value" data-${controllerName}-target="${s.target}">0</span>
+    </div>`).join('')}
+  </div>
+  <button class="action-btn"${buttonTarget ? ` data-${controllerName}-target="${buttonTarget}"` : ''} data-action="${buttonAction}">${buttonText}</button>
+</div>`;
+
+export const templates = {
+  quiz: () => `
+<div data-controller="quiz" class="quiz-container">
+  ${NAV('quiz', 'n')}
+  ${REGION_SELECTION('quiz', 'Select a Region - Normal Mode')}
+  ${STATS_BAR_TOP_LEFT('quiz',
+    [
+      { label: 'Remaining', target: 'remainingCount' },
+      { label: 'First try', target: 'greenCount', color_class: 'green' },
+      { label: 'Second try', target: 'yellowCount', color_class: 'yellow' },
+      { label: 'Failed', target: 'redCount', color_class: 'red' }
+    ],
+    'Finish', 'click->quiz#finish', 'actionBtn'
+  )}
+  <div class="finished-banner" data-quiz-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Quiz Complete!</h2>
+      <div class="finished-time" data-quiz-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">First try:</span><span class="finished-value" data-quiz-target="finalGreen">0</span></div>
+        <div class="finished-stat yellow"><span class="finished-label">Second try:</span><span class="finished-value" data-quiz-target="finalYellow">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Failed:</span><span class="finished-value" data-quiz-target="finalRed">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->quiz#restart">Restart</button>
+    </div>
+  </div>
+  <div id="quiz-map" data-quiz-target="container"></div>
+  <div class="search-box">
+    <input type="text" data-quiz-target="searchInput" data-action="input->quiz#handleSearch keydown->quiz#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
+    <div class="autocomplete-dropdown" data-quiz-target="dropdown"></div>
+    <button class="skip-btn" data-action="click->quiz#skip">Skip</button>
+  </div>
+  <div class="debug-search-box" style="display: none;">
+    <input type="text" data-quiz-target="debugSearchInput" data-action="input->quiz#handleDebugSearch keydown->quiz#handleDebugKeydown" placeholder="DEBUG: Set country to guess..." autocomplete="off" />
+    <div class="autocomplete-dropdown" data-quiz-target="debugDropdown"></div>
+  </div>
+  <div class="debug-fill-box" style="display: none;">
+    <button class="debug-fill-btn" data-action="click->quiz#debugFill">Debug: Fill</button>
+  </div>
+</div>`,
+
+  quiz_hard: () => `
+<div data-controller="quiz-hard" class="quiz-container">
+  ${NAV('quiz', 'h')}
+  ${REGION_SELECTION('quiz-hard', 'Select a Region - Hard Mode')}
+  ${STATS_BAR_TOP_LEFT('quiz-hard',
+    [
+      { label: 'Remaining', target: 'remainingCount' },
+      { label: 'First try', target: 'greenCount', color_class: 'green' },
+      { label: 'Second try', target: 'yellowCount', color_class: 'yellow' },
+      { label: 'Failed', target: 'redCount', color_class: 'red' }
+    ],
+    'Finish', 'click->quiz-hard#finish', 'actionBtn'
+  )}
+  <div class="finished-banner" data-quiz-hard-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Quiz Complete!</h2>
+      <div class="finished-time" data-quiz-hard-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">First try:</span><span class="finished-value" data-quiz-hard-target="finalGreen">0</span></div>
+        <div class="finished-stat yellow"><span class="finished-label">Second try:</span><span class="finished-value" data-quiz-hard-target="finalYellow">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Failed:</span><span class="finished-value" data-quiz-hard-target="finalRed">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->quiz-hard#restart">Restart</button>
+    </div>
+  </div>
+  <div id="main-map" data-quiz-hard-target="mainContainer"></div>
+  <div id="overlay-map" data-quiz-hard-target="overlayContainer"></div>
+  <div class="search-box">
+    <input type="text" data-quiz-hard-target="searchInput" data-action="input->quiz-hard#handleSearch keydown->quiz-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
+    <div class="autocomplete-dropdown" data-quiz-hard-target="dropdown"></div>
+    <button class="skip-btn" data-action="click->quiz-hard#skip">Skip</button>
+  </div>
+  <div class="debug-search-box" style="display: none;">
+    <input type="text" data-quiz-hard-target="debugSearchInput" data-action="input->quiz-hard#handleDebugSearch keydown->quiz-hard#handleDebugKeydown" placeholder="DEBUG: Set country to guess..." autocomplete="off" />
+    <div class="autocomplete-dropdown" data-quiz-hard-target="debugDropdown"></div>
+  </div>
+  <div class="debug-fill-box" style="display: block;">
+    <button class="debug-fill-btn" data-action="click->quiz-hard#debugFill">Debug: Fill</button>
+    <button class="debug-fast-fill-btn" data-action="click->quiz-hard#debugFastFill">Debug: Fast Fill</button>
+    <button class="debug-realistic-fill-btn" data-action="click->quiz-hard#debugRealisticFill">Debug: Fill Realistic</button>
+  </div>
+</div>`,
+
+  quiz_borders: () => `
+<div data-controller="quiz-borders" class="quiz-container">
+  ${NAV('borders', 'n')}
+  <div class="start-screen" data-quiz-borders-target="startScreen">
+    <h1>Borders Mode</h1>
+    <p>Guess all the bordering countries of a randomly selected country.</p>
+    <p class="game-rules">
+      <strong>Rules:</strong><br>
+      - You'll see a highlighted country and its name<br>
+      - Guess all countries that share a border with it<br>
+      - You have <strong>2x the number of borders</strong> as attempts<br>
+      - Already guessed borders won't count against you
+    </p>
+    <button data-action="click->quiz-borders#startGame" class="start-btn">Start Game</button>
+  </div>
+  <div class="stats-bar" data-quiz-borders-target="statsBar" style="display: none; position: absolute; top: 15px; left: 15px; padding: 8px 12px; z-index: 1000;">
+    <div class="country-info">
+      <div class="target-country-label">Target Country:</div>
+      <div class="target-country-name" data-quiz-borders-target="countryName"></div>
+      <div class="borders-count">Borders: <span data-quiz-borders-target="bordersTotal">0</span></div>
+    </div>
+    <div class="stats-group">
+      <div class="stat"><span class="stat-label">Attempts Left:</span><span class="stat-value" data-quiz-borders-target="remainingCount">0</span></div>
+      <div class="stat green"><span class="stat-label">Found:</span><span class="stat-value" data-quiz-borders-target="correctCount">0</span></div>
+      <div class="stat red"><span class="stat-label">Wrong:</span><span class="stat-value" data-quiz-borders-target="incorrectCount">0</span></div>
+    </div>
+    <button class="action-btn" data-quiz-borders-target="actionBtn" data-action="click->quiz-borders#finish">Finish</button>
+  </div>
+  <div class="finished-banner" data-quiz-borders-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Game Complete!</h2>
+      <div class="finished-time" data-quiz-borders-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">Neighbours Found:</span><span class="finished-value" data-quiz-borders-target="finalCorrect">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Wrong Guesses:</span><span class="finished-value" data-quiz-borders-target="finalIncorrect">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->quiz-borders#restart">Play Again</button>
+    </div>
+  </div>
+  <div id="quiz-map" data-quiz-borders-target="container"></div>
+  <div class="search-box">
+    <input type="text" data-quiz-borders-target="searchInput" data-action="input->quiz-borders#handleSearch keydown->quiz-borders#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
+    <div class="autocomplete-dropdown" data-quiz-borders-target="dropdown"></div>
+  </div>
+</div>`,
+
+  quiz_borders_hard: () => `
+<div data-controller="quiz-borders-hard" class="quiz-container">
+  ${NAV('borders', 'h')}
+  ${REGION_SELECTION('quiz-borders-hard', 'Select a Region - Borders Hard Mode')}
+  ${STATS_BAR_TOP_LEFT('quiz-borders-hard',
+    [
+      { label: 'Remaining', target: 'remainingCount' },
+      { label: 'Found', target: 'correctCount', color_class: 'green' },
+      { label: 'Mistakes', target: 'mistakesCount', color_class: 'red' }
+    ],
+    'Finish', 'click->quiz-borders-hard#finish', 'actionBtn'
+  )}
+  <div class="finished-banner" data-quiz-borders-hard-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Game Complete!</h2>
+      <div class="finished-time" data-quiz-borders-hard-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">Countries Found:</span><span class="finished-value" data-quiz-borders-hard-target="finalCorrect">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Mistakes:</span><span class="finished-value" data-quiz-borders-hard-target="finalMistakes">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->quiz-borders-hard#restart">Play Again</button>
+    </div>
+  </div>
+  <div class="missed-countries" data-quiz-borders-hard-target="missedList" style="display: none;"></div>
+  <div id="quiz-map" data-quiz-borders-hard-target="container"></div>
+  <div class="search-box">
+    <input type="text" data-quiz-borders-hard-target="searchInput" data-action="input->quiz-borders-hard#handleSearch keydown->quiz-borders-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
+    <div class="autocomplete-dropdown" data-quiz-borders-hard-target="dropdown"></div>
+  </div>
+</div>`,
+
+  quiz_name_all_easy: () => `
+<div data-controller="quiz-name-all-easy" class="quiz-container">
+  ${NAV('name_all', 'e')}
+  ${REGION_SELECTION('quiz-name-all-easy', 'Select a Region - Easy: Name All Countries')}
+  <div class="finished-banner" data-quiz-name-all-easy-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Quiz Complete!</h2>
+      <div class="finished-time" data-quiz-name-all-easy-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">Correct:</span><span class="finished-value" data-quiz-name-all-easy-target="finalCorrect">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Remaining:</span><span class="finished-value" data-quiz-name-all-easy-target="finalRemaining">0</span></div>
+        <div class="finished-stat incorrect"><span class="finished-label">Incorrect:</span><span class="finished-value" data-quiz-name-all-easy-target="finalIncorrect">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->quiz-name-all-easy#restart">Restart</button>
+    </div>
+  </div>
+  <div id="quiz-map" data-quiz-name-all-easy-target="container"></div>
+  <div class="game-ui" style="display: none;" data-quiz-name-all-easy-target="gameUI">
+    <div class="search-box" data-quiz-name-all-easy-target="searchBox">
+      <input type="text" data-quiz-name-all-easy-target="searchInput" data-action="input->quiz-name-all-easy#handleSearch keydown->quiz-name-all-easy#handleKeydown" placeholder="Type country name..." autocomplete="off" />
+      <div class="autocomplete-dropdown" data-quiz-name-all-easy-target="dropdown"></div>
+    </div>
+    ${STATS_BAR_BOTTOM('quiz-name-all-easy',
+      [
+        { label: 'Remaining', target: 'remainingCount' },
+        { label: 'Correct', target: 'correctCount', color_class: 'green' },
+        { label: 'Incorrect', target: 'incorrectCount', color_class: 'red' },
+        { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
+      ],
+      'Finish', 'click->quiz-name-all-easy#finish', 'finishBtn'
+    )}
+  </div>
+  <div class="guessed-countries" data-quiz-name-all-easy-target="guessedList" style="display: none;"></div>
+  <div class="debug-fill-box" style="display: block;">
+    <button class="debug-fill-btn" data-action="click->quiz-name-all-easy#debugGuessAll">Debug: Guess all</button>
+  </div>
+</div>`,
+
+  quiz_name_all: () => `
+<div data-controller="quiz-name-all" class="quiz-container">
+  ${NAV('name_all', 'n')}
+  ${REGION_SELECTION('quiz-name-all', 'Select a Region - Normal: Name All Countries')}
+  <div class="finished-banner" data-quiz-name-all-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Quiz Complete!</h2>
+      <div class="finished-time" data-quiz-name-all-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">Correct:</span><span class="finished-value" data-quiz-name-all-target="finalCorrect">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Remaining:</span><span class="finished-value" data-quiz-name-all-target="finalRemaining">0</span></div>
+        <div class="finished-stat incorrect"><span class="finished-label">Incorrect:</span><span class="finished-value" data-quiz-name-all-target="finalIncorrect">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->quiz-name-all#restart">Restart</button>
+    </div>
+  </div>
+  <div id="quiz-map" data-quiz-name-all-target="container"></div>
+  <div class="game-ui" style="display: none;" data-quiz-name-all-target="gameUI">
+    <div class="search-box" data-quiz-name-all-target="searchBox">
+      <input type="text" data-quiz-name-all-target="searchInput" data-action="input->quiz-name-all#handleSearch keydown->quiz-name-all#handleKeydown" placeholder="Type country name..." autocomplete="off" />
+      <div class="autocomplete-dropdown" data-quiz-name-all-target="dropdown"></div>
+    </div>
+    ${STATS_BAR_BOTTOM('quiz-name-all',
+      [
+        { label: 'Remaining', target: 'remainingCount' },
+        { label: 'Correct', target: 'correctCount', color_class: 'green' },
+        { label: 'Incorrect', target: 'incorrectCount', color_class: 'red' },
+        { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
+      ],
+      'Finish', 'click->quiz-name-all#finish', 'finishBtn'
+    )}
+  </div>
+  <div class="guessed-countries" data-quiz-name-all-target="guessedList" style="display: none;"></div>
+  <div class="debug-fill-box" style="display: block;">
+    <button class="debug-fill-btn" data-action="click->quiz-name-all#debugGuessAll">Debug: Guess all</button>
+  </div>
+</div>`,
+
+  quiz_name_all_hard: () => `
+<div data-controller="quiz-name-all-hard" class="quiz-container">
+  ${NAV('name_all', 'h')}
+  ${REGION_SELECTION('quiz-name-all-hard', 'Select a Region - Hard: Name All Countries')}
+  <div class="finished-banner" data-quiz-name-all-hard-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Quiz Complete!</h2>
+      <div class="finished-time" data-quiz-name-all-hard-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">Correct:</span><span class="finished-value" data-quiz-name-all-hard-target="finalCorrect">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Remaining:</span><span class="finished-value" data-quiz-name-all-hard-target="finalRemaining">0</span></div>
+        <div class="finished-stat incorrect"><span class="finished-label">Incorrect:</span><span class="finished-value" data-quiz-name-all-hard-target="finalIncorrect">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->quiz-name-all-hard#restart">Restart</button>
+    </div>
+  </div>
+  <div id="quiz-map" data-quiz-name-all-hard-target="container"></div>
+  <div class="game-ui" style="display: none;" data-quiz-name-all-hard-target="gameUI">
+    <div class="search-box" data-quiz-name-all-hard-target="searchBox">
+      <input type="text" data-quiz-name-all-hard-target="searchInput" data-action="input->quiz-name-all-hard#handleSearch keydown->quiz-name-all-hard#handleKeydown" placeholder="Type country name..." autocomplete="off" />
+      <div class="autocomplete-dropdown" data-quiz-name-all-hard-target="dropdown"></div>
+    </div>
+    ${STATS_BAR_BOTTOM('quiz-name-all-hard',
+      [
+        { label: 'Remaining', target: 'remainingCount' },
+        { label: 'Correct', target: 'correctCount', color_class: 'green' },
+        { label: 'Incorrect', target: 'incorrectCount', color_class: 'red' },
+        { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
+      ],
+      'Finish', 'click->quiz-name-all-hard#finish', 'finishBtn'
+    )}
+  </div>
+  <div class="guessed-countries" data-quiz-name-all-hard-target="guessedList" style="display: none;"></div>
+  <div class="debug-fill-box" style="display: block;">
+    <button class="debug-fill-btn" data-action="click->quiz-name-all-hard#debugGuessAll">Debug: Guess all</button>
+  </div>
+</div>`,
+
+  stats: () => `
+<div data-controller="stats" class="stats-container">
+  ${NAV('stats', '')}
+  <div class="header"><h1>Quiz Statistics</h1></div>
+  <div class="stats-content">
+    <div class="summary-section">
+      <h2>Summary</h2>
+      <div class="summary-cards">
+        <div class="summary-card"><div class="card-value" data-stats-target="totalGuesses">-</div><div class="card-label">Total Guesses</div></div>
+        <div class="summary-card green"><div class="card-value" data-stats-target="correctCount">-</div><div class="card-label">Correct (1st try)</div></div>
+        <div class="summary-card yellow"><div class="card-value" data-stats-target="shakyCount">-</div><div class="card-label">Shaky (2nd try)</div></div>
+        <div class="summary-card red"><div class="card-value" data-stats-target="incorrectCount">-</div><div class="card-label">Incorrect</div></div>
+      </div>
+    </div>
+    <div class="quiz-type-section">
+      <h2>By Quiz Type</h2>
+      <div class="quiz-type-stats">
+        <div class="quiz-type-card">
+          <h3>Normal Quiz</h3>
+          <div class="quiz-type-breakdown">
+            <div class="stat-item green"><span class="stat-label">Correct:</span><span class="stat-value" data-stats-target="normalCorrect">-</span></div>
+            <div class="stat-item yellow"><span class="stat-label">Shaky:</span><span class="stat-value" data-stats-target="normalShaky">-</span></div>
+            <div class="stat-item red"><span class="stat-label">Incorrect:</span><span class="stat-value" data-stats-target="normalIncorrect">-</span></div>
+          </div>
+        </div>
+        <div class="quiz-type-card">
+          <h3>Hard Quiz</h3>
+          <div class="quiz-type-breakdown">
+            <div class="stat-item green"><span class="stat-label">Correct:</span><span class="stat-value" data-stats-target="hardCorrect">-</span></div>
+            <div class="stat-item yellow"><span class="stat-label">Shaky:</span><span class="stat-value" data-stats-target="hardShaky">-</span></div>
+            <div class="stat-item red"><span class="stat-label">Incorrect:</span><span class="stat-value" data-stats-target="hardIncorrect">-</span></div>
+          </div>
+        </div>
+        <div class="quiz-type-card">
+          <h3>Name All Countries</h3>
+          <div class="quiz-type-breakdown">
+            <div class="stat-item green"><span class="stat-label">Correct:</span><span class="stat-value" data-stats-target="nameAllCorrect">-</span></div>
+            <div class="stat-item red"><span class="stat-label">Remaining:</span><span class="stat-value" data-stats-target="nameAllRemaining">-</span></div>
+            <div class="stat-item incorrect"><span class="stat-label">Wrong Guesses:</span><span class="stat-value" data-stats-target="nameAllIncorrect">-</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="quiz-runs-section">
+      <div class="runs-header">
+        <h2>Recent Quiz Runs</h2>
+        <div class="runs-tabs">
+          <button class="runs-tab active" data-action="click->stats#filterRuns" data-filter="full">Full</button>
+          <button class="runs-tab" data-action="click->stats#filterRuns" data-filter="partial">Partial</button>
+          <button class="runs-tab" data-action="click->stats#filterRuns" data-filter="all">All</button>
+        </div>
+      </div>
+      <div class="runs-list" data-stats-target="runsList"><div class="loading">Loading quiz runs...</div></div>
+    </div>
+    <div class="performance-sections">
+      <div class="worst-countries-section">
+        <h2>Worst Countries</h2>
+        <div class="worst-list" data-stats-target="worstList"><div class="loading">Loading worst countries...</div></div>
+      </div>
+      <div class="slowest-countries-section">
+        <h2>Slowest Countries</h2>
+        <div class="slowest-list" data-stats-target="slowestList"><div class="loading">Loading slowest countries...</div></div>
+      </div>
+    </div>
+    <div class="country-stats-section">
+      <h2>By Country</h2>
+      <div class="filter-controls">
+        <input type="text" data-stats-target="searchInput" data-action="input->stats#filterCountries" placeholder="Search countries..." class="search-input" />
+        <select data-stats-target="sortSelect" data-action="change->stats#sortCountries" class="sort-select">
+          <option value="name">Sort by Name</option>
+          <option value="total-desc">Sort by Total (High to Low)</option>
+          <option value="total-asc">Sort by Total (Low to High)</option>
+          <option value="correct-desc">Sort by Correct (High to Low)</option>
+          <option value="incorrect-desc">Sort by Incorrect (High to Low)</option>
+        </select>
+      </div>
+      <div class="country-list" data-stats-target="countryList"><div class="loading">Loading statistics...</div></div>
+    </div>
+    <div class="actions-section">
+      <button data-action="click->stats#exportData" class="btn btn-export">Export Data as JSON</button>
+      <button data-action="click->stats#clearData" class="btn btn-danger">Clear All Data</button>
+    </div>
+  </div>
+</div>`
+};
