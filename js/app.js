@@ -36,6 +36,7 @@ async function render() {
   resetSharedMap()
   container.innerHTML = templates[routeName]()
   placeSharedMap()
+  applyDebugVisibility()
 
   if (!registeredControllers.has(controllerName)) {
     const { default: ControllerClass } = await import(`./controllers/${routeName}_controller.js?v=${sessionVersion}`)
@@ -58,6 +59,31 @@ function placeSharedMap() {
     element.style.display = 'none'
     document.body.appendChild(element)
   }
+}
+
+// Debug controls are hidden by default; toggle from the console with
+// enableDebug() / disableDebug(). The choice persists in localStorage and is
+// re-applied on every render (mode switches rebuild the DOM).
+const DEBUG_STORAGE_KEY = 'debugEnabled'
+
+function applyDebugVisibility() {
+  const enabled = localStorage.getItem(DEBUG_STORAGE_KEY) === '1'
+  document.querySelectorAll('.debug-search-box, .debug-fill-box').forEach(el => {
+    // Clearing the inline style lets the stylesheet decide (flex for the fill box)
+    el.style.display = enabled ? '' : 'none'
+  })
+}
+
+window.enableDebug = () => {
+  localStorage.setItem(DEBUG_STORAGE_KEY, '1')
+  applyDebugVisibility()
+  return 'Debug controls enabled'
+}
+
+window.disableDebug = () => {
+  localStorage.removeItem(DEBUG_STORAGE_KEY)
+  applyDebugVisibility()
+  return 'Debug controls disabled'
 }
 
 window.addEventListener('hashchange', render)

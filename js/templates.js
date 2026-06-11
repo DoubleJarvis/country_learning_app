@@ -144,7 +144,7 @@ export const templates = {
     <input type="text" data-quiz-hard-target="debugSearchInput" data-action="input->quiz-hard#handleDebugSearch keydown->quiz-hard#handleDebugKeydown" placeholder="DEBUG: Set country to guess..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-quiz-hard-target="debugDropdown"></div>
   </div>
-  <div class="debug-fill-box" style="display: block;">
+  <div class="debug-fill-box" style="display: none;">
     <button class="debug-fill-btn" data-action="click->quiz-hard#debugFill">Debug: Fill</button>
     <button class="debug-fast-fill-btn" data-action="click->quiz-hard#debugFastFill">Debug: Fast Fill</button>
     <button class="debug-realistic-fill-btn" data-action="click->quiz-hard#debugRealisticFill">Debug: Fill Realistic</button>
@@ -261,7 +261,7 @@ export const templates = {
     )}
   </div>
   <div class="guessed-countries" data-quiz-name-all-easy-target="guessedList" style="display: none;"></div>
-  <div class="debug-fill-box" style="display: block;">
+  <div class="debug-fill-box" style="display: none;">
     <button class="debug-fill-btn" data-action="click->quiz-name-all-easy#debugGuessAll">Debug: Guess all</button>
   </div>
 </div>`,
@@ -299,7 +299,7 @@ export const templates = {
     )}
   </div>
   <div class="guessed-countries" data-quiz-name-all-target="guessedList" style="display: none;"></div>
-  <div class="debug-fill-box" style="display: block;">
+  <div class="debug-fill-box" style="display: none;">
     <button class="debug-fill-btn" data-action="click->quiz-name-all#debugGuessAll">Debug: Guess all</button>
   </div>
 </div>`,
@@ -337,7 +337,7 @@ export const templates = {
     )}
   </div>
   <div class="guessed-countries" data-quiz-name-all-hard-target="guessedList" style="display: none;"></div>
-  <div class="debug-fill-box" style="display: block;">
+  <div class="debug-fill-box" style="display: none;">
     <button class="debug-fill-btn" data-action="click->quiz-name-all-hard#debugGuessAll">Debug: Guess all</button>
   </div>
 </div>`,
