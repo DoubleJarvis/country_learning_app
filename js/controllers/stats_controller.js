@@ -270,7 +270,7 @@ export default class extends Controller {
     URL.revokeObjectURL(url)
   }
 
-  clearData() {
+  async clearData() {
     if (!confirm("Are you sure you want to clear all statistics? This cannot be undone.")) {
       return
     }
@@ -279,7 +279,11 @@ export default class extends Controller {
     this.allCountryStats = []
     this.filteredCountryStats = []
     this.showEmptyState()
-    alert("All statistics have been cleared.")
+
+    // Refresh the remaining sections so no stale data lingers
+    await this.loadQuizRuns()
+    await this.loadWorstCountries()
+    await this.loadSlowestCountries()
   }
 
   escapeHtml(text) {
