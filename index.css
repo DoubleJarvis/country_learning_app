@@ -139,6 +139,13 @@
   line-height: 1.5;
 }
 
+.region-select-label {
+  color: #e0e0e0;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+}
+
 .region-buttons {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
