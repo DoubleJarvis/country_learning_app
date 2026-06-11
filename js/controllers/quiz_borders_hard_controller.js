@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, countryBounds, getCountriesForRegion } from "country_names"
 import { getRandomCountryWithBordersFromRegion, getBorders } from "adjacency_helper"
+import { getSharedMap, whenMapReady } from "shared_map"
 
 export default class extends Controller {
   static targets = ["container", "searchInput", "searchBox", "dropdown", "regionSelection", "statsBar",
@@ -31,59 +32,16 @@ export default class extends Controller {
 
   disconnect() {
     if (this.map) {
-      this.map.remove()
+      this.map.removeControl(this.navControl)
+      this.map.removeControl(this.scaleControl)
     }
   }
 
   initializeMap() {
-    this.map = new maplibregl.Map({
-      container: this.containerTarget,
-      style: {
-        version: 8,
-        glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
-        sources: {
-          countries: {
-            type: "vector",
-            url: "https://demotiles.maplibre.org/tiles/tiles.json"
-          }
-        },
-        layers: [
-          {
-            id: "background",
-            type: "background",
-            paint: {
-              "background-color": "#1a1a1a"
-            }
-          },
-          {
-            id: "countries-preview-fill",
-            type: "fill",
-            source: "countries",
-            "source-layer": "countries",
-            paint: {
-              "fill-color": "#2a2a2a",
-              "fill-opacity": 1
-            }
-          },
-          {
-            id: "countries-preview-outline",
-            type: "line",
-            source: "countries",
-            "source-layer": "countries",
-            paint: {
-              "line-color": "#555555",
-              "line-width": 1
-            }
-          }
-        ]
-      },
-      center: [0, 20],
-      zoom: 1.5,
-      projection: "mercator",
-      interactive: false
-    })
+    this.map = getSharedMap()
 
-    this.map.addControl(new maplibregl.NavigationControl(), "top-right")
+    this.navControl = new maplibregl.NavigationControl()
+    this.map.addControl(this.navControl, "top-right")
     this.scaleControl = new maplibregl.ScaleControl({
       maxWidth: 100,
       unit: 'metric'
@@ -100,7 +58,7 @@ export default class extends Controller {
       navElement.style.display = 'none'
     }
 
-    this.map.on("load", () => {
+    whenMapReady(() => {
       this.setupLayers()
     })
   }
@@ -251,11 +209,7 @@ export default class extends Controller {
     this.searchBoxTarget.style.display = "flex"
 
     // Wait for map to be ready before starting
-    if (this.map.loaded()) {
-      await this.startGame()
-    } else {
-      this.map.once("load", async () => await this.startGame())
-    }
+    whenMapReady(() => this.startGame())
 
     // Show scale and navigation controls when game starts
     const scaleElement = document.querySelector('.maplibregl-ctrl-scale')
@@ -303,19 +257,12 @@ export default class extends Controller {
     this.updateStats()
 
     // Ensure layers are set up and show country
-    if (this.map.loaded()) {
+    whenMapReady(() => {
       if (!this.map.getLayer("target-country")) {
         this.setupLayers()
       }
       this.showCountry()
-    } else {
-      this.map.once("load", () => {
-        if (!this.map.getLayer("target-country")) {
-          this.setupLayers()
-        }
-        this.showCountry()
-      })
-    }
+    })
   }
 
   showCountry() {

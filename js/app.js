@@ -1,5 +1,6 @@
 import { Application } from "@hotwired/stimulus"
 import { templates } from "./templates.js"
+import { getSharedMap, getSharedMapElement, resetSharedMap } from "shared_map"
 
 const stimulusApp = Application.start()
 
@@ -27,12 +28,30 @@ async function render() {
   const controllerName = toControllerName(routeName)
   const container = document.getElementById('app')
 
+  resetSharedMap()
   container.innerHTML = templates[routeName]()
+  placeSharedMap()
 
   if (!registeredControllers.has(controllerName)) {
     const { default: ControllerClass } = await import(`./controllers/${routeName}_controller.js`)
     stimulusApp.register(controllerName, ControllerClass)
     registeredControllers.add(controllerName)
+  }
+}
+
+// Moves the persistent map element into the current page's map slot, or parks
+// it hidden on the body for pages without a map (stats).
+function placeSharedMap() {
+  const element = getSharedMapElement()
+  const slot = document.querySelector('[data-map-slot]')
+
+  if (slot) {
+    element.style.display = 'block'
+    slot.appendChild(element)
+    getSharedMap()
+  } else {
+    element.style.display = 'none'
+    document.body.appendChild(element)
   }
 }
 

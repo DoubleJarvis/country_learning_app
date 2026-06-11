@@ -92,7 +92,7 @@ export const templates = {
       <button class="restart-btn action-btn" data-action="click->quiz#restart">Restart</button>
     </div>
   </div>
-  <div id="quiz-map" data-quiz-target="container"></div>
+  <div id="quiz-map" data-map-slot data-quiz-target="container"></div>
   <div class="search-box" data-quiz-target="searchBox" style="display: none;">
     <input type="text" data-quiz-target="searchInput" data-action="input->quiz#handleSearch keydown->quiz#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-quiz-target="dropdown"></div>
@@ -132,7 +132,7 @@ export const templates = {
       <button class="restart-btn action-btn" data-action="click->quiz-hard#restart">Restart</button>
     </div>
   </div>
-  <div id="main-map" data-quiz-hard-target="mainContainer"></div>
+  <div id="main-map" data-map-slot data-quiz-hard-target="mainContainer"></div>
   <div id="overlay-map" data-quiz-hard-target="overlayContainer"></div>
   <div class="search-box" data-quiz-hard-target="searchBox" style="display: none;">
     <input type="text" data-quiz-hard-target="searchInput" data-action="input->quiz-hard#handleSearch keydown->quiz-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
@@ -189,7 +189,7 @@ export const templates = {
       <button class="restart-btn action-btn" data-action="click->quiz-borders#restart">Play Again</button>
     </div>
   </div>
-  <div id="quiz-map" data-quiz-borders-target="container"></div>
+  <div id="quiz-map" data-map-slot data-quiz-borders-target="container"></div>
   <div class="search-box" data-quiz-borders-target="searchBox" style="display: none;">
     <input type="text" data-quiz-borders-target="searchInput" data-action="input->quiz-borders#handleSearch keydown->quiz-borders#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-quiz-borders-target="dropdown"></div>
@@ -220,7 +220,7 @@ export const templates = {
     </div>
   </div>
   <div class="missed-countries" data-quiz-borders-hard-target="missedList" style="display: none;"></div>
-  <div id="quiz-map" data-quiz-borders-hard-target="container"></div>
+  <div id="quiz-map" data-map-slot data-quiz-borders-hard-target="container"></div>
   <div class="search-box" data-quiz-borders-hard-target="searchBox" style="display: none;">
     <input type="text" data-quiz-borders-hard-target="searchInput" data-action="input->quiz-borders-hard#handleSearch keydown->quiz-borders-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-quiz-borders-hard-target="dropdown"></div>
@@ -243,7 +243,7 @@ export const templates = {
       <button class="restart-btn action-btn" data-action="click->quiz-name-all-easy#restart">Restart</button>
     </div>
   </div>
-  <div id="quiz-map" data-quiz-name-all-easy-target="container"></div>
+  <div id="quiz-map" data-map-slot data-quiz-name-all-easy-target="container"></div>
   <div class="game-ui" style="display: none;" data-quiz-name-all-easy-target="gameUI">
     <div class="search-box" data-quiz-name-all-easy-target="searchBox">
       <input type="text" data-quiz-name-all-easy-target="searchInput" data-action="input->quiz-name-all-easy#handleSearch keydown->quiz-name-all-easy#handleKeydown" placeholder="Type country name..." autocomplete="off" />
@@ -281,7 +281,7 @@ export const templates = {
       <button class="restart-btn action-btn" data-action="click->quiz-name-all#restart">Restart</button>
     </div>
   </div>
-  <div id="quiz-map" data-quiz-name-all-target="container"></div>
+  <div id="quiz-map" data-map-slot data-quiz-name-all-target="container"></div>
   <div class="game-ui" style="display: none;" data-quiz-name-all-target="gameUI">
     <div class="search-box" data-quiz-name-all-target="searchBox">
       <input type="text" data-quiz-name-all-target="searchInput" data-action="input->quiz-name-all#handleSearch keydown->quiz-name-all#handleKeydown" placeholder="Type country name..." autocomplete="off" />
@@ -319,7 +319,7 @@ export const templates = {
       <button class="restart-btn action-btn" data-action="click->quiz-name-all-hard#restart">Restart</button>
     </div>
   </div>
-  <div id="quiz-map" data-quiz-name-all-hard-target="container"></div>
+  <div id="quiz-map" data-map-slot data-quiz-name-all-hard-target="container"></div>
   <div class="game-ui" style="display: none;" data-quiz-name-all-hard-target="gameUI">
     <div class="search-box" data-quiz-name-all-hard-target="searchBox">
       <input type="text" data-quiz-name-all-hard-target="searchInput" data-action="input->quiz-name-all-hard#handleSearch keydown->quiz-name-all-hard#handleKeydown" placeholder="Type country name..." autocomplete="off" />

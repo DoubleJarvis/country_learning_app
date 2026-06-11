@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion } from "country_names"
 import { quizDb } from "db"
+import { getSharedMap, whenMapReady } from "shared_map"
 
 export default class extends Controller {
   static targets = ["container", "searchInput", "dropdown", "regionSelection", "statsBar",
@@ -37,7 +38,7 @@ export default class extends Controller {
 
   disconnect() {
     if (this.map) {
-      this.map.remove()
+      this.map.removeControl(this.scaleControl)
     }
     if (this.timerInterval) {
       clearInterval(this.timerInterval)
@@ -45,32 +46,7 @@ export default class extends Controller {
   }
 
   initializeMap() {
-    this.map = new maplibregl.Map({
-      container: this.containerTarget,
-      style: {
-        version: 8,
-        sources: {
-          'countries': {
-            type: 'vector',
-            url: 'https://demotiles.maplibre.org/tiles/tiles.json'
-          }
-        },
-        layers: [
-          {
-            id: 'background',
-            type: 'background',
-            paint: {
-              'background-color': '#1a1a1a'
-            }
-          }
-        ],
-        glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf'
-      },
-      center: [0, 20],
-      zoom: 1.5,
-      minZoom: 1,
-      interactive: false  // Disable map interaction on region selection screen
-    })
+    this.map = getSharedMap()
 
     this.scaleControl = new maplibregl.ScaleControl({
       maxWidth: 100,
@@ -84,7 +60,7 @@ export default class extends Controller {
       scaleElement.style.display = 'none'
     }
 
-    this.map.on('load', () => {
+    whenMapReady(() => {
       this.setupLayers()
     })
   }
@@ -167,6 +143,10 @@ export default class extends Controller {
     this.regionSelectionTarget.style.display = 'none'
     this.gameUITarget.style.display = 'flex'
     this.guessedListTarget.style.display = 'block'
+
+    // Hide the shared preview map; this mode manages its own layers
+    this.map.setFilter("countries-preview-fill", ["in", "ADM0_A3"])
+    this.map.setFilter("countries-preview-outline", ["in", "ADM0_A3"])
 
     // Hide map during gameplay
     this.map.setFilter("countries-base", ["in", "ADM0_A3"])

@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion, countryBounds } from "country_names"
 import { quizDb } from "db"
+import { getSharedMap, whenMapReady } from "shared_map"
 
 export default class extends Controller {
   static targets = ["mainContainer", "overlayContainer", "searchInput", "searchBox", "dropdown",
@@ -35,58 +36,12 @@ export default class extends Controller {
   }
 
   disconnect() {
-    if (this.mainMap) this.mainMap.remove()
     if (this.overlayMap) this.overlayMap.remove()
   }
 
   initializeMaps() {
     // Main progress map - stays zoomed out
-    this.mainMap = new maplibregl.Map({
-      container: this.mainContainerTarget,
-      style: {
-        version: 8,
-        glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
-        sources: {
-          countries: {
-            type: "vector",
-            url: "https://demotiles.maplibre.org/tiles/tiles.json"
-          }
-        },
-        layers: [
-          {
-            id: "background",
-            type: "background",
-            paint: {
-              "background-color": "#1a1a1a"
-            }
-          },
-          {
-            id: "countries-preview-fill",
-            type: "fill",
-            source: "countries",
-            "source-layer": "countries",
-            paint: {
-              "fill-color": "#2a2a2a",
-              "fill-opacity": 1
-            }
-          },
-          {
-            id: "countries-preview-outline",
-            type: "line",
-            source: "countries",
-            "source-layer": "countries",
-            paint: {
-              "line-color": "#555555",
-              "line-width": 1
-            }
-          }
-        ]
-      },
-      center: [0, 20],
-      zoom: 1.5,
-      projection: "mercator",
-      interactive: false
-    })
+    this.mainMap = getSharedMap()
 
     // Overlay isolated country map
     this.overlayMap = new maplibregl.Map({
@@ -125,7 +80,7 @@ export default class extends Controller {
     this.mainMapLoaded = false
     this.overlayMapLoaded = false
 
-    this.mainMap.on("load", () => {
+    whenMapReady(() => {
       this.mainMapLoaded = true
       this.setupMainMapLayers()
     })
@@ -311,7 +266,7 @@ export default class extends Controller {
       }
 
       if (!this.mainMapLoaded) {
-        this.mainMap.once("load", () => {
+        whenMapReady(() => {
           this.mainMapLoaded = true
           checkLoaded()
         })
@@ -376,7 +331,7 @@ export default class extends Controller {
       }
 
       if (!this.mainMapLoaded) {
-        this.mainMap.once("load", () => {
+        whenMapReady(() => {
           this.mainMapLoaded = true
           checkBothLoaded()
         })
