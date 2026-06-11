@@ -119,7 +119,7 @@
   box-sizing: border-box;
   width: 560px;
   max-width: 90vw;
-  min-height: 540px;
+  min-height: 580px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -601,7 +601,7 @@ body {
   box-sizing: border-box;
   width: 560px;
   max-width: 90vw;
-  min-height: 540px;
+  min-height: 580px;
   display: flex;
   flex-direction: column;
   justify-content: center;
