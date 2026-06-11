@@ -1,5 +1,5 @@
-const NAV = (activeMode, activeDifficulty) => `
-<div class="nav-container">
+const NAV = (activeMode, activeDifficulty, controllerName = null) => `
+<div class="nav-container"${controllerName ? ` data-${controllerName}-target="navButtons"` : ''}>
   <a href="#stats" class="nav-item single-nav${activeMode === 'stats' ? ' active' : ''}">
     <div class="nav-label">Stats</div>
   </a>
@@ -68,7 +68,7 @@ const STATS_BAR_BOTTOM = (controllerName, stats, buttonText, buttonAction, butto
 export const templates = {
   quiz: () => `
 <div data-controller="quiz" class="quiz-container">
-  ${NAV('quiz', 'n')}
+  ${NAV('quiz', 'n', 'quiz')}
   ${REGION_SELECTION('quiz', 'Select a Region - Normal Mode')}
   ${STATS_BAR_TOP_LEFT('quiz',
     [
@@ -108,7 +108,7 @@ export const templates = {
 
   quiz_hard: () => `
 <div data-controller="quiz-hard" class="quiz-container">
-  ${NAV('quiz', 'h')}
+  ${NAV('quiz', 'h', 'quiz-hard')}
   ${REGION_SELECTION('quiz-hard', 'Select a Region - Hard Mode')}
   ${STATS_BAR_TOP_LEFT('quiz-hard',
     [
@@ -151,7 +151,7 @@ export const templates = {
 
   quiz_borders: () => `
 <div data-controller="quiz-borders" class="quiz-container">
-  ${NAV('borders', 'n')}
+  ${NAV('borders', 'n', 'quiz-borders')}
   <div class="start-screen" data-quiz-borders-target="startScreen">
     <h1>Borders Mode</h1>
     <p>Guess all the bordering countries of a randomly selected country.</p>
@@ -197,7 +197,7 @@ export const templates = {
 
   quiz_borders_hard: () => `
 <div data-controller="quiz-borders-hard" class="quiz-container">
-  ${NAV('borders', 'h')}
+  ${NAV('borders', 'h', 'quiz-borders-hard')}
   ${REGION_SELECTION('quiz-borders-hard', 'Select a Region - Borders Hard Mode')}
   ${STATS_BAR_TOP_LEFT('quiz-borders-hard',
     [
@@ -228,7 +228,7 @@ export const templates = {
 
   quiz_name_all_easy: () => `
 <div data-controller="quiz-name-all-easy" class="quiz-container">
-  ${NAV('name_all', 'e')}
+  ${NAV('name_all', 'e', 'quiz-name-all-easy')}
   ${REGION_SELECTION('quiz-name-all-easy', 'Select a Region - Easy: Name All Countries')}
   <div class="finished-banner" data-quiz-name-all-easy-target="finishedBanner" style="display: none;">
     <div class="finished-content">
@@ -266,7 +266,7 @@ export const templates = {
 
   quiz_name_all: () => `
 <div data-controller="quiz-name-all" class="quiz-container">
-  ${NAV('name_all', 'n')}
+  ${NAV('name_all', 'n', 'quiz-name-all')}
   ${REGION_SELECTION('quiz-name-all', 'Select a Region - Normal: Name All Countries')}
   <div class="finished-banner" data-quiz-name-all-target="finishedBanner" style="display: none;">
     <div class="finished-content">
@@ -304,7 +304,7 @@ export const templates = {
 
   quiz_name_all_hard: () => `
 <div data-controller="quiz-name-all-hard" class="quiz-container">
-  ${NAV('name_all', 'h')}
+  ${NAV('name_all', 'h', 'quiz-name-all-hard')}
   ${REGION_SELECTION('quiz-name-all-hard', 'Select a Region - Hard: Name All Countries')}
   <div class="finished-banner" data-quiz-name-all-hard-target="finishedBanner" style="display: none;">
     <div class="finished-content">
