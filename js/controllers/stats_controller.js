@@ -248,7 +248,7 @@ export default class extends Controller {
       this.nameAllIncorrectTarget.textContent = "0"
     }
 
-    this.countryListTarget.innerHTML = '<div class="empty-state">No statistics yet. Start taking quizzes to see your progress!</div>'
+    this.countryListTarget.innerHTML = '<div class="empty-state">No statistics yet. Play some games to see your progress.</div>'
   }
 
   exportData() {
@@ -263,7 +263,7 @@ export default class extends Controller {
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = `quiz-stats-${new Date().toISOString().split('T')[0]}.json`
+    a.download = `game-stats-${new Date().toISOString().split('T')[0]}.json`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -334,7 +334,7 @@ export default class extends Controller {
     }
 
     if (this.quizRuns.length === 0) {
-      this.runsListTarget.innerHTML = '<div class="empty-state">No quiz runs yet. Complete a quiz to see your run history!</div>'
+      this.runsListTarget.innerHTML = '<div class="empty-state">No games played yet. Play a game to see your history.</div>'
       return
     }
 
@@ -422,7 +422,7 @@ export default class extends Controller {
     if (!this.hasWorstListTarget) return
 
     if (this.worstCountries.length === 0) {
-      this.worstListTarget.innerHTML = '<div class="empty-state">No incorrect guesses yet!</div>'
+      this.worstListTarget.innerHTML = '<div class="empty-state">No incorrect guesses yet.</div>'
       return
     }
 
@@ -454,7 +454,7 @@ export default class extends Controller {
     if (!this.hasSlowestListTarget) return
 
     if (this.slowestCountries.length === 0) {
-      this.slowestListTarget.innerHTML = '<div class="empty-state">Not enough data yet!</div>'
+      this.slowestListTarget.innerHTML = '<div class="empty-state">Not enough data yet.</div>'
       return
     }
 

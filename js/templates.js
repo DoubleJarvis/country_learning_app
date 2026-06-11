@@ -351,7 +351,7 @@ export const templates = {
   stats: () => `
 <div data-controller="stats" class="stats-container">
   ${NAV('stats', '')}
-  <div class="header"><h1>Quiz Statistics</h1></div>
+  <div class="header"><h1>Stats</h1></div>
   <div class="stats-content">
     <div class="summary-section">
       <h2>Summary</h2>
@@ -363,10 +363,10 @@ export const templates = {
       </div>
     </div>
     <div class="quiz-type-section">
-      <h2>By Quiz Type</h2>
+      <h2>By Difficulty</h2>
       <div class="quiz-type-stats">
         <div class="quiz-type-card">
-          <h3>Normal Quiz</h3>
+          <h3>Normal</h3>
           <div class="quiz-type-breakdown">
             <div class="stat-item green"><span class="stat-label">Correct:</span><span class="stat-value" data-stats-target="normalCorrect">-</span></div>
             <div class="stat-item yellow"><span class="stat-label">Shaky:</span><span class="stat-value" data-stats-target="normalShaky">-</span></div>
@@ -374,7 +374,7 @@ export const templates = {
           </div>
         </div>
         <div class="quiz-type-card">
-          <h3>Hard Quiz</h3>
+          <h3>Hard</h3>
           <div class="quiz-type-breakdown">
             <div class="stat-item green"><span class="stat-label">Correct:</span><span class="stat-value" data-stats-target="hardCorrect">-</span></div>
             <div class="stat-item yellow"><span class="stat-label">Shaky:</span><span class="stat-value" data-stats-target="hardShaky">-</span></div>
@@ -393,23 +393,23 @@ export const templates = {
     </div>
     <div class="quiz-runs-section">
       <div class="runs-header">
-        <h2>Recent Quiz Runs</h2>
+        <h2>Recent Games</h2>
         <div class="runs-tabs">
           <button class="runs-tab active" data-action="click->stats#filterRuns" data-filter="full">Full</button>
           <button class="runs-tab" data-action="click->stats#filterRuns" data-filter="partial">Partial</button>
           <button class="runs-tab" data-action="click->stats#filterRuns" data-filter="all">All</button>
         </div>
       </div>
-      <div class="runs-list" data-stats-target="runsList"><div class="loading">Loading quiz runs...</div></div>
+      <div class="runs-list" data-stats-target="runsList"><div class="loading">Loading games...</div></div>
     </div>
     <div class="performance-sections">
       <div class="worst-countries-section">
-        <h2>Worst Countries</h2>
-        <div class="worst-list" data-stats-target="worstList"><div class="loading">Loading worst countries...</div></div>
+        <h2>Worst guesses</h2>
+        <div class="worst-list" data-stats-target="worstList"><div class="loading">Loading worst guesses...</div></div>
       </div>
       <div class="slowest-countries-section">
-        <h2>Slowest Countries</h2>
-        <div class="slowest-list" data-stats-target="slowestList"><div class="loading">Loading slowest countries...</div></div>
+        <h2>Slowest guesses</h2>
+        <div class="slowest-list" data-stats-target="slowestList"><div class="loading">Loading slowest guesses...</div></div>
       </div>
     </div>
     <div class="country-stats-section">
