@@ -245,9 +245,8 @@ export default class extends Controller {
     // Start timer
     this.startTime = Date.now()
 
-    // Hide region selection and navigation buttons
+    // Hide region selection
     this.regionSelectionTarget.style.display = "none"
-    this.navButtonsTarget.style.display = "none"
     this.statsBarTarget.style.display = "flex"
     this.searchBoxTarget.style.display = "flex"
     this.updateStats()
@@ -734,9 +733,8 @@ export default class extends Controller {
     const scaleElements = document.querySelectorAll('.maplibregl-ctrl-scale')
     scaleElements.forEach(el => el.style.display = 'none')
 
-    // Show region selection and navigation buttons
+    // Show region selection
     this.regionSelectionTarget.style.display = "block"
-    this.navButtonsTarget.style.display = "flex"
 
     // Show overlay map container again
     this.overlayContainerTarget.style.display = "block"
@@ -793,9 +791,8 @@ export default class extends Controller {
     this.statsBarTarget.style.display = "none"
     this.searchBoxTarget.style.display = "none"
 
-    // Show finished banner and navigation buttons
+    // Show finished banner
     this.finishedBannerTarget.style.display = "block"
-    this.navButtonsTarget.style.display = "flex"
 
     // Hide overlay map container
     this.overlayContainerTarget.style.display = "none"

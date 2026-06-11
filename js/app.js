@@ -18,6 +18,11 @@ const routes = {
 
 const registeredControllers = new Set()
 
+// Cache-buster for dynamic controller imports: hard reloads don't bypass the
+// HTTP cache for imports that happen after page load, which kept serving
+// stale controllers after code changes.
+const sessionVersion = Date.now()
+
 function toControllerName(routeName) {
   return routeName.replace(/_/g, '-')
 }
@@ -33,7 +38,7 @@ async function render() {
   placeSharedMap()
 
   if (!registeredControllers.has(controllerName)) {
-    const { default: ControllerClass } = await import(`./controllers/${routeName}_controller.js`)
+    const { default: ControllerClass } = await import(`./controllers/${routeName}_controller.js?v=${sessionVersion}`)
     stimulusApp.register(controllerName, ControllerClass)
     registeredControllers.add(controllerName)
   }

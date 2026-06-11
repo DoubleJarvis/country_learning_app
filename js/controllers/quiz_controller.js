@@ -169,9 +169,6 @@ export default class extends Controller {
     // Hide region selection
     this.regionSelectionTarget.style.display = "none"
 
-    // Hide navigation buttons
-    this.navButtonsTarget.style.display = "none"
-
     // Show stats bar and search box
     this.statsBarTarget.style.display = "flex"
     this.searchBoxTarget.style.display = "flex"
@@ -610,9 +607,8 @@ export default class extends Controller {
       this.map.touchZoomRotate.disable()
     }
 
-    // Show region selection and navigation buttons
+    // Show region selection
     this.regionSelectionTarget.style.display = "block"
-    this.navButtonsTarget.style.display = "flex"
 
     // Zoom out
     this.map.flyTo({
@@ -655,9 +651,8 @@ export default class extends Controller {
     this.statsBarTarget.style.display = "none"
     this.searchBoxTarget.style.display = "none"
 
-    // Show finished banner and navigation buttons
+    // Show finished banner
     this.finishedBannerTarget.style.display = "block"
-    this.navButtonsTarget.style.display = "flex"
 
     // Zoom out to show the whole region
     this.map.flyTo({
