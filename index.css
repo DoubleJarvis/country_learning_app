@@ -243,6 +243,36 @@ body {
   height: 100%;
 }
 
+/* Finish panel: banner fixed top-left, country list filling the remaining
+   width and the full viewport height beside it. The panel is click-through
+   wherever its children are hidden. */
+.finish-panel {
+  position: fixed;
+  /* Starts below the navigation bar so it's never covered by it */
+  inset: 100px 20px 20px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  z-index: 1900;
+  pointer-events: none;
+}
+
+.finish-panel > * {
+  pointer-events: auto;
+}
+
+.finish-panel .finished-banner {
+  position: static;
+  flex-shrink: 0;
+}
+
+/* While the bottom game bar is visible (Name All hard gameplay), keep the
+   panel clear of it; on finish screens the bar is hidden and the full
+   height is available. */
+.quiz-container:has(.game-ui:not([style*="none"])) .finish-panel {
+  bottom: 230px;
+}
+
 /* Finished Banner */
 .finished-banner {
   position: absolute;
@@ -493,16 +523,10 @@ body {
 
 /* Guessed countries list */
 .guessed-countries {
-  position: fixed;
-  top: 120px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 40px);
-  max-width: 1400px;
-  height: calc(100vh - 350px);
-  padding: 20px;
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
   overflow-y: auto;
-  z-index: 500;
 }
 
 .guessed-grid {
@@ -687,16 +711,10 @@ body {
 
 /* Missed countries (borders hard) */
 .missed-countries {
-  position: fixed;
-  top: 120px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 40px);
-  max-width: 1400px;
-  height: calc(100vh - 350px);
-  padding: 20px;
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
   overflow-y: auto;
-  z-index: 500;
 }
 
 .missed-grid {

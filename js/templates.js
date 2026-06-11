@@ -215,6 +215,7 @@ export const templates = {
     ],
     'Finish', 'click->quiz-borders-hard#finish', 'actionBtn'
   )}
+  <div class="finish-panel">
   <div class="finished-banner" data-quiz-borders-hard-target="finishedBanner" style="display: none;">
     <div class="finished-content">
       <h2>Game Complete!</h2>
@@ -227,6 +228,7 @@ export const templates = {
     </div>
   </div>
   <div class="missed-countries" data-quiz-borders-hard-target="missedList" style="display: none;"></div>
+  </div>
   <div id="quiz-map" data-map-slot data-quiz-borders-hard-target="container"></div>
   <div class="search-box" data-quiz-borders-hard-target="searchBox" style="display: none;">
     <input type="text" data-quiz-borders-hard-target="searchInput" data-action="input->quiz-borders-hard#handleSearch keydown->quiz-borders-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
@@ -238,6 +240,7 @@ export const templates = {
 <div data-controller="quiz-name-all-easy" class="quiz-container">
   ${NAV('name_all', 'e', 'quiz-name-all-easy')}
   ${REGION_SELECTION('quiz-name-all-easy', 'Name All', 'Easy', 'All country outlines are shown on the map. Identify each one by name — they colour in as you guess.')}
+  <div class="finish-panel">
   <div class="finished-banner" data-quiz-name-all-easy-target="finishedBanner" style="display: none;">
     <div class="finished-content">
       <h2>Game Complete!</h2>
@@ -249,6 +252,8 @@ export const templates = {
       </div>
       <button class="restart-btn action-btn" data-action="click->quiz-name-all-easy#restart">Restart</button>
     </div>
+  </div>
+  <div class="guessed-countries" data-quiz-name-all-easy-target="guessedList" style="display: none;"></div>
   </div>
   <div id="quiz-map" data-map-slot data-quiz-name-all-easy-target="container"></div>
   <div class="game-ui" style="display: none;" data-quiz-name-all-easy-target="gameUI">
@@ -266,7 +271,6 @@ export const templates = {
       'Finish', 'click->quiz-name-all-easy#finish', 'finishBtn'
     )}
   </div>
-  <div class="guessed-countries" data-quiz-name-all-easy-target="guessedList" style="display: none;"></div>
   <div class="debug-fill-box" style="display: none;">
     <button class="debug-fill-btn" data-action="click->quiz-name-all-easy#debugGuessAll">Debug: Guess all</button>
   </div>
@@ -276,6 +280,7 @@ export const templates = {
 <div data-controller="quiz-name-all" class="quiz-container">
   ${NAV('name_all', 'n', 'quiz-name-all')}
   ${REGION_SELECTION('quiz-name-all', 'Name All', 'Normal', 'No outlines shown. Identify every country by name — each guess adds it to the map to give you context.')}
+  <div class="finish-panel">
   <div class="finished-banner" data-quiz-name-all-target="finishedBanner" style="display: none;">
     <div class="finished-content">
       <h2>Game Complete!</h2>
@@ -287,6 +292,8 @@ export const templates = {
       </div>
       <button class="restart-btn action-btn" data-action="click->quiz-name-all#restart">Restart</button>
     </div>
+  </div>
+  <div class="guessed-countries" data-quiz-name-all-target="guessedList" style="display: none;"></div>
   </div>
   <div id="quiz-map" data-map-slot data-quiz-name-all-target="container"></div>
   <div class="game-ui" style="display: none;" data-quiz-name-all-target="gameUI">
@@ -304,7 +311,6 @@ export const templates = {
       'Finish', 'click->quiz-name-all#finish', 'finishBtn'
     )}
   </div>
-  <div class="guessed-countries" data-quiz-name-all-target="guessedList" style="display: none;"></div>
   <div class="debug-fill-box" style="display: none;">
     <button class="debug-fill-btn" data-action="click->quiz-name-all#debugGuessAll">Debug: Guess all</button>
   </div>
@@ -314,6 +320,7 @@ export const templates = {
 <div data-controller="quiz-name-all-hard" class="quiz-container">
   ${NAV('name_all', 'h', 'quiz-name-all-hard')}
   ${REGION_SELECTION('quiz-name-all-hard', 'Name All', 'Hard', 'No outlines, no map feedback. Identify every country by name — guesses only appear in a list, with no geographic context.')}
+  <div class="finish-panel">
   <div class="finished-banner" data-quiz-name-all-hard-target="finishedBanner" style="display: none;">
     <div class="finished-content">
       <h2>Game Complete!</h2>
@@ -325,6 +332,8 @@ export const templates = {
       </div>
       <button class="restart-btn action-btn" data-action="click->quiz-name-all-hard#restart">Restart</button>
     </div>
+  </div>
+  <div class="guessed-countries" data-quiz-name-all-hard-target="guessedList" style="display: none;"></div>
   </div>
   <div id="quiz-map" data-map-slot data-quiz-name-all-hard-target="container"></div>
   <div class="game-ui" style="display: none;" data-quiz-name-all-hard-target="gameUI">
@@ -342,7 +351,6 @@ export const templates = {
       'Finish', 'click->quiz-name-all-hard#finish', 'finishBtn'
     )}
   </div>
-  <div class="guessed-countries" data-quiz-name-all-hard-target="guessedList" style="display: none;"></div>
   <div class="debug-fill-box" style="display: none;">
     <button class="debug-fill-btn" data-action="click->quiz-name-all-hard#debugGuessAll">Debug: Guess all</button>
   </div>
