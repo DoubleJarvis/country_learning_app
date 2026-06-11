@@ -189,9 +189,6 @@ export default class extends Controller {
     // Hide start screen
     this.startScreenTarget.style.display = "none"
 
-    // Hide navigation buttons
-    this.navButtonsTarget.style.display = "none"
-
     // Show stats bar and search box
     this.statsBarTarget.style.display = "flex"
     this.searchBoxTarget.style.display = "flex"
@@ -533,9 +530,6 @@ export default class extends Controller {
     this.finalCorrectTarget.textContent = `${this.correctGuesses} / ${this.borders.length}`
     this.finalIncorrectTarget.textContent = this.incorrectGuesses
 
-    // Show navigation buttons
-    this.navButtonsTarget.style.display = "flex"
-
     // Calculate missed borders
     const missedBorders = this.borders.filter(code => !this.guessedBorders.has(code))
     const guessedBordersList = Array.from(this.guessedBorders)
@@ -594,9 +588,6 @@ export default class extends Controller {
 
     // Show start screen
     this.startScreenTarget.style.display = "block"
-
-    // Show navigation buttons
-    this.navButtonsTarget.style.display = "flex"
 
     // Hide scale and navigation controls
     const scaleElement = document.querySelector('.maplibregl-ctrl-scale')

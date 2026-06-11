@@ -201,9 +201,6 @@ export default class extends Controller {
     // Hide region selection
     this.regionSelectionTarget.style.display = "none"
 
-    // Hide navigation buttons
-    this.navButtonsTarget.style.display = "none"
-
     // Show stats bar and search box
     this.statsBarTarget.style.display = "flex"
     this.searchBoxTarget.style.display = "flex"
@@ -643,9 +640,6 @@ export default class extends Controller {
     this.finalCorrectTarget.textContent = this.correctCount
     this.finalMistakesTarget.textContent = this.mistakeCount
 
-    // Show navigation buttons
-    this.navButtonsTarget.style.display = "flex"
-
     // Show all missed countries
     const missedCountries = this.remainingCountries.filter(code => !this.guessedCountries.has(code))
     const guessedCountriesList = Array.from(this.guessedCountries)
@@ -733,9 +727,6 @@ export default class extends Controller {
 
     // Show region selection
     this.regionSelectionTarget.style.display = "block"
-
-    // Show navigation buttons
-    this.navButtonsTarget.style.display = "flex"
 
     // Hide scale and navigation controls
     const scaleElement = document.querySelector('.maplibregl-ctrl-scale')
