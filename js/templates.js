@@ -6,23 +6,23 @@ const NAV = (activeMode, activeDifficulty, controllerName = null) => `
   <div class="nav-item game-mode-nav${activeMode === 'quiz' ? ' active' : ''}">
     <div class="nav-label">Quiz</div>
     <div class="difficulty-buttons">
-      <a href="#quiz" class="difficulty-btn${activeMode === 'quiz' && activeDifficulty === 'n' ? ' active' : ''}">N</a>
-      <a href="#quiz_hard" class="difficulty-btn${activeMode === 'quiz' && activeDifficulty === 'h' ? ' active' : ''}">H</a>
+      <a href="#quiz" class="difficulty-btn${activeMode === 'quiz' && activeDifficulty === 'n' ? ' active' : ''}" title="Normal">N</a>
+      <a href="#quiz_hard" class="difficulty-btn${activeMode === 'quiz' && activeDifficulty === 'h' ? ' active' : ''}" title="Hard">H</a>
     </div>
   </div>
   <div class="nav-item game-mode-nav${activeMode === 'borders' ? ' active' : ''}">
     <div class="nav-label">Borders</div>
     <div class="difficulty-buttons">
-      <a href="#quiz_borders" class="difficulty-btn${activeMode === 'borders' && activeDifficulty === 'n' ? ' active' : ''}">N</a>
-      <a href="#quiz_borders_hard" class="difficulty-btn${activeMode === 'borders' && activeDifficulty === 'h' ? ' active' : ''}">H</a>
+      <a href="#quiz_borders" class="difficulty-btn${activeMode === 'borders' && activeDifficulty === 'n' ? ' active' : ''}" title="Normal">N</a>
+      <a href="#quiz_borders_hard" class="difficulty-btn${activeMode === 'borders' && activeDifficulty === 'h' ? ' active' : ''}" title="Hard">H</a>
     </div>
   </div>
   <div class="nav-item game-mode-nav${activeMode === 'name_all' ? ' active' : ''}">
     <div class="nav-label">Name All</div>
     <div class="difficulty-buttons">
-      <a href="#quiz_name_all_easy" class="difficulty-btn${activeMode === 'name_all' && activeDifficulty === 'e' ? ' active' : ''}">E</a>
-      <a href="#quiz_name_all" class="difficulty-btn${activeMode === 'name_all' && activeDifficulty === 'n' ? ' active' : ''}">N</a>
-      <a href="#quiz_name_all_hard" class="difficulty-btn${activeMode === 'name_all' && activeDifficulty === 'h' ? ' active' : ''}">H</a>
+      <a href="#quiz_name_all_easy" class="difficulty-btn${activeMode === 'name_all' && activeDifficulty === 'e' ? ' active' : ''}" title="Easy">E</a>
+      <a href="#quiz_name_all" class="difficulty-btn${activeMode === 'name_all' && activeDifficulty === 'n' ? ' active' : ''}" title="Normal">N</a>
+      <a href="#quiz_name_all_hard" class="difficulty-btn${activeMode === 'name_all' && activeDifficulty === 'h' ? ' active' : ''}" title="Hard">H</a>
     </div>
   </div>
 </div>`;
