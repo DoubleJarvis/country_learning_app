@@ -13,7 +13,16 @@ const routes = {
   '#quiz_name_all_easy': 'quiz_name_all_easy',
   '#quiz_name_all':      'quiz_name_all',
   '#quiz_name_all_hard': 'quiz_name_all_hard',
+  '#practice_worst':     'practice_worst',
+  '#practice_slowest':   'practice_slowest',
   '#stats':              'stats',
+}
+
+// Routes that share a controller: both practice templates use the "practice"
+// controller and differ only in their data-practice-source-value attribute.
+const controllerOverrides = {
+  practice_worst:   'practice',
+  practice_slowest: 'practice',
 }
 
 const registeredControllers = new Set()
@@ -30,7 +39,8 @@ function toControllerName(routeName) {
 async function render() {
   const hash = location.hash
   const routeName = routes[hash] ?? 'quiz'
-  const controllerName = toControllerName(routeName)
+  const controllerRoute = controllerOverrides[routeName] ?? routeName
+  const controllerName = toControllerName(controllerRoute)
   const container = document.getElementById('app')
 
   resetSharedMap()
@@ -39,7 +49,7 @@ async function render() {
   applyDebugVisibility()
 
   if (!registeredControllers.has(controllerName)) {
-    const { default: ControllerClass } = await import(`./controllers/${routeName}_controller.js?v=${sessionVersion}`)
+    const { default: ControllerClass } = await import(`./controllers/${controllerRoute}_controller.js?v=${sessionVersion}`)
     stimulusApp.register(controllerName, ControllerClass)
     registeredControllers.add(controllerName)
   }

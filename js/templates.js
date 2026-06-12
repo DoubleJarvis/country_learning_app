@@ -25,6 +25,13 @@ const NAV = (activeMode, activeDifficulty, controllerName = null) => `
       <a href="#quiz_name_all_hard" class="difficulty-btn${activeMode === 'name_all' && activeDifficulty === 'h' ? ' active' : ''}" title="Hard">H</a>
     </div>
   </div>
+  <div class="nav-item game-mode-nav${activeMode === 'practice' ? ' active' : ''}">
+    <div class="nav-label">Practice</div>
+    <div class="difficulty-buttons">
+      <a href="#practice_worst" class="difficulty-btn${activeMode === 'practice' && activeDifficulty === 'w' ? ' active' : ''}" title="Worst guesses">W</a>
+      <a href="#practice_slowest" class="difficulty-btn${activeMode === 'practice' && activeDifficulty === 's' ? ' active' : ''}" title="Slowest guesses">S</a>
+    </div>
+  </div>
 </div>`;
 
 const REGION_SELECTION = (controllerName, mode, difficulty, description = '') => `
@@ -68,6 +75,56 @@ const STATS_BAR_BOTTOM = (controllerName, stats, buttonText, buttonAction, butto
     </div>`).join('')}
   </div>
   <button class="action-btn"${buttonTarget ? ` data-${controllerName}-target="${buttonTarget}"` : ''} data-action="${buttonAction}">${buttonText}</button>
+</div>`;
+
+// Practice mode page. Both variants share the "practice" controller; the
+// source value picks which stats list (worst/slowest) fills the country pool.
+const PRACTICE_PAGE = (source, navDifficulty, difficultyLabel, description) => `
+<div data-controller="practice" data-practice-source-value="${source}" class="quiz-container">
+  ${NAV('practice', navDifficulty, 'practice')}
+  <div class="start-screen" data-practice-target="startScreen">
+    <div class="region-header">
+      <h1>Practice</h1>
+      <div class="region-difficulty ${source}">${difficultyLabel}</div>
+    </div>
+    <p class="region-description">${description}</p>
+    <button data-action="click->practice#startPractice" data-practice-target="startBtn" class="start-btn">Start practice</button>
+  </div>
+  <div class="stats-bar stats-bar-top-left practice-stats-bar" data-practice-target="statsBar" style="display: none;">
+    <div class="stats-group">
+      <div class="stat green">
+        <span class="stat-label">Correct:</span>
+        <span class="stat-value" data-practice-target="correctCount">0</span>
+      </div>
+      <div class="stat red">
+        <span class="stat-label">Incorrect:</span>
+        <span class="stat-value" data-practice-target="incorrectCount">0</span>
+      </div>
+    </div>
+    <button class="action-btn" data-practice-target="actionBtn" data-action="click->practice#finish">Finish</button>
+    <div class="last-guess" data-practice-target="lastGuess" style="display: none;">
+      <span class="last-guess-label">Last was:</span>
+      <span class="last-guess-name" data-practice-target="lastGuessName"></span>
+    </div>
+  </div>
+  <div class="finished-banner" data-practice-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Practice Complete!</h2>
+      <div class="finished-time" data-practice-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">Correct:</span><span class="finished-value" data-practice-target="finalCorrect">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Incorrect:</span><span class="finished-value" data-practice-target="finalIncorrect">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->practice#restart">Restart</button>
+    </div>
+  </div>
+  <div id="main-map" data-map-slot data-practice-target="mainContainer"></div>
+  <div id="overlay-map" data-practice-target="overlayContainer"></div>
+  <div class="search-box" data-practice-target="searchBox" style="display: none;">
+    <input type="text" data-practice-target="searchInput" data-action="input->practice#handleSearch keydown->practice#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
+    <div class="autocomplete-dropdown" data-practice-target="dropdown"></div>
+    <button class="skip-btn" data-action="click->practice#skip keydown.shift+enter@window->practice#skip" title="Shift+Enter">Skip</button>
+  </div>
 </div>`;
 
 export const templates = {
@@ -355,6 +412,12 @@ export const templates = {
     <button class="debug-fill-btn" data-action="click->quiz-name-all-hard#debugGuessAll">Debug: Guess all</button>
   </div>
 </div>`,
+
+  practice_worst: () => PRACTICE_PAGE('worst', 'w', 'Worst',
+    'Practice the countries you guess wrong most often. Their shapes are shown one by one in random order — name each one. The session keeps going until you press Finish.'),
+
+  practice_slowest: () => PRACTICE_PAGE('slowest', 's', 'Slowest',
+    'Practice the countries that take you the longest to name. Their shapes are shown one by one in random order — name each one. The session keeps going until you press Finish.'),
 
   stats: () => `
 <div data-controller="stats" class="stats-container">

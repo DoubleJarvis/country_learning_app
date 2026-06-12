@@ -178,6 +178,18 @@
   border-color: rgba(239, 68, 68, 0.4);
 }
 
+.region-difficulty.worst {
+  color: #fb923c;
+  background: rgba(251, 146, 60, 0.12);
+  border-color: rgba(251, 146, 60, 0.4);
+}
+
+.region-difficulty.slowest {
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.12);
+  border-color: rgba(167, 139, 250, 0.4);
+}
+
 .region-description {
   color: #b0b0b0;
   font-size: 15px;
@@ -662,6 +674,50 @@ body {
 }
 
 .start-btn:hover { background-color: #3a8eee; }
+
+.start-btn:disabled {
+  background-color: #2a2a2a;
+  border: 2px solid #404040;
+  color: #888;
+  cursor: default;
+}
+
+.start-btn:disabled:hover { background-color: #2a2a2a; }
+
+/* Practice mode: last presented country, shown as a second row inside the
+   top-left stats bar */
+.practice-stats-bar {
+  flex-wrap: wrap;
+  /* Fixed width sized to the longest country name in the data
+     ("Democratic Republic of the Congo", 32 chars at 15px/600) so the box
+     neither jumps between names nor pre-allocates one-line flex width */
+  width: 300px;
+  box-sizing: border-box;
+}
+
+.last-guess {
+  width: 100%;
+  border-top: 1px solid #404040;
+  padding-top: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.last-guess-label {
+  display: block;
+  color: #888;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.last-guess-name {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.last-guess.correct .last-guess-name { color: #4ade80; }
+.last-guess.incorrect .last-guess-name { color: #ef4444; }
 
 /* Borders mode custom stats bar */
 .stats-bar .country-info {
