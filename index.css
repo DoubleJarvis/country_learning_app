@@ -479,6 +479,19 @@ body {
 
 .skip-btn:hover { background-color: #666666; }
 
+.recenter-btn {
+  padding: 12px 14px;
+  font-size: 16px;
+  background-color: #555555;
+  border: 2px solid #404040;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.recenter-btn:hover { background-color: #666666; }
+
 /* Autocomplete */
 .autocomplete-dropdown {
   position: absolute;

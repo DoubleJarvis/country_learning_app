@@ -297,6 +297,13 @@ export default class extends Controller {
     )
   }
 
+  recenter() {
+    if (this.currentCountry && !this.isFinished) {
+      this.zoomToCountry(this.currentCountry)
+    }
+    this.searchInputTarget.focus()
+  }
+
   zoomToAllGuessedCountries() {
     // Get all countries to show: current target + all guessed countries
     const countriesToShow = [this.currentCountry, ...Array.from(this.guessedCountries)]

@@ -256,6 +256,13 @@ export default class extends Controller {
     )
   }
 
+  recenter() {
+    if (this.currentCountry && !this.isFinished) {
+      this.zoomToCountry(this.currentCountry)
+    }
+    this.searchInputTarget.focus()
+  }
+
   handleSearch(event) {
     const query = event.target.value.trim()
 

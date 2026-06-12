@@ -267,6 +267,13 @@ export default class extends Controller {
     )
   }
 
+  recenter() {
+    if (this.currentCountry && !this.isFinished) {
+      this.zoomToCountry(this.currentCountry)
+    }
+    this.searchInputTarget.focus()
+  }
+
   updateStats() {
     this.remainingCountTarget.textContent = this.maxAttempts - this.incorrectGuesses
     this.correctCountTarget.textContent = `${this.correctGuesses} / ${this.borders.length}`
