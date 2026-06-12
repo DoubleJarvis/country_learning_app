@@ -103,8 +103,11 @@ const PRACTICE_PAGE = (source, navDifficulty, difficultyLabel, description) => `
     </div>
     <button class="action-btn" data-practice-target="actionBtn" data-action="click->practice#finish">Finish</button>
     <div class="last-guess" data-practice-target="lastGuess" style="display: none;">
-      <span class="last-guess-label">Last was:</span>
-      <span class="last-guess-name" data-practice-target="lastGuessName"></span>
+      <span class="last-guess-label">It was:</span>
+      <div class="guessed-country" data-practice-target="lastGuessCard">
+        <div class="country-shape" data-practice-target="lastGuessShape"></div>
+        <div class="country-name" data-practice-target="lastGuessName"></div>
+      </div>
     </div>
   </div>
   <div class="finished-banner" data-practice-target="finishedBanner" style="display: none;">
@@ -119,7 +122,7 @@ const PRACTICE_PAGE = (source, navDifficulty, difficultyLabel, description) => `
     </div>
   </div>
   <div id="main-map" data-map-slot data-practice-target="mainContainer"></div>
-  <div id="overlay-map" data-practice-target="overlayContainer"></div>
+  <div id="overlay-map" class="practice-overlay" data-practice-target="overlayContainer"></div>
   <div class="search-box" data-practice-target="searchBox" style="display: none;">
     <input type="text" data-practice-target="searchInput" data-action="input->practice#handleSearch keydown->practice#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-practice-target="dropdown"></div>

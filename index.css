@@ -710,14 +710,34 @@ body {
   letter-spacing: 0.5px;
 }
 
-.last-guess-name {
-  display: block;
-  font-size: 15px;
-  font-weight: 600;
+/* The card itself reuses .guessed-country/.country-shape/.country-name from
+   the Name All modes */
+.last-guess .last-guess-label {
+  margin-bottom: 6px;
 }
 
-.last-guess.correct .last-guess-name { color: #4ade80; }
-.last-guess.incorrect .last-guess-name { color: #ef4444; }
+/* Practice uses proper red for incorrect (Name All's incorrect is amber) */
+.last-guess .guessed-country.incorrect {
+  background: #4d1e1e;
+  color: #ef4444;
+}
+
+/* Square shape area: height matches the card's width so shapes render large */
+.last-guess .country-shape {
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+/* Practice: the presented country fills most of the screen right of the
+   stats box, clear of the navigation (top) and search box (bottom) */
+#overlay-map.practice-overlay {
+  top: 50%;
+  left: 60%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  width: 60vw;
+  height: 64vh;
+}
 
 /* Borders mode custom stats bar */
 .stats-bar .country-info {
