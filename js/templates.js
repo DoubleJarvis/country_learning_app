@@ -100,7 +100,7 @@ export const templates = {
   <div class="search-box" data-quiz-target="searchBox" style="display: none;">
     <input type="text" data-quiz-target="searchInput" data-action="input->quiz#handleSearch keydown->quiz#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-quiz-target="dropdown"></div>
-    <button class="skip-btn" data-action="click->quiz#skip">Skip</button>
+    <button class="skip-btn" data-action="click->quiz#skip keydown.shift+enter@window->quiz#skip" title="Shift+Enter">Skip</button>
   </div>
   <div class="debug-search-box" style="display: none;">
     <input type="text" data-quiz-target="debugSearchInput" data-action="input->quiz#handleDebugSearch keydown->quiz#handleDebugKeydown" placeholder="DEBUG: Set country to guess..." autocomplete="off" />
@@ -141,7 +141,7 @@ export const templates = {
   <div class="search-box" data-quiz-hard-target="searchBox" style="display: none;">
     <input type="text" data-quiz-hard-target="searchInput" data-action="input->quiz-hard#handleSearch keydown->quiz-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-quiz-hard-target="dropdown"></div>
-    <button class="skip-btn" data-action="click->quiz-hard#skip">Skip</button>
+    <button class="skip-btn" data-action="click->quiz-hard#skip keydown.shift+enter@window->quiz-hard#skip" title="Shift+Enter">Skip</button>
   </div>
   <div class="debug-search-box" style="display: none;">
     <input type="text" data-quiz-hard-target="debugSearchInput" data-action="input->quiz-hard#handleDebugSearch keydown->quiz-hard#handleDebugKeydown" placeholder="DEBUG: Set country to guess..." autocomplete="off" />

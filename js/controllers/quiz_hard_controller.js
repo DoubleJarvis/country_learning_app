@@ -534,6 +534,7 @@ export default class extends Controller {
         break
 
       case "Enter":
+        if (event.shiftKey) break // Shift+Enter is the Skip hotkey
         event.preventDefault()
         if (this.highlightedIndex >= 0) {
           this.selectCountry(this.suggestions[this.highlightedIndex])
