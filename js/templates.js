@@ -299,6 +299,40 @@ export const templates = {
   </div>
 </div>`,
 
+  quiz_place: () => `
+<div data-controller="quiz-place" class="quiz-container">
+  ${NAV('place', 'n', 'quiz-place')}
+  ${REGION_SELECTION('quiz-place', 'Place', 'Normal', 'Drag the named country to its real location on an empty world map. Drop it within its true bounds to lock it in.')}
+  ${STATS_BAR_TOP_LEFT('quiz-place',
+    [
+      { label: 'Remaining', target: 'remainingCount' },
+      { label: 'Correct', target: 'correctCount', color_class: 'green' },
+      { label: 'Incorrect', target: 'incorrectCount', color_class: 'red' }
+    ],
+    'Finish', 'click->quiz-place#finish', 'actionBtn'
+  )}
+  <div class="finished-banner" data-quiz-place-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Game Complete!</h2>
+      <div class="finished-time" data-quiz-place-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">Correct:</span><span class="finished-value" data-quiz-place-target="finalCorrect">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Incorrect:</span><span class="finished-value" data-quiz-place-target="finalIncorrect">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->quiz-place#restart">Restart</button>
+    </div>
+  </div>
+  <div id="quiz-map" data-map-slot data-quiz-place-target="container"></div>
+  <div class="place-tray" data-quiz-place-target="tray" style="display: none;">
+    <div class="place-tray-name" data-quiz-place-target="countryName"></div>
+    <div class="place-shape-slot" data-quiz-place-target="shapeSlot">
+      <div class="place-shape" data-quiz-place-target="shape"
+           data-action="pointerdown->quiz-place#startDrag pointermove->quiz-place#moveDrag pointerup->quiz-place#endDrag pointercancel->quiz-place#cancelDrag"></div>
+    </div>
+    <button class="skip-btn" data-action="click->quiz-place#skip keydown.shift+enter@window->quiz-place#skip" title="Shift+Enter">Skip</button>
+  </div>
+</div>`,
+
   quiz_name_all_easy: () => `
 <div data-controller="quiz-name-all-easy" class="quiz-container">
   ${NAV('name_all', 'e', 'quiz-name-all-easy')}

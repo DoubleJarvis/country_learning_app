@@ -74,10 +74,12 @@ export default class extends Controller {
         }
       }
 
-      // Update quiz-specific stats
+      // Update quiz-specific stats (other quiz types only count toward overall)
       const quizType = guess.quiz_type
-      countryStatsMap[guess.country_code][quizType][guess.guess_type]++
-      countryStatsMap[guess.country_code][quizType].total++
+      if (countryStatsMap[guess.country_code][quizType]) {
+        countryStatsMap[guess.country_code][quizType][guess.guess_type]++
+        countryStatsMap[guess.country_code][quizType].total++
+      }
 
       // Update overall stats
       countryStatsMap[guess.country_code].overall[guess.guess_type]++
@@ -358,7 +360,8 @@ export default class extends Controller {
         const total = run.correct_count + run.shaky_count + run.incorrect_count
         const quizTypeLabel = run.quiz_type === "normal" ? "Normal" :
                               run.quiz_type === "hard" ? "Hard" :
-                              run.quiz_type === "name_all" ? "Name All" : "Unknown"
+                              run.quiz_type === "name_all" ? "Name All" :
+                              run.quiz_type === "place" ? "Place" : "Unknown"
         const regionLabel = this.formatRegionName(run.region)
 
         // For Name All mode, shaky_count stores remaining count

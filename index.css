@@ -492,6 +492,75 @@ body {
 
 .recenter-btn:hover { background-color: #666666; }
 
+/* Place mode */
+.place-tray {
+  position: absolute;
+  bottom: 30px;
+  /* Centered without a transform: a transformed ancestor would become the
+     containing block for the position:fixed shape while it is dragged */
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: fit-content;
+  z-index: 1000;
+  background: #2a2a2a;
+  border: 2px solid #404040;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.place-tray-name {
+  color: #e0e0e0;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.place-shape-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.place-shape {
+  color: #ffd700;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.place-shape svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.place-shape.dragging {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  z-index: 3000;
+  cursor: grabbing;
+  opacity: 0.85;
+}
+
+.place-shape-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #ffd700;
+  border-radius: 8px;
+  color: #ffd700;
+  font-size: 20px;
+}
+
 /* Autocomplete */
 .autocomplete-dropdown {
   position: absolute;
@@ -1178,6 +1247,7 @@ body {
 .run-quiz-type.normal { background-color: #4a9eff; color: white; }
 .run-quiz-type.hard { background-color: #ef4444; color: white; }
 .run-quiz-type.name_all { background-color: #8b5cf6; color: white; }
+.run-quiz-type.place { background-color: #10b981; color: white; }
 .run-region { font-weight: 500; color: #e0e0e0; }
 .run-date { font-size: 0.85em; color: #888; }
 .run-time { font-size: 1.2em; font-weight: 600; color: #4a9eff; font-family: monospace; }
