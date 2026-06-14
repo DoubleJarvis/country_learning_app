@@ -17,17 +17,29 @@
 
   <script src="https://sql.js.org/dist/sql-wasm.js"></script>
 
-  <script type="importmap">
-  {
-    "imports": {
-      "@hotwired/stimulus": "https://unpkg.com/@hotwired/stimulus@3.2.2/dist/stimulus.js",
-      "maplibre-gl": "https://ga.jspm.io/npm:maplibre-gl@4.7.1/dist/maplibre-gl.js",
-      "country_names": "./js/country_names.js",
-      "shared_map": "./js/map.js",
-      "adjacency_helper": "./js/adjacency_helper.js",
-      "db": "./js/db.js"
-    }
-  }
+  <script>
+    // Build the import map with a per-load cache-buster on the local modules.
+    // These are imported by the dynamically-loaded controllers (after page
+    // load), which Cmd+R does not revalidate, so edits kept serving stale.
+    // The version is computed once, so every importer resolves the same URL
+    // (e.g. shared_map stays a single instance). Mirrors the controller
+    // cache-busting in app.js. Injected before the module entry runs below.
+    (function () {
+      const v = Date.now();
+      const script = document.createElement("script");
+      script.type = "importmap";
+      script.textContent = JSON.stringify({
+        imports: {
+          "@hotwired/stimulus": "https://unpkg.com/@hotwired/stimulus@3.2.2/dist/stimulus.js",
+          "maplibre-gl": "https://ga.jspm.io/npm:maplibre-gl@4.7.1/dist/maplibre-gl.js",
+          "country_names": `./js/country_names.js?v=${v}`,
+          "shared_map": `./js/map.js?v=${v}`,
+          "adjacency_helper": `./js/adjacency_helper.js?v=${v}`,
+          "db": `./js/db.js?v=${v}`
+        }
+      });
+      document.currentScript.after(script);
+    })();
   </script>
 </head>
 <body>

@@ -361,7 +361,6 @@ export const regions = {
     "CHL",
     "COL",
     "ECU",
-    "GUF",
     "GUY",
     "PRY",
     "PER",
