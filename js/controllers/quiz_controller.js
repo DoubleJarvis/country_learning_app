@@ -8,7 +8,8 @@ export default class extends Controller {
   static targets = ["container", "searchInput", "searchBox", "dropdown", "regionSelection", "statsBar",
                     "remainingCount", "greenCount", "yellowCount", "redCount",
                     "actionBtn", "finishedBanner", "finalGreen", "finalYellow", "finalRed",
-                    "debugSearchInput", "debugDropdown", "navButtons", "finalTime"]
+                    "debugSearchInput", "debugDropdown", "navButtons", "finalTime",
+    "lastGuess", "lastGuessCard", "lastGuessShape", "lastGuessName"]
 
   connect() {
     this.highlightedIndex = -1
@@ -25,6 +26,7 @@ export default class extends Controller {
     this.startTime = null
     this.endTime = null
     this.countryStartTime = null
+    this.countrySvgs = {}
 
     this.initializeMap()
     this.initializeDatabase()
@@ -454,6 +456,9 @@ export default class extends Controller {
     const displayName = countriesMapping[this.currentCountry]?.display_name || this.currentCountry
     quizDb.recordGuess(this.currentCountry, displayName, "normal", guessType, guessedCode, guessedName, timeMs)
 
+    // Show the resolved country in the last-guess card
+    this.showLastGuess(this.currentCountry, displayName, true)
+
     // Add country to the appropriate layer
     this.guessedCountries.push({ code: this.currentCountry, color })
     this.updateMapLayers()
@@ -487,7 +492,7 @@ export default class extends Controller {
       this.stats.red++
       this.guessedCountries.push({ code: this.currentCountry, color: "red" })
       this.updateMapLayers()
-      console.log("This was: ", displayName)
+      this.showLastGuess(this.currentCountry, displayName, false)
 
       // Record final failed guess
       quizDb.recordGuess(this.currentCountry, displayName, "normal", "incorrect", guessedCode, guessedName, timeMs)
@@ -514,6 +519,24 @@ export default class extends Controller {
     this.searchInputTarget.value = ""
   }
 
+  // Last-guess "It was:" card, identical to Practice mode (practice_controller.js)
+  showLastGuess(countryCode, displayName, wasCorrect) {
+    this.lastGuessNameTarget.textContent = displayName
+
+    let svg = this.countrySvgs[countryCode]
+    if (!svg) {
+      svg = this.extractCountrySvg(countryCode)
+      if (svg) {
+        this.countrySvgs[countryCode] = svg
+      }
+    }
+    this.lastGuessShapeTarget.innerHTML = svg || ""
+
+    this.lastGuessCardTarget.classList.toggle("correct", wasCorrect)
+    this.lastGuessCardTarget.classList.toggle("incorrect", !wasCorrect)
+    this.lastGuessTarget.style.display = "block"
+  }
+
   updateMapLayers() {
     const greenCountries = this.guessedCountries
       .filter(c => c.color === "green")
@@ -537,7 +560,7 @@ export default class extends Controller {
     // Skip is same as failing immediately
     if (this.currentCountry && !this.isFinished) {
       const displayName = countriesMapping[this.currentCountry]?.display_name || this.currentCountry
-      console.log("This was: ", displayName)
+      this.showLastGuess(this.currentCountry, displayName, false)
 
       // Calculate time taken
       const timeMs = Date.now() - this.countryStartTime
@@ -593,6 +616,7 @@ export default class extends Controller {
     this.statsBarTarget.style.display = "none"
     this.searchBoxTarget.style.display = "none"
     this.finishedBannerTarget.style.display = "none"
+    this.lastGuessTarget.style.display = "none"
 
     // Hide scale and navigation controls
     const scaleElement = document.querySelector('.maplibregl-ctrl-scale')
@@ -658,6 +682,7 @@ export default class extends Controller {
     // Hide top left stats banner and search box
     this.statsBarTarget.style.display = "none"
     this.searchBoxTarget.style.display = "none"
+    this.lastGuessTarget.style.display = "none"
 
     // Show finished banner
     this.finishedBannerTarget.style.display = "block"
@@ -823,5 +848,128 @@ export default class extends Controller {
 
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
+  // Shape extraction from the map's vector source, same approach as the
+  // Practice and Name All modes (practice_controller.js)
+  extractCountrySvg(countryCode) {
+    const features = this.map.querySourceFeatures('countries', {
+      sourceLayer: 'countries',
+      filter: ['==', 'ADM0_A3', countryCode]
+    })
+
+    if (!features || features.length === 0) {
+      return null
+    }
+
+    // Find the largest polygon by calculating rough area
+    let largestFeature = null
+    let largestArea = 0
+
+    features.forEach(feature => {
+      let area = 0
+
+      if (feature.geometry.type === 'Polygon') {
+        const coords = feature.geometry.coordinates[0]
+        area = this.calculatePolygonArea(coords)
+      } else if (feature.geometry.type === 'MultiPolygon') {
+        feature.geometry.coordinates.forEach(polygon => {
+          area += this.calculatePolygonArea(polygon[0])
+        })
+      }
+
+      if (area > largestArea) {
+        largestArea = area
+        largestFeature = feature
+      }
+    })
+
+    if (!largestFeature) {
+      return null
+    }
+
+    // Collect coordinates from only the largest feature
+    let allCoordinates = []
+    if (largestFeature.geometry.type === 'Polygon') {
+      allCoordinates.push(...largestFeature.geometry.coordinates[0])
+    } else if (largestFeature.geometry.type === 'MultiPolygon') {
+      largestFeature.geometry.coordinates.forEach(polygon => {
+        allCoordinates.push(...polygon[0])
+      })
+    }
+
+    if (allCoordinates.length === 0) {
+      return null
+    }
+
+    // Calculate center latitude for projection correction
+    let sumLat = 0
+    allCoordinates.forEach(([lng, lat]) => {
+      sumLat += lat
+    })
+    const centerLat = sumLat / allCoordinates.length
+
+    // Apply projection: scale longitude by cos(latitude) to account for convergence near poles
+    const cosLat = Math.cos(centerLat * Math.PI / 180)
+
+    const projectedCoords = allCoordinates.map(([lng, lat]) => [
+      lng * cosLat,
+      lat
+    ])
+
+    // Calculate bounds on projected coordinates
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    projectedCoords.forEach(([x, y]) => {
+      minX = Math.min(minX, x)
+      maxX = Math.max(maxX, x)
+      minY = Math.min(minY, y)
+      maxY = Math.max(maxY, y)
+    })
+
+    const width = maxX - minX
+    const height = maxY - minY
+    const padding = Math.max(width, height) * 0.1
+
+    // Build SVG path for the largest feature only
+    let pathData = ''
+
+    const processRing = (coordinates) => {
+      coordinates.forEach(([lng, lat], i) => {
+        const projX = lng * cosLat
+        const x = projX - minX + padding
+        const y = maxY - lat + padding  // Flip Y axis
+        pathData += i === 0 ? `M ${x} ${y} ` : `L ${x} ${y} `
+      })
+      pathData += 'Z '
+    }
+
+    if (largestFeature.geometry.type === 'Polygon') {
+      largestFeature.geometry.coordinates.forEach(ring => processRing(ring))
+    } else if (largestFeature.geometry.type === 'MultiPolygon') {
+      largestFeature.geometry.coordinates.forEach(polygon => {
+        polygon.forEach(ring => processRing(ring))
+      })
+    }
+
+    const viewBoxWidth = width + padding * 2
+    const viewBoxHeight = height + padding * 2
+
+    return `<svg viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+      <path d="${pathData}" fill="currentColor" stroke="none"/>
+    </svg>`
+  }
+
+  calculatePolygonArea(coordinates) {
+    // Simple rough area calculation using bounding box
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+
+    coordinates.forEach(([lng, lat]) => {
+      minX = Math.min(minX, lng)
+      maxX = Math.max(maxX, lng)
+      minY = Math.min(minY, lat)
+      maxY = Math.max(maxY, lat)
+    })
+
+    return (maxX - minX) * (maxY - minY)
   }
 }

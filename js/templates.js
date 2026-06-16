@@ -53,8 +53,8 @@ const REGION_SELECTION = (controllerName, mode, difficulty, description = '') =>
   </div>
 </div>`;
 
-const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, buttonTarget) => `
-<div class="stats-bar stats-bar-top-left" data-${controllerName}-target="statsBar" style="display: none;">
+const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, buttonTarget, withReveal = false) => `
+<div class="stats-bar stats-bar-top-left${withReveal ? ' stats-bar-stacked' : ''}" data-${controllerName}-target="statsBar" style="display: none;">
   <div class="stats-group">
     ${stats.map(s => `
     <div class="stat ${s.color_class || ''}">
@@ -63,6 +63,14 @@ const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, but
     </div>`).join('')}
   </div>
   <button class="action-btn"${buttonTarget ? ` data-${controllerName}-target="${buttonTarget}"` : ''} data-action="${buttonAction}">${buttonText}</button>
+  ${withReveal ? `
+  <div class="last-guess" data-${controllerName}-target="lastGuess" style="display: none;">
+    <span class="last-guess-label">It was:</span>
+    <div class="guessed-country" data-${controllerName}-target="lastGuessCard">
+      <div class="country-shape" data-${controllerName}-target="lastGuessShape"></div>
+      <div class="country-name" data-${controllerName}-target="lastGuessName"></div>
+    </div>
+  </div>` : ''}
 </div>`;
 
 const STATS_BAR_BOTTOM = (controllerName, stats, buttonText, buttonAction, buttonTarget) => `
@@ -142,7 +150,7 @@ export const templates = {
       { label: 'Second try', target: 'yellowCount', color_class: 'yellow' },
       { label: 'Failed', target: 'redCount', color_class: 'red' }
     ],
-    'Finish', 'click->quiz#finish', 'actionBtn'
+    'Finish', 'click->quiz#finish', 'actionBtn', true
   )}
   <div class="finished-banner" data-quiz-target="finishedBanner" style="display: none;">
     <div class="finished-content">
@@ -183,7 +191,7 @@ export const templates = {
       { label: 'Second try', target: 'yellowCount', color_class: 'yellow' },
       { label: 'Failed', target: 'redCount', color_class: 'red' }
     ],
-    'Finish', 'click->quiz-hard#finish', 'actionBtn'
+    'Finish', 'click->quiz-hard#finish', 'actionBtn', true
   )}
   <div class="finished-banner" data-quiz-hard-target="finishedBanner" style="display: none;">
     <div class="finished-content">

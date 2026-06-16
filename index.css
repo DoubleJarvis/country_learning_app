@@ -777,6 +777,15 @@ body {
   box-sizing: border-box;
 }
 
+/* Stats bar that also holds the "It was:" last-guess card (Quiz Normal/Hard).
+   Same mechanism as .practice-stats-bar: wrap so the full-width card drops to
+   its own row under the stats. Width fits the four quiz stats on one row. */
+.stats-bar-stacked {
+  flex-wrap: wrap;
+  width: 360px;
+  box-sizing: border-box;
+}
+
 .last-guess {
   width: 100%;
   border-top: 1px solid #404040;
