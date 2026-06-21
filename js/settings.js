@@ -21,6 +21,13 @@ export const SETTINGS = [
     options: ["off", "on"],
     default: "on",
   },
+  {
+    key: "timer",
+    label: "Timer",
+    description: "Show the elapsed-time counter during games",
+    options: ["off", "on"],
+    default: "on",
+  },
 ]
 
 // In-memory copy of every setting's current value, populated by initSettings().
@@ -53,6 +60,7 @@ export function setSetting(key, value) {
 export function applySettings() {
   applyDebugVisibility()
   applyLastGuessVisibility()
+  applyTimerVisibility()
 }
 
 function applyDebugVisibility() {
@@ -69,4 +77,14 @@ function applyDebugVisibility() {
 function applyLastGuessVisibility() {
   const enabled = getSetting("lastGuess") === "on"
   document.body.classList.toggle("setting-hide-last-guess", !enabled)
+}
+
+// The controllers only update the timer's inner value (never the .stat.timer
+// wrapper's display), so we can toggle the wrapper inline like the debug box.
+// (Done in JS rather than CSS because index.css isn't cache-busted.)
+function applyTimerVisibility() {
+  const enabled = getSetting("timer") === "on"
+  document.querySelectorAll(".stat.timer").forEach(el => {
+    el.style.display = enabled ? "" : "none"
+  })
 }
