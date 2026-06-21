@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { quizDb } from "db"
 import { countriesMapping } from "country_names"
-import { SETTINGS, getSetting, setSetting } from "settings"
+import { SETTINGS, getSetting, setSetting, initSettings, applySettings } from "settings"
 
 export default class extends Controller {
   static targets = [
@@ -357,6 +357,12 @@ export default class extends Controller {
     this.allCountryStats = []
     this.filteredCountryStats = []
     this.showEmptyState()
+
+    // The reset also wiped settings — reload them from the fresh db (back to
+    // defaults), re-apply their effects, and refresh the toggles.
+    await initSettings()
+    applySettings()
+    this.renderSettings()
 
     // Refresh the remaining sections so no stale data lingers
     await this.loadQuizRuns()

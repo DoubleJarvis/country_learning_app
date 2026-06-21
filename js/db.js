@@ -1,6 +1,65 @@
 // Client-side SQLite database using SQL.js
 // Manages quiz guess history
 
+// ---------------------------------------------------------------------------
+// Schema migrations
+//
+// Append-only, ordered list. Each migration runs once per database, in version
+// order, inside its own transaction; the applied versions are recorded in the
+// `schema_migrations` table. On a normal load (nothing pending) we only run a
+// single SELECT instead of re-issuing every CREATE TABLE.
+//
+// Rules:
+//  - Versions are UTC datetime integers (YYYYMMDDhhmmss), strictly increasing.
+//  - Never edit a migration once shipped; only append new ones.
+//  - The baseline (first) migration must build the complete current schema, so
+//    a fresh install is simply "run every migration".
+// ---------------------------------------------------------------------------
+const MIGRATIONS = [
+  {
+    version: 20251201000000,
+    name: 'baseline schema',
+    up: (db) => {
+      db.run(`
+        CREATE TABLE IF NOT EXISTS guesses (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          country_code TEXT NOT NULL,
+          country_display_name TEXT NOT NULL,
+          quiz_type TEXT NOT NULL,
+          guess_type TEXT NOT NULL,
+          guessed_country_code TEXT,
+          guessed_country_name TEXT,
+          time_ms INTEGER,
+          timestamp INTEGER NOT NULL
+        )
+      `)
+      db.run(`
+        CREATE TABLE IF NOT EXISTS quiz_runs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          quiz_type TEXT NOT NULL,
+          region TEXT NOT NULL,
+          correct_count INTEGER NOT NULL,
+          shaky_count INTEGER NOT NULL,
+          incorrect_count INTEGER NOT NULL,
+          time_ms INTEGER NOT NULL,
+          completed_fully INTEGER NOT NULL DEFAULT 1,
+          timestamp INTEGER NOT NULL
+        )
+      `)
+      db.run(`
+        CREATE TABLE IF NOT EXISTS settings (
+          key TEXT PRIMARY KEY,
+          value TEXT
+        )
+      `)
+      db.run('CREATE INDEX IF NOT EXISTS idx_country_code ON guesses(country_code)')
+      db.run('CREATE INDEX IF NOT EXISTS idx_quiz_type ON guesses(quiz_type)')
+      db.run('CREATE INDEX IF NOT EXISTS idx_timestamp ON guesses(timestamp)')
+      db.run('CREATE INDEX IF NOT EXISTS idx_runs_timestamp ON quiz_runs(timestamp)')
+    },
+  },
+]
+
 class QuizDatabase {
   constructor() {
     this.db = null
@@ -23,7 +82,7 @@ class QuizDatabase {
         locateFile: file => `https://sql.js.org/dist/${file}`
       })
 
-      // Try to load existing database from localStorage
+      // Load the existing database from localStorage, or start a new one
       const savedDb = localStorage.getItem('quiz_database')
       if (savedDb) {
         const uint8Array = new Uint8Array(JSON.parse(savedDb))
@@ -32,110 +91,126 @@ class QuizDatabase {
         this.db = new this.SQL.Database()
       }
 
-      // Create tables if they don't exist
-      this.db.run(`
-        CREATE TABLE IF NOT EXISTS guesses (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          country_code TEXT NOT NULL,
-          country_display_name TEXT NOT NULL,
-          quiz_type TEXT NOT NULL,
-          guess_type TEXT NOT NULL,
-          guessed_country_code TEXT,
-          guessed_country_name TEXT,
-          time_ms INTEGER,
-          timestamp INTEGER NOT NULL
-        )
-      `)
-
-      this.db.run(`
-        CREATE TABLE IF NOT EXISTS quiz_runs (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          quiz_type TEXT NOT NULL,
-          region TEXT NOT NULL,
-          correct_count INTEGER NOT NULL,
-          shaky_count INTEGER NOT NULL,
-          incorrect_count INTEGER NOT NULL,
-          time_ms INTEGER NOT NULL,
-          completed_fully INTEGER NOT NULL DEFAULT 1,
-          timestamp INTEGER NOT NULL
-        )
-      `)
-
-      // Key/value store for user-toggleable features and settings
-      this.db.run(`
-        CREATE TABLE IF NOT EXISTS settings (
-          key TEXT PRIMARY KEY,
-          value TEXT
-        )
-      `)
-
-      // Handle schema migrations for existing databases
-      this.migrateSchema()
-
-      // Create indexes for faster queries
-      this.db.run(`
-        CREATE INDEX IF NOT EXISTS idx_country_code ON guesses(country_code)
-      `)
-      this.db.run(`
-        CREATE INDEX IF NOT EXISTS idx_quiz_type ON guesses(quiz_type)
-      `)
-      this.db.run(`
-        CREATE INDEX IF NOT EXISTS idx_timestamp ON guesses(timestamp)
-      `)
-      this.db.run(`
-        CREATE INDEX IF NOT EXISTS idx_runs_timestamp ON quiz_runs(timestamp)
-      `)
+      // Bring the schema up to date. Only persist if something actually
+      // changed, so a normal load (nothing pending) does almost no work.
+      const changed = this.runMigrations()
 
       this.initialized = true
-      this.saveToLocalStorage()
+      if (changed) this.saveToLocalStorage()
     } catch (error) {
+      // A failed migration throws before we save, so the stored database is
+      // left exactly as it was — the app keeps the last good copy.
       console.error('Failed to initialize database:', error)
     }
   }
 
-  migrateSchema() {
-    if (!this.db) return
+  // Applies any migrations this database hasn't seen yet, in version order,
+  // each inside its own transaction. Returns whether anything changed.
+  runMigrations() {
+    if (!this.db) return false
 
-    try {
-      // Check if guesses table has the new columns
-      const tableInfo = this.db.exec("PRAGMA table_info(guesses)")
+    // The only schema statement that runs on every load.
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        version INTEGER PRIMARY KEY,
+        applied_at INTEGER NOT NULL
+      )
+    `)
 
-      if (tableInfo.length > 0) {
-        const columns = tableInfo[0].values.map(row => row[1]) // column names are at index 1
+    const applied = this.appliedVersions()
+    let changed = false
 
-        // Add guessed_country_code if it doesn't exist
-        if (!columns.includes('guessed_country_code')) {
-          console.log('Migrating: Adding guessed_country_code column')
-          this.db.run('ALTER TABLE guesses ADD COLUMN guessed_country_code TEXT')
-        }
-
-        // Add guessed_country_name if it doesn't exist
-        if (!columns.includes('guessed_country_name')) {
-          console.log('Migrating: Adding guessed_country_name column')
-          this.db.run('ALTER TABLE guesses ADD COLUMN guessed_country_name TEXT')
-        }
-
-        // Add time_ms if it doesn't exist
-        if (!columns.includes('time_ms')) {
-          console.log('Migrating: Adding time_ms column')
-          this.db.run('ALTER TABLE guesses ADD COLUMN time_ms INTEGER')
-        }
+    // Legacy adoption: a database created before this migration system has the
+    // data tables but no recorded migrations. Normalize it to the baseline
+    // schema with introspection (CREATE ... IF NOT EXISTS for anything missing,
+    // plus column ALTERs), then stamp the baseline as applied so we don't try
+    // to recreate what it already has. Everything after the baseline then runs
+    // through the clean versioned path.
+    if (applied.size === 0 && this.tableExists('guesses')) {
+      try {
+        this.db.run('BEGIN')
+        MIGRATIONS[0].up(this.db)
+        this.addMissingColumns()
+        this.db.run(
+          'INSERT OR IGNORE INTO schema_migrations (version, applied_at) VALUES (?, ?)',
+          [MIGRATIONS[0].version, Date.now()]
+        )
+        this.db.run('COMMIT')
+        applied.add(MIGRATIONS[0].version)
+        changed = true
+      } catch (error) {
+        this.db.run('ROLLBACK')
+        console.error('Legacy schema adoption failed:', error)
+        throw error
       }
+    }
 
-      // Check if quiz_runs table has the new columns
-      const runsTableInfo = this.db.exec("PRAGMA table_info(quiz_runs)")
+    for (const migration of MIGRATIONS) {
+      if (applied.has(migration.version)) continue
 
-      if (runsTableInfo.length > 0) {
-        const runsColumns = runsTableInfo[0].values.map(row => row[1])
-
-        // Add completed_fully if it doesn't exist
-        if (!runsColumns.includes('completed_fully')) {
-          console.log('Migrating: Adding completed_fully column')
-          this.db.run('ALTER TABLE quiz_runs ADD COLUMN completed_fully INTEGER NOT NULL DEFAULT 1')
-        }
+      try {
+        this.db.run('BEGIN')
+        migration.up(this.db)
+        this.db.run(
+          'INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)',
+          [migration.version, Date.now()]
+        )
+        this.db.run('COMMIT')
+        changed = true
+      } catch (error) {
+        // Roll back this migration and abort the run. initialize() will skip
+        // the save, so the stored database stays at the last good version.
+        this.db.run('ROLLBACK')
+        console.error(`Migration ${migration.version} (${migration.name}) failed:`, error)
+        throw error
       }
-    } catch (error) {
-      console.error('Failed to migrate schema:', error)
+    }
+
+    return changed
+  }
+
+  // Set of migration versions already applied to this database.
+  appliedVersions() {
+    const result = this.db.exec('SELECT version FROM schema_migrations')
+    if (result.length === 0) return new Set()
+    return new Set(result[0].values.map(row => row[0]))
+  }
+
+  tableExists(name) {
+    const stmt = this.db.prepare(
+      "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?"
+    )
+    stmt.bind([name])
+    const exists = stmt.step()
+    stmt.free()
+    return exists
+  }
+
+  // Legacy-only normalizer: adds columns that pre-migration-system databases
+  // may be missing. CREATE TABLE IF NOT EXISTS can't add columns to an existing
+  // table, so these are detected by introspection. New schema changes go
+  // through MIGRATIONS instead.
+  addMissingColumns() {
+    const guessCols = this.db.exec('PRAGMA table_info(guesses)')
+    if (guessCols.length > 0) {
+      const columns = guessCols[0].values.map(row => row[1]) // names are at index 1
+      if (!columns.includes('guessed_country_code')) {
+        this.db.run('ALTER TABLE guesses ADD COLUMN guessed_country_code TEXT')
+      }
+      if (!columns.includes('guessed_country_name')) {
+        this.db.run('ALTER TABLE guesses ADD COLUMN guessed_country_name TEXT')
+      }
+      if (!columns.includes('time_ms')) {
+        this.db.run('ALTER TABLE guesses ADD COLUMN time_ms INTEGER')
+      }
+    }
+
+    const runsCols = this.db.exec('PRAGMA table_info(quiz_runs)')
+    if (runsCols.length > 0) {
+      const columns = runsCols[0].values.map(row => row[1])
+      if (!columns.includes('completed_fully')) {
+        this.db.run('ALTER TABLE quiz_runs ADD COLUMN completed_fully INTEGER NOT NULL DEFAULT 1')
+      }
     }
   }
 
@@ -251,12 +326,19 @@ class QuizDatabase {
     }
   }
 
+  // Full reset: drop the database and rebuild it from scratch by re-running all
+  // migrations, exactly like a first-time install. Wipes guesses, runs and
+  // settings.
   clearAllData() {
-    if (!this.db) return
+    if (!this.SQL) {
+      console.error('Database not initialized')
+      return
+    }
 
     try {
-      this.db.run('DELETE FROM guesses')
-      this.db.run('DELETE FROM quiz_runs')
+      if (this.db) this.db.close()
+      this.db = new this.SQL.Database()
+      this.runMigrations()
       this.saveToLocalStorage()
     } catch (error) {
       console.error('Failed to clear data:', error)
