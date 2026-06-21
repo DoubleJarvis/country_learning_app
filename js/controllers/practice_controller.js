@@ -417,7 +417,8 @@ export default class extends Controller {
 
     this.lastGuessCardTarget.classList.toggle("correct", wasCorrect)
     this.lastGuessCardTarget.classList.toggle("incorrect", !wasCorrect)
-    this.lastGuessTarget.style.display = "block"
+    // Clear the inline "none" so the stylesheet's flex column layout applies
+    this.lastGuessTarget.style.display = ""
   }
 
   // Shape extraction from the map's vector source, same approach as the

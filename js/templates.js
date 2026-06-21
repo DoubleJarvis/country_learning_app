@@ -53,25 +53,43 @@ const REGION_SELECTION = (controllerName, mode, difficulty, description = '') =>
   </div>
 </div>`;
 
-const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, buttonTarget, withReveal = false) => `
-<div class="stats-bar stats-bar-top-left${withReveal ? ' stats-bar-stacked' : ''}" data-${controllerName}-target="statsBar" style="display: none;">
+const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, buttonTarget, withReveal = false) => {
+  const statsGroup = `
   <div class="stats-group">
     ${stats.map(s => `
     <div class="stat ${s.color_class || ''}">
       <span class="stat-label">${s.label}:</span>
       <span class="stat-value" data-${controllerName}-target="${s.target}">0</span>
     </div>`).join('')}
+  </div>`
+  const button = `<button class="action-btn"${buttonTarget ? ` data-${controllerName}-target="${buttonTarget}"` : ''} data-action="${buttonAction}">${buttonText}</button>`
+
+  // Reveal variant (Quiz Normal/Hard): stats stack vertically in a left column
+  // with the Finish button beneath them, and the "It was:" card sits alongside
+  // on the right.
+  if (withReveal) {
+    return `
+<div class="stats-bar stats-bar-top-left stats-bar-stacked" data-${controllerName}-target="statsBar" style="display: none;">
+  <div class="stats-col">
+    ${statsGroup}
+    ${button}
   </div>
-  <button class="action-btn"${buttonTarget ? ` data-${controllerName}-target="${buttonTarget}"` : ''} data-action="${buttonAction}">${buttonText}</button>
-  ${withReveal ? `
   <div class="last-guess" data-${controllerName}-target="lastGuess" style="display: none;">
     <span class="last-guess-label">It was:</span>
     <div class="guessed-country" data-${controllerName}-target="lastGuessCard">
       <div class="country-shape" data-${controllerName}-target="lastGuessShape"></div>
       <div class="country-name" data-${controllerName}-target="lastGuessName"></div>
     </div>
-  </div>` : ''}
-</div>`;
+  </div>
+</div>`
+  }
+
+  return `
+<div class="stats-bar stats-bar-top-left" data-${controllerName}-target="statsBar" style="display: none;">
+  ${statsGroup}
+  ${button}
+</div>`
+};
 
 // Practice mode page. Both variants share the "practice" controller; the
 // source value picks which stats list (worst/slowest) fills the country pool.
@@ -86,18 +104,20 @@ const PRACTICE_PAGE = (source, navDifficulty, difficultyLabel, description) => `
     <p class="region-description">${description}</p>
     <button data-action="click->practice#startPractice" data-practice-target="startBtn" class="start-btn">Start practice</button>
   </div>
-  <div class="stats-bar stats-bar-top-left practice-stats-bar" data-practice-target="statsBar" style="display: none;">
-    <div class="stats-group">
-      <div class="stat green">
-        <span class="stat-label">Correct:</span>
-        <span class="stat-value" data-practice-target="correctCount">0</span>
+  <div class="stats-bar stats-bar-top-left stats-bar-stacked practice-stats-bar" data-practice-target="statsBar" style="display: none;">
+    <div class="stats-col">
+      <div class="stats-group">
+        <div class="stat green">
+          <span class="stat-label">Correct:</span>
+          <span class="stat-value" data-practice-target="correctCount">0</span>
+        </div>
+        <div class="stat red">
+          <span class="stat-label">Incorrect:</span>
+          <span class="stat-value" data-practice-target="incorrectCount">0</span>
+        </div>
       </div>
-      <div class="stat red">
-        <span class="stat-label">Incorrect:</span>
-        <span class="stat-value" data-practice-target="incorrectCount">0</span>
-      </div>
+      <button class="action-btn" data-practice-target="actionBtn" data-action="click->practice#finish">Finish</button>
     </div>
-    <button class="action-btn" data-practice-target="actionBtn" data-action="click->practice#finish">Finish</button>
     <div class="last-guess" data-practice-target="lastGuess" style="display: none;">
       <span class="last-guess-label">It was:</span>
       <div class="guessed-country" data-practice-target="lastGuessCard">

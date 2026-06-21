@@ -759,26 +759,48 @@ body {
 
 .start-btn:disabled:hover { background-color: #2a2a2a; }
 
-/* Practice mode: last presented country, shown as a second row inside the
-   top-left stats bar */
-.practice-stats-bar {
-  flex-wrap: wrap;
-  /* Fixed width sized to the longest country name in the data
-     ("Democratic Republic of the Congo", 32 chars at 15px/600) so the box
-     neither jumps between names nor pre-allocates one-line flex width */
-  width: 300px;
-  box-sizing: border-box;
-}
+/* Practice mode reuses the Quiz reveal layout (.stats-bar-stacked): a compact
+   left column of stats + Finish, with the last-guess card alongside. */
 
-/* Stats bar that also holds the "It was:" last-guess card (Quiz Normal/Hard).
-   Same mechanism as .practice-stats-bar: wrap so the full-width card drops to
-   its own row under the stats. Width fits the four quiz stats on one row. */
+/* Stats bar that also holds the "It was:" last-guess card (Quiz Normal/Hard):
+   a compact left column of stacked stat boxes + Finish button, with the card
+   alongside on the right. */
 .stats-bar-stacked {
-  flex-wrap: wrap;
-  width: 360px;
-  box-sizing: border-box;
+  align-items: stretch;
+  gap: 6px;
+  padding: 6px;
 }
 
+/* Left column: the stat boxes and the Finish button */
+.stats-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Stack the stats vertically instead of in a row */
+.stats-bar-stacked .stats-group {
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Each stat becomes a small bordered box (label above, value below) */
+.stats-bar-stacked .stat {
+  gap: 0;
+  padding: 2px 8px;
+  background: #1f1f1f;
+  border: 1px solid #404040;
+  border-radius: 4px;
+}
+
+/* Finish button fills the column width and sits at its bottom */
+.stats-bar-stacked .action-btn {
+  width: 100%;
+  margin-top: auto;
+}
+
+/* Base card (Practice mode): drops to a full-width second row in its wrapping
+   stats bar */
 .last-guess {
   width: 100%;
   border-top: 1px solid #404040;
@@ -786,9 +808,52 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+/* Quiz reveal: the card is the right-hand column rather than a wrapped row */
+.stats-bar-stacked .last-guess {
+  width: 132px;
+  border-top: none;
+  padding-top: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Card fills the column so the shape renders large, as tall as the stats column */
+.stats-bar-stacked .last-guess .guessed-country {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Reserve height for the longest name that can appear ("Democratic Republic of
+   the Congo", 32 chars), which wraps to 3 lines at this card width. Reserving
+   it up front means revealing a long name never makes the card (and the stats
+   column beside it) jump in height; shorter names are centered in the reserved
+   space. */
+.stats-bar-stacked .last-guess .country-name {
+  /* Neutralize the unscoped .country-name rule from the stats-page country list
+     (min-width: 150px; font-size: 1.1em; bold) that otherwise leaks in and
+     forces the name wider than the card. */
+  min-width: 0;
+  flex: none;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1.25;
+  /* "Democratic Republic of the Congo" — the longest name — wraps to 3 lines at
+     this card width, so reserve 3 lines up front to keep the card from jumping. */
+  min-height: calc(3 * 1.25em); /* 3 lines */
+  /* Column flex so the text box stretches to the full card width and wraps
+     there (a row flex item shrinks to its content and overshoots the box).
+     justify-content centers vertically; text-align centers each wrapped line. */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  overflow-wrap: break-word;
+}
+
 /* "It was" reveal setting off: hide the Quiz Normal/Hard last-guess card even
-   though the controller re-shows it inline on each guess (see settings.js). */
-body.setting-hide-last-guess .stats-bar-stacked .last-guess {
+   though the controller re-shows it inline on each guess (see settings.js).
+   Practice always shows its card, so it's excluded. */
+body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-guess {
   display: none !important;
 }
 
