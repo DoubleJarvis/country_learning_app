@@ -155,6 +155,7 @@ export default class extends Controller {
 
     this.regionSelectionTarget.style.display = 'none'
     this.gameUITarget.style.display = 'flex'
+    this.statsBarTarget.style.display = 'flex'
     // Don't show guessed list during gameplay in Normal mode
     this.guessedListTarget.style.display = 'none'
 
@@ -614,6 +615,7 @@ export default class extends Controller {
     this.recordToDatabase(totalTime, remaining === 0)
 
     this.gameUITarget.style.display = 'none'
+    this.statsBarTarget.style.display = 'none'
     // Show guessed list on finish (Normal mode)
     this.guessedListTarget.style.display = 'block'
     this.updateGuessedList()

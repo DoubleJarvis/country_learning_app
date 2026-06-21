@@ -394,17 +394,10 @@ body {
   z-index: 1000;
 }
 
-.stats-bar-bottom {
-  padding: 12px 16px;
-  justify-content: space-between;
-}
-
 .stats-group {
   display: flex;
   gap: 12px;
 }
-
-.stats-bar-bottom .stats-group { gap: 16px; }
 
 .stat {
   display: flex;

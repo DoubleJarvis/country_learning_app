@@ -142,6 +142,7 @@ export default class extends Controller {
 
     this.regionSelectionTarget.style.display = 'none'
     this.gameUITarget.style.display = 'flex'
+    this.statsBarTarget.style.display = 'flex'
     this.guessedListTarget.style.display = 'block'
 
     // Hide the shared preview map; this mode manages its own layers
@@ -589,6 +590,7 @@ export default class extends Controller {
     this.recordToDatabase(totalTime, remaining === 0)
 
     this.gameUITarget.style.display = 'none'
+    this.statsBarTarget.style.display = 'none'
     this.guessedListTarget.style.display = 'none'
     this.finishedBannerTarget.style.display = 'block'
 

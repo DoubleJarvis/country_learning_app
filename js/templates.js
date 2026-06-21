@@ -73,18 +73,6 @@ const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, but
   </div>` : ''}
 </div>`;
 
-const STATS_BAR_BOTTOM = (controllerName, stats, buttonText, buttonAction, buttonTarget) => `
-<div class="stats-bar stats-bar-bottom" data-${controllerName}-target="statsBar">
-  <div class="stats-group">
-    ${stats.map(s => `
-    <div class="stat ${s.color_class || ''}">
-      <span class="stat-label">${s.label}:</span>
-      <span class="stat-value" data-${controllerName}-target="${s.target}">0</span>
-    </div>`).join('')}
-  </div>
-  <button class="action-btn"${buttonTarget ? ` data-${controllerName}-target="${buttonTarget}"` : ''} data-action="${buttonAction}">${buttonText}</button>
-</div>`;
-
 // Practice mode page. Both variants share the "practice" controller; the
 // source value picks which stats list (worst/slowest) fills the country pool.
 const PRACTICE_PAGE = (source, navDifficulty, difficultyLabel, description) => `
@@ -361,20 +349,20 @@ export const templates = {
   <div class="guessed-countries" data-quiz-name-all-easy-target="guessedList" style="display: none;"></div>
   </div>
   <div id="quiz-map" data-map-slot data-quiz-name-all-easy-target="container"></div>
+  ${STATS_BAR_TOP_LEFT('quiz-name-all-easy',
+    [
+      { label: 'Remaining', target: 'remainingCount' },
+      { label: 'Correct', target: 'correctCount', color_class: 'green' },
+      { label: 'Incorrect', target: 'incorrectCount', color_class: 'red' },
+      { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
+    ],
+    'Finish', 'click->quiz-name-all-easy#finish', 'finishBtn'
+  )}
   <div class="game-ui" style="display: none;" data-quiz-name-all-easy-target="gameUI">
     <div class="search-box" data-quiz-name-all-easy-target="searchBox">
       <input type="text" data-quiz-name-all-easy-target="searchInput" data-action="input->quiz-name-all-easy#handleSearch keydown->quiz-name-all-easy#handleKeydown" placeholder="Type country name..." autocomplete="off" />
       <div class="autocomplete-dropdown" data-quiz-name-all-easy-target="dropdown"></div>
     </div>
-    ${STATS_BAR_BOTTOM('quiz-name-all-easy',
-      [
-        { label: 'Remaining', target: 'remainingCount' },
-        { label: 'Correct', target: 'correctCount', color_class: 'green' },
-        { label: 'Incorrect', target: 'incorrectCount', color_class: 'red' },
-        { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
-      ],
-      'Finish', 'click->quiz-name-all-easy#finish', 'finishBtn'
-    )}
   </div>
   <div class="debug-fill-box" style="display: none;">
     <button class="debug-fill-btn" data-action="click->quiz-name-all-easy#debugGuessAll">Debug: Guess all</button>
@@ -401,20 +389,20 @@ export const templates = {
   <div class="guessed-countries" data-quiz-name-all-target="guessedList" style="display: none;"></div>
   </div>
   <div id="quiz-map" data-map-slot data-quiz-name-all-target="container"></div>
+  ${STATS_BAR_TOP_LEFT('quiz-name-all',
+    [
+      { label: 'Remaining', target: 'remainingCount' },
+      { label: 'Correct', target: 'correctCount', color_class: 'green' },
+      { label: 'Incorrect', target: 'incorrectCount', color_class: 'red' },
+      { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
+    ],
+    'Finish', 'click->quiz-name-all#finish', 'finishBtn'
+  )}
   <div class="game-ui" style="display: none;" data-quiz-name-all-target="gameUI">
     <div class="search-box" data-quiz-name-all-target="searchBox">
       <input type="text" data-quiz-name-all-target="searchInput" data-action="input->quiz-name-all#handleSearch keydown->quiz-name-all#handleKeydown" placeholder="Type country name..." autocomplete="off" />
       <div class="autocomplete-dropdown" data-quiz-name-all-target="dropdown"></div>
     </div>
-    ${STATS_BAR_BOTTOM('quiz-name-all',
-      [
-        { label: 'Remaining', target: 'remainingCount' },
-        { label: 'Correct', target: 'correctCount', color_class: 'green' },
-        { label: 'Incorrect', target: 'incorrectCount', color_class: 'red' },
-        { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
-      ],
-      'Finish', 'click->quiz-name-all#finish', 'finishBtn'
-    )}
   </div>
   <div class="debug-fill-box" style="display: none;">
     <button class="debug-fill-btn" data-action="click->quiz-name-all#debugGuessAll">Debug: Guess all</button>
@@ -441,20 +429,20 @@ export const templates = {
   <div class="guessed-countries" data-quiz-name-all-hard-target="guessedList" style="display: none;"></div>
   </div>
   <div id="quiz-map" data-map-slot data-quiz-name-all-hard-target="container"></div>
+  ${STATS_BAR_TOP_LEFT('quiz-name-all-hard',
+    [
+      { label: 'Remaining', target: 'remainingCount' },
+      { label: 'Correct', target: 'correctCount', color_class: 'green' },
+      { label: 'Incorrect', target: 'incorrectCount', color_class: 'red' },
+      { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
+    ],
+    'Finish', 'click->quiz-name-all-hard#finish', 'finishBtn'
+  )}
   <div class="game-ui" style="display: none;" data-quiz-name-all-hard-target="gameUI">
     <div class="search-box" data-quiz-name-all-hard-target="searchBox">
       <input type="text" data-quiz-name-all-hard-target="searchInput" data-action="input->quiz-name-all-hard#handleSearch keydown->quiz-name-all-hard#handleKeydown" placeholder="Type country name..." autocomplete="off" />
       <div class="autocomplete-dropdown" data-quiz-name-all-hard-target="dropdown"></div>
     </div>
-    ${STATS_BAR_BOTTOM('quiz-name-all-hard',
-      [
-        { label: 'Remaining', target: 'remainingCount' },
-        { label: 'Correct', target: 'correctCount', color_class: 'green' },
-        { label: 'Incorrect', target: 'incorrectCount', color_class: 'red' },
-        { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
-      ],
-      'Finish', 'click->quiz-name-all-hard#finish', 'finishBtn'
-    )}
   </div>
   <div class="debug-fill-box" style="display: none;">
     <button class="debug-fill-btn" data-action="click->quiz-name-all-hard#debugGuessAll">Debug: Guess all</button>
