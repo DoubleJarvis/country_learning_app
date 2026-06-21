@@ -61,6 +61,14 @@ class QuizDatabase {
         )
       `)
 
+      // Key/value store for user-toggleable features and settings
+      this.db.run(`
+        CREATE TABLE IF NOT EXISTS settings (
+          key TEXT PRIMARY KEY,
+          value TEXT
+        )
+      `)
+
       // Handle schema migrations for existing databases
       this.migrateSchema()
 
@@ -413,6 +421,62 @@ class QuizDatabase {
     } catch (error) {
       console.error('Failed to get wrong guesses:', error)
       return []
+    }
+  }
+
+  getSetting(key) {
+    if (!this.db) return null
+
+    try {
+      const stmt = this.db.prepare('SELECT value FROM settings WHERE key = ?')
+      stmt.bind([key])
+
+      let value = null
+      if (stmt.step()) {
+        value = stmt.getAsObject().value
+      }
+      stmt.free()
+
+      return value
+    } catch (error) {
+      console.error('Failed to get setting:', error)
+      return null
+    }
+  }
+
+  setSetting(key, value) {
+    if (!this.db) {
+      console.error('Database not initialized')
+      return
+    }
+
+    try {
+      this.db.run(
+        `INSERT INTO settings (key, value) VALUES (?, ?)
+         ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+        [key, value]
+      )
+      this.saveToLocalStorage()
+    } catch (error) {
+      console.error('Failed to set setting:', error)
+    }
+  }
+
+  getAllSettings() {
+    if (!this.db) return {}
+
+    try {
+      const stmt = this.db.prepare('SELECT key, value FROM settings')
+      const settings = {}
+      while (stmt.step()) {
+        const row = stmt.getAsObject()
+        settings[row.key] = row.value
+      }
+      stmt.free()
+      return settings
+    } catch (error) {
+      console.error('Failed to get settings:', error)
+      return {}
     }
   }
 }

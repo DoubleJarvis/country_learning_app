@@ -554,6 +554,10 @@ export const templates = {
         <button data-action="click->stats#cancelClear" class="btn btn-neutral">Cancel</button>
       </div>
     </div>
+    <div class="settings-section">
+      <h2>Settings</h2>
+      <div class="settings-list" data-stats-target="settingsList"></div>
+    </div>
   </div>
 </div>`
 };

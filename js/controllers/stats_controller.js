@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { quizDb } from "db"
 import { countriesMapping } from "country_names"
+import { SETTINGS, getSetting, setSetting } from "settings"
 
 export default class extends Controller {
   static targets = [
@@ -9,7 +10,7 @@ export default class extends Controller {
     "hardCorrect", "hardShaky", "hardIncorrect",
     "nameAllCorrect", "nameAllRemaining", "nameAllIncorrect",
     "countryList", "searchInput", "sortSelect", "runsList",
-    "worstList", "slowestList", "clearBtn", "clearConfirm"
+    "worstList", "slowestList", "clearBtn", "clearConfirm", "settingsList"
   ]
 
   async connect() {
@@ -26,6 +27,72 @@ export default class extends Controller {
     await this.loadQuizRuns()
     await this.loadWorstCountries()
     await this.loadSlowestCountries()
+    this.renderSettings()
+  }
+
+  renderSettings() {
+    if (!this.hasSettingsListTarget) return
+
+    this.settingsListTarget.innerHTML = SETTINGS
+      .map(setting => {
+        // A two-option setting (e.g. off/on) renders as a light-switch toggle;
+        // the second option is the "on"/checked state. Anything else falls back
+        // to a dropdown.
+        const isToggle = setting.options.length === 2
+        const control = isToggle
+          ? this.renderToggle(setting)
+          : this.renderSelect(setting)
+
+        return `
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label">${this.escapeHtml(setting.label)}</div>
+              ${setting.description ? `<div class="setting-description">${this.escapeHtml(setting.description)}</div>` : ""}
+            </div>
+            ${control}
+          </div>
+        `
+      })
+      .join("")
+  }
+
+  renderToggle(setting) {
+    const onValue = setting.options[1]
+    const checked = getSetting(setting.key) === onValue ? "checked" : ""
+    return `
+      <label class="setting-switch">
+        <input type="checkbox" data-action="change->stats#changeSetting" data-setting-key="${setting.key}" ${checked}>
+        <span class="setting-switch-slider"></span>
+      </label>
+    `
+  }
+
+  renderSelect(setting) {
+    const current = getSetting(setting.key)
+    const options = setting.options
+      .map(opt => `<option value="${opt}" ${opt === current ? "selected" : ""}>${opt}</option>`)
+      .join("")
+    return `
+      <select class="setting-select" data-action="change->stats#changeSetting" data-setting-key="${setting.key}">
+        ${options}
+      </select>
+    `
+  }
+
+  changeSetting(event) {
+    const control = event.currentTarget
+    const key = control.dataset.settingKey
+    const setting = SETTINGS.find(s => s.key === key)
+
+    let value
+    if (control.type === "checkbox") {
+      // options = [offValue, onValue]
+      value = control.checked ? setting.options[1] : setting.options[0]
+    } else {
+      value = control.value
+    }
+
+    setSetting(key, value)
   }
 
   async loadStats() {

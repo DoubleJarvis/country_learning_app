@@ -1,6 +1,7 @@
 import { Application } from "@hotwired/stimulus"
 import { templates } from "./templates.js"
 import { getSharedMap, getSharedMapElement, resetSharedMap } from "shared_map"
+import { initSettings, applySettings, setSetting } from "settings"
 
 const stimulusApp = Application.start()
 
@@ -47,7 +48,7 @@ async function render() {
   resetSharedMap()
   container.innerHTML = templates[routeName]()
   placeSharedMap()
-  applyDebugVisibility()
+  applySettings()
 
   if (!registeredControllers.has(controllerName)) {
     const { default: ControllerClass } = await import(`./controllers/${controllerRoute}_controller.js?v=${sessionVersion}`)
@@ -72,30 +73,25 @@ function placeSharedMap() {
   }
 }
 
-// Debug controls are hidden by default; toggle from the console with
-// enableDebug() / disableDebug(). The choice persists in localStorage and is
-// re-applied on every render (mode switches rebuild the DOM).
-const DEBUG_STORAGE_KEY = 'debugEnabled'
-
-function applyDebugVisibility() {
-  const enabled = localStorage.getItem(DEBUG_STORAGE_KEY) === '1'
-  document.querySelectorAll('.debug-search-box, .debug-fill-box').forEach(el => {
-    // Clearing the inline style lets the stylesheet decide (flex for the fill box)
-    el.style.display = enabled ? '' : 'none'
-  })
-}
-
+// Debug is now a managed setting (see settings.js) toggleable from the Stats
+// page. These console helpers are kept as a convenience and route through the
+// same setting, which persists in the db and re-applies on every render.
 window.enableDebug = () => {
-  localStorage.setItem(DEBUG_STORAGE_KEY, '1')
-  applyDebugVisibility()
+  setSetting('debug', 'on')
   return 'Debug controls enabled'
 }
 
 window.disableDebug = () => {
-  localStorage.removeItem(DEBUG_STORAGE_KEY)
-  applyDebugVisibility()
+  setSetting('debug', 'off')
   return 'Debug controls disabled'
 }
 
+// Load settings (initializes the db) before the first render so applySettings()
+// reads real values; later renders reuse the in-memory cache synchronously.
+async function init() {
+  await initSettings()
+  render()
+}
+
 window.addEventListener('hashchange', render)
-window.addEventListener('load', render)
+window.addEventListener('load', init)
