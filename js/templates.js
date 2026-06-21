@@ -136,7 +136,8 @@ export const templates = {
       { label: 'Remaining', target: 'remainingCount' },
       { label: 'First try', target: 'greenCount', color_class: 'green' },
       { label: 'Second try', target: 'yellowCount', color_class: 'yellow' },
-      { label: 'Failed', target: 'redCount', color_class: 'red' }
+      { label: 'Failed', target: 'redCount', color_class: 'red' },
+      { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
     ],
     'Finish', 'click->quiz#finish', 'actionBtn', true
   )}
@@ -177,7 +178,8 @@ export const templates = {
       { label: 'Remaining', target: 'remainingCount' },
       { label: 'First try', target: 'greenCount', color_class: 'green' },
       { label: 'Second try', target: 'yellowCount', color_class: 'yellow' },
-      { label: 'Failed', target: 'redCount', color_class: 'red' }
+      { label: 'Failed', target: 'redCount', color_class: 'red' },
+      { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
     ],
     'Finish', 'click->quiz-hard#finish', 'actionBtn', true
   )}

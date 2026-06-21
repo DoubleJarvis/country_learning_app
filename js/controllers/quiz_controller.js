@@ -8,7 +8,7 @@ export default class extends Controller {
   static targets = ["container", "searchInput", "searchBox", "dropdown", "regionSelection", "statsBar",
                     "remainingCount", "greenCount", "yellowCount", "redCount",
                     "actionBtn", "finishedBanner", "finalGreen", "finalYellow", "finalRed",
-                    "debugSearchInput", "debugDropdown", "navButtons", "finalTime",
+                    "debugSearchInput", "debugDropdown", "navButtons", "finalTime", "timerDisplay",
     "lastGuess", "lastGuessCard", "lastGuessShape", "lastGuessName"]
 
   connect() {
@@ -26,6 +26,7 @@ export default class extends Controller {
     this.startTime = null
     this.endTime = null
     this.countryStartTime = null
+    this.timerInterval = null
     this.countrySvgs = {}
 
     this.initializeMap()
@@ -37,6 +38,7 @@ export default class extends Controller {
   }
 
   disconnect() {
+    this.stopTimer()
     if (this.map) {
       this.map.removeControl(this.navControl)
       this.map.removeControl(this.scaleControl)
@@ -167,6 +169,7 @@ export default class extends Controller {
 
     // Start timer
     this.startTime = Date.now()
+    this.startTimer()
 
     // Hide region selection
     this.regionSelectionTarget.style.display = "none"
@@ -584,6 +587,29 @@ export default class extends Controller {
     }
   }
 
+  startTimer() {
+    this.timerInterval = setInterval(() => {
+      this.updateTimerDisplay()
+    }, 1000)
+    this.updateTimerDisplay()
+  }
+
+  updateTimerDisplay() {
+    if (!this.startTime) return
+
+    const elapsed = Math.floor((Date.now() - this.startTime) / 1000)
+    const minutes = Math.floor(elapsed / 60)
+    const seconds = elapsed % 60
+    this.timerDisplayTarget.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`
+  }
+
+  stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval)
+      this.timerInterval = null
+    }
+  }
+
   restart() {
     this.restart()
   }
@@ -594,6 +620,7 @@ export default class extends Controller {
 
   restart() {
     // Reset all state
+    this.stopTimer()
     this.isFinished = false
     this.currentRegion = null
     this.remainingCountries = []
@@ -654,6 +681,7 @@ export default class extends Controller {
     this.isFinished = true
 
     // Stop timer
+    this.stopTimer()
     this.endTime = Date.now()
     const elapsedMs = this.endTime - this.startTime
     const totalSeconds = Math.floor(elapsedMs / 1000)
