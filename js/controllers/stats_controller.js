@@ -18,7 +18,7 @@ export default class extends Controller {
     this.filteredCountryStats = []
     this.quizRuns = []
     this.filteredQuizRuns = []
-    this.runsFilter = 'all' // 'all', 'full', 'partial'
+    this.runsFilter = 'full' // 'full', 'partial', 'all' — matches the active tab in the template
     this.worstCountries = []
     this.slowestCountries = []
     await quizDb.initialize()
@@ -382,8 +382,9 @@ export default class extends Controller {
   }
 
   filterRuns(event) {
-    // Get filter from event or default to 'all'
-    const filter = event?.currentTarget?.dataset?.filter || 'all'
+    // Use the clicked tab's filter, or (on the initial call) the current
+    // default so the rendered list matches the active tab.
+    const filter = event?.currentTarget?.dataset?.filter || this.runsFilter
     this.runsFilter = filter
 
     // Update active tab styling
@@ -431,14 +432,11 @@ export default class extends Controller {
         const durationStr = `${minutes}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`
 
         const total = run.correct_count + run.shaky_count + run.incorrect_count
-        const quizTypeLabel = run.quiz_type === "normal" ? "Normal" :
-                              run.quiz_type === "hard" ? "Hard" :
-                              run.quiz_type === "name_all" ? "Name All" :
-                              run.quiz_type === "place" ? "Place" : "Unknown"
+        const { mode, modeKey, difficulty, difficultyKey } = this.quizTypeInfo(run.quiz_type)
         const regionLabel = this.formatRegionName(run.region)
 
-        // For Name All mode, shaky_count stores remaining count
-        const isNameAll = run.quiz_type === "name_all"
+        // For all Name All variants, shaky_count stores the remaining count
+        const isNameAll = run.quiz_type.startsWith("name_all")
         const middleStatLabel = isNameAll ? "Remaining:" : "~:"
         const middleStatClass = isNameAll ? "red" : "yellow"
 
@@ -446,7 +444,8 @@ export default class extends Controller {
           <div class="run-item">
             <div class="run-header">
               <div class="run-info">
-                <span class="run-quiz-type ${run.quiz_type}">${quizTypeLabel}</span>
+                <span class="run-quiz-type ${modeKey}">${mode}</span>
+                ${difficulty ? `<span class="run-difficulty ${difficultyKey}">${difficulty}</span>` : ''}
                 <span class="run-region">${regionLabel}</span>
                 <span class="run-date">${dateStr} ${timeStr}</span>
               </div>
@@ -474,6 +473,21 @@ export default class extends Controller {
         `
       })
       .join("")
+  }
+
+  // Splits a recorded quiz_type into a display mode, a color key, and a
+  // difficulty. modeKey matches the .run-quiz-type.<key> styles in index.css.
+  quizTypeInfo(quizType) {
+    const info = {
+      normal:        { mode: "Quiz",     modeKey: "quiz",     difficulty: "Normal", difficultyKey: "normal" },
+      hard:          { mode: "Quiz",     modeKey: "quiz",     difficulty: "Hard",   difficultyKey: "hard" },
+      name_all_easy: { mode: "Name All", modeKey: "name_all", difficulty: "Easy",   difficultyKey: "easy" },
+      name_all:      { mode: "Name All", modeKey: "name_all", difficulty: "Normal", difficultyKey: "normal" },
+      name_all_hard: { mode: "Name All", modeKey: "name_all", difficulty: "Hard",   difficultyKey: "hard" },
+      place:         { mode: "Place",    modeKey: "place",    difficulty: null,     difficultyKey: "" }
+    }
+    // Fall back to the raw type (rather than "Unknown") for any future modes
+    return info[quizType] || { mode: quizType, modeKey: "", difficulty: null, difficultyKey: "" }
   }
 
   formatRegionName(region) {

@@ -1374,10 +1374,24 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
   font-size: 0.9em;
 }
 
-.run-quiz-type.normal { background-color: #4a9eff; color: white; }
-.run-quiz-type.hard { background-color: #ef4444; color: white; }
+.run-quiz-type.quiz { background-color: #4a9eff; color: white; }
 .run-quiz-type.name_all { background-color: #8b5cf6; color: white; }
 .run-quiz-type.place { background-color: #10b981; color: white; }
+
+.run-difficulty {
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  background-color: #2a2a2a;
+  border: 1px solid currentColor;
+  color: #cfcfcf;
+}
+
+.run-difficulty.easy { color: #4ade80; }
+.run-difficulty.normal { color: #fbbf24; }
+.run-difficulty.hard { color: #ef4444; }
+
 .run-region { font-weight: 500; color: #e0e0e0; }
 .run-date { font-size: 0.85em; color: #888; }
 .run-time { font-size: 1.2em; font-weight: 600; color: #4a9eff; font-family: monospace; }
