@@ -868,6 +868,81 @@ export default class extends Controller {
     }
   }
 
+  debugFastFill() {
+    if (this.isFinished || this.remainingCountries.length === 0) {
+      return
+    }
+
+    // Mark all remaining countries as green (first try correct)
+    while (this.remainingCountries.length > 0) {
+      const countryCode = this.remainingCountries[0]
+
+      // Mark as green
+      this.stats.green++
+      this.guessedCountries.push({ code: countryCode, color: "green" })
+
+      // Record in database
+      const displayName = countriesMapping[countryCode]?.display_name || countryCode
+      quizDb.recordGuess(countryCode, displayName, "normal", "correct")
+
+      // Remove from remaining
+      this.remainingCountries.shift()
+    }
+
+    // Update the map and stats
+    this.updateMapLayers()
+    this.updateStats()
+
+    // End the quiz (completed fully via debug fill)
+    this.endQuiz(true)
+  }
+
+  debugRealisticFill() {
+    if (this.isFinished || this.remainingCountries.length === 0) {
+      return
+    }
+
+    // Mark all remaining countries with random outcomes: 1/3 green, 1/3 yellow, 1/3 red
+    while (this.remainingCountries.length > 0) {
+      const countryCode = this.remainingCountries[0]
+      const random = Math.random()
+
+      let color, guessType
+      if (random < 1/3) {
+        // Green - correct on first try
+        color = "green"
+        guessType = "correct"
+        this.stats.green++
+      } else if (random < 2/3) {
+        // Yellow - correct on second try
+        color = "yellow"
+        guessType = "shaky"
+        this.stats.yellow++
+      } else {
+        // Red - failed
+        color = "red"
+        guessType = "incorrect"
+        this.stats.red++
+      }
+
+      this.guessedCountries.push({ code: countryCode, color })
+
+      // Record in database
+      const displayName = countriesMapping[countryCode]?.display_name || countryCode
+      quizDb.recordGuess(countryCode, displayName, "normal", guessType)
+
+      // Remove from remaining
+      this.remainingCountries.shift()
+    }
+
+    // Update the map and stats
+    this.updateMapLayers()
+    this.updateStats()
+
+    // End the quiz (completed fully via debug fill)
+    this.endQuiz(true)
+  }
+
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
   }

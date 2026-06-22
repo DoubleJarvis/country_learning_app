@@ -559,7 +559,7 @@ export default class extends Controller {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
-  async debugGuessAll() {
+  async debugFill() {
     if (this.isFinished) {
       return
     }
@@ -604,7 +604,45 @@ export default class extends Controller {
     // Re-enable the button
     if (button) {
       button.disabled = false
-      button.textContent = 'Debug: Guess all'
+      button.textContent = 'Debug: Fill'
     }
+  }
+
+  debugFastFill() {
+    if (this.isFinished) {
+      return
+    }
+
+    // Instantly name every remaining country correctly
+    const remainingCodes = this.regionCountries.filter(code => !this.guessedCodes.has(code))
+    for (const countryCode of remainingCodes) {
+      this.guessedCodes.add(countryCode)
+      this.correctCountries.push(countryCode)
+      this.correctCountryNames.push(countriesMapping[countryCode].display_name)
+      this.stats.correct++
+    }
+
+    this.updateStats()
+    this.finish()
+  }
+
+  debugRealisticFill() {
+    if (this.isFinished) {
+      return
+    }
+
+    // Name a random ~2/3 of remaining countries, leaving the rest unguessed
+    const remainingCodes = this.regionCountries.filter(code => !this.guessedCodes.has(code))
+    for (const countryCode of remainingCodes) {
+      if (Math.random() < 2/3) {
+        this.guessedCodes.add(countryCode)
+        this.correctCountries.push(countryCode)
+        this.correctCountryNames.push(countriesMapping[countryCode].display_name)
+        this.stats.correct++
+      }
+    }
+
+    this.updateStats()
+    this.finish()
   }
 }

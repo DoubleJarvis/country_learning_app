@@ -186,6 +186,8 @@ export const templates = {
   </div>
   <div class="debug-fill-box" style="display: none;">
     <button class="debug-fill-btn" data-action="click->quiz#debugFill">Debug: Fill</button>
+    <button class="debug-fast-fill-btn" data-action="click->quiz#debugFastFill">Debug: Fast Fill</button>
+    <button class="debug-realistic-fill-btn" data-action="click->quiz#debugRealisticFill">Debug: Fill Realistic</button>
   </div>
 </div>`,
 
@@ -387,7 +389,9 @@ export const templates = {
     </div>
   </div>
   <div class="debug-fill-box" style="display: none;">
-    <button class="debug-fill-btn" data-action="click->quiz-name-all-easy#debugGuessAll">Debug: Guess all</button>
+    <button class="debug-fill-btn" data-action="click->quiz-name-all-easy#debugFill">Debug: Fill</button>
+    <button class="debug-fast-fill-btn" data-action="click->quiz-name-all-easy#debugFastFill">Debug: Fast Fill</button>
+    <button class="debug-realistic-fill-btn" data-action="click->quiz-name-all-easy#debugRealisticFill">Debug: Fill Realistic</button>
   </div>
 </div>`,
 
@@ -427,7 +431,9 @@ export const templates = {
     </div>
   </div>
   <div class="debug-fill-box" style="display: none;">
-    <button class="debug-fill-btn" data-action="click->quiz-name-all#debugGuessAll">Debug: Guess all</button>
+    <button class="debug-fill-btn" data-action="click->quiz-name-all#debugFill">Debug: Fill</button>
+    <button class="debug-fast-fill-btn" data-action="click->quiz-name-all#debugFastFill">Debug: Fast Fill</button>
+    <button class="debug-realistic-fill-btn" data-action="click->quiz-name-all#debugRealisticFill">Debug: Fill Realistic</button>
   </div>
 </div>`,
 
@@ -467,7 +473,9 @@ export const templates = {
     </div>
   </div>
   <div class="debug-fill-box" style="display: none;">
-    <button class="debug-fill-btn" data-action="click->quiz-name-all-hard#debugGuessAll">Debug: Guess all</button>
+    <button class="debug-fill-btn" data-action="click->quiz-name-all-hard#debugFill">Debug: Fill</button>
+    <button class="debug-fast-fill-btn" data-action="click->quiz-name-all-hard#debugFastFill">Debug: Fast Fill</button>
+    <button class="debug-realistic-fill-btn" data-action="click->quiz-name-all-hard#debugRealisticFill">Debug: Fill Realistic</button>
   </div>
 </div>`,
 
