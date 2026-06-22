@@ -526,12 +526,9 @@ body {
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
-}
-
-.place-shape svg {
-  display: block;
-  width: 100%;
-  height: 100%;
+  background-color: currentColor;
+  -webkit-mask: var(--shape) center / contain no-repeat;
+  mask: var(--shape) center / contain no-repeat;
 }
 
 .place-shape.dragging {
@@ -540,18 +537,6 @@ body {
   z-index: 3000;
   cursor: grabbing;
   opacity: 0.85;
-}
-
-.place-shape-fallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px dashed #ffd700;
-  border-radius: 8px;
-  color: #ffd700;
-  font-size: 20px;
 }
 
 /* Autocomplete */
@@ -639,23 +624,16 @@ body {
 .guessed-country.correct { background: #1e4d2b; color: #4ade80; }
 .guessed-country.incorrect { background: #4d2a1e; color: #fbbf24; }
 
+/* Local silhouette SVG painted as a CSS mask so it takes the current text
+   color (see country_shapes.js; --shape is set per element). */
 .country-shape {
   width: 100%;
   height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-color: currentColor;
+  -webkit-mask: var(--shape) center / contain no-repeat;
+  mask: var(--shape) center / contain no-repeat;
 }
 
-.country-shape svg {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-}
-
-.country-shape svg path { vector-effect: non-scaling-stroke; }
 .country-name { width: 100%; font-size: 12px; }
 
 /* Game UI (name-all modes) */
