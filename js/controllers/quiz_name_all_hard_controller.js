@@ -203,12 +203,19 @@ export default class extends Controller {
   }
 
   updateGuessedList() {
-    // Only show incorrect guesses; correctly guessed countries are omitted
-    const allGuesses = this.incorrectCountryNames.map((name, i) => ({
-      name,
-      correct: false,
-      code: this.incorrectCountries[i]
-    }))
+    // While playing, show correctly guessed countries (map hides names in Hard mode).
+    // Once finished, show only incorrect guesses; correct ones are omitted.
+    const allGuesses = this.isFinished
+      ? this.incorrectCountryNames.map((name, i) => ({
+          name,
+          correct: false,
+          code: this.incorrectCountries[i]
+        }))
+      : this.correctCountryNames.map((name, i) => ({
+          name,
+          correct: true,
+          code: this.correctCountries[i]
+        }))
 
     this.guessedListTarget.innerHTML = `
       <div class="guessed-grid">
