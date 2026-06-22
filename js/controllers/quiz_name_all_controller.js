@@ -221,18 +221,12 @@ export default class extends Controller {
   }
 
   updateGuessedList() {
-    const allGuesses = [
-      ...this.correctCountryNames.map((name, i) => ({
-        name,
-        correct: true,
-        code: this.correctCountries[i]
-      })),
-      ...this.incorrectCountryNames.map((name, i) => ({
-        name,
-        correct: false,
-        code: this.incorrectCountries[i]
-      }))
-    ]
+    // Only show incorrect guesses; correctly guessed countries are omitted
+    const allGuesses = this.incorrectCountryNames.map((name, i) => ({
+      name,
+      correct: false,
+      code: this.incorrectCountries[i]
+    }))
 
     this.guessedListTarget.innerHTML = `
       <div class="guessed-grid">
