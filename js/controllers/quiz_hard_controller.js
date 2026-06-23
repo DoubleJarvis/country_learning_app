@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion, countryBounds } from "country_names"
 import { quizDb } from "db"
-import { applyCountryShape } from "country_shapes"
+import { applyCountryShape, countryShapeMarkup } from "country_shapes"
 import { getSharedMap, whenMapReady } from "shared_map"
 
 export default class extends Controller {
@@ -10,7 +10,7 @@ export default class extends Controller {
                     "regionSelection", "statsBar", "remainingCount", "greenCount",
                     "yellowCount", "redCount", "actionBtn", "finishedBanner",
                     "finalGreen", "finalYellow", "finalRed", "debugSearchInput", "debugDropdown",
-                    "navButtons", "finalTime", "timerDisplay",
+                    "navButtons", "finalTime", "timerDisplay", "resultsList",
                     "lastGuess", "lastGuessCard", "lastGuessShape", "lastGuessName"]
 
   connect() {
@@ -774,6 +774,8 @@ export default class extends Controller {
     this.searchBoxTarget.style.display = "none"
     this.finishedBannerTarget.style.display = "none"
     this.lastGuessTarget.style.display = "none"
+    this.resultsListTarget.style.display = "none"
+    this.resultsListTarget.innerHTML = ""
 
     // Hide scale control
     const scaleElements = document.querySelectorAll('.maplibregl-ctrl-scale')
@@ -842,6 +844,9 @@ export default class extends Controller {
     // Show finished banner
     this.finishedBannerTarget.style.display = "block"
 
+    // List the incorrect (red) and shaky (yellow) countries under the card
+    this.renderResultsList()
+
     // Hide overlay map container
     this.overlayContainerTarget.style.display = "none"
 
@@ -855,6 +860,33 @@ export default class extends Controller {
       this.mainMap.doubleClickZoom.enable()
       this.mainMap.touchZoomRotate.enable()
     }
+  }
+
+  // Build the list of missed countries shown under the Game Complete card:
+  // incorrect (red) first, then shaky (yellow). Each entry is shape + name.
+  renderResultsList() {
+    const colorToClass = { red: "incorrect", yellow: "shaky" }
+    const order = { red: 0, yellow: 1 }
+
+    const items = this.guessedCountries
+      .filter(c => c.color === "red" || c.color === "yellow")
+      .sort((a, b) => order[a.color] - order[b.color])
+
+    if (items.length === 0) {
+      this.resultsListTarget.style.display = "none"
+      this.resultsListTarget.innerHTML = ""
+      return
+    }
+
+    this.resultsListTarget.innerHTML = items.map(({ code, color }) => {
+      const name = countriesMapping[code]?.display_name || code
+      return `<div class="result-item ${colorToClass[color]}">
+        ${countryShapeMarkup(code)}
+        <span class="result-name">${name}</span>
+      </div>`
+    }).join("")
+
+    this.resultsListTarget.style.display = "flex"
   }
 
   // Debug search handlers

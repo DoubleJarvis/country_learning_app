@@ -205,17 +205,20 @@ export const templates = {
     ],
     'Finish', 'click->quiz-hard#finish', 'actionBtn', true
   )}
-  <div class="finished-banner" data-quiz-hard-target="finishedBanner" style="display: none;">
-    <div class="finished-content">
-      <h2>Game Complete!</h2>
-      <div class="finished-time" data-quiz-hard-target="finalTime"></div>
-      <div class="finished-stats">
-        <div class="finished-stat green"><span class="finished-label">First try:</span><span class="finished-value" data-quiz-hard-target="finalGreen">0</span></div>
-        <div class="finished-stat yellow"><span class="finished-label">Second try:</span><span class="finished-value" data-quiz-hard-target="finalYellow">0</span></div>
-        <div class="finished-stat red"><span class="finished-label">Failed:</span><span class="finished-value" data-quiz-hard-target="finalRed">0</span></div>
+  <div class="quiz-hard-finish">
+    <div class="finished-banner" data-quiz-hard-target="finishedBanner" style="display: none;">
+      <div class="finished-content">
+        <h2>Game Complete!</h2>
+        <div class="finished-time" data-quiz-hard-target="finalTime"></div>
+        <div class="finished-stats">
+          <div class="finished-stat green"><span class="finished-label">First try:</span><span class="finished-value" data-quiz-hard-target="finalGreen">0</span></div>
+          <div class="finished-stat yellow"><span class="finished-label">Second try:</span><span class="finished-value" data-quiz-hard-target="finalYellow">0</span></div>
+          <div class="finished-stat red"><span class="finished-label">Failed:</span><span class="finished-value" data-quiz-hard-target="finalRed">0</span></div>
+        </div>
+        <button class="restart-btn action-btn" data-action="click->quiz-hard#restart">Restart</button>
       </div>
-      <button class="restart-btn action-btn" data-action="click->quiz-hard#restart">Restart</button>
     </div>
+    <div class="results-list" data-quiz-hard-target="resultsList" style="display: none;"></div>
   </div>
   <div id="main-map" data-map-slot data-quiz-hard-target="mainContainer"></div>
   <div id="overlay-map" data-quiz-hard-target="overlayContainer"></div>
