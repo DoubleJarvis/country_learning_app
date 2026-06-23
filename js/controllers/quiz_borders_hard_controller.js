@@ -550,7 +550,11 @@ export default class extends Controller {
     }
   }
 
-  async correctGuess(countryCode) {
+  // Mark a country as correctly guessed: track it, bump the count, and
+  // remove it from the remaining list. Returns false if it was already counted.
+  markCountryCorrect(countryCode) {
+    if (this.guessedCountries.has(countryCode)) return false
+
     this.guessedCountries.add(countryCode)
     this.correctCount++
 
@@ -559,6 +563,12 @@ export default class extends Controller {
     if (index > -1) {
       this.remainingCountries.splice(index, 1)
     }
+
+    return true
+  }
+
+  async correctGuess(countryCode) {
+    this.markCountryCorrect(countryCode)
 
     // Show green on the map
     this.updateMapLayers()
@@ -584,6 +594,17 @@ export default class extends Controller {
     // Check if all borders of current country are found
     const allBordersFound = this.borders.every(border => this.guessedCountries.has(border))
     if (allBordersFound && this.borders.length > 0) {
+      // The presented country is now fully bordered - mark it correct too
+      this.markCountryCorrect(this.currentCountry)
+      this.updateMapLayers()
+      this.updateStats()
+
+      // Marking the target may have completed the region
+      if (this.remainingCountries.length === 0) {
+        this.endGame(true)
+        return
+      }
+
       // Move to next country
       await this.pickNewCountry()
     }
