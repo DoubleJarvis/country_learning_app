@@ -3,7 +3,7 @@ import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, countryBounds } from "country_names"
 import { quizDb } from "db"
 import { getSharedMap } from "shared_map"
-import { applyCountryShape } from "country_shapes"
+import { applyCountryShape, isShapeOnlyCountry, loadCountrySvg, shapeScaleBar } from "country_shapes"
 
 // Practice mode: shows shapes of the player's worst (or slowest) countries in
 // random order, endlessly, until Finish is pressed. One controller serves both
@@ -16,7 +16,7 @@ export default class extends Controller {
                     "searchInput", "searchBox", "dropdown", "actionBtn", "finishedBanner",
                     "finalCorrect", "finalIncorrect", "finalTime",
                     "lastGuess", "lastGuessCard", "lastGuessName", "lastGuessShape",
-                    "mainContainer", "overlayContainer", "navButtons"]
+                    "mainContainer", "overlayContainer", "overlayShape", "overlayShapeIcon", "overlayScale", "navButtons"]
 
   connect() {
     this.highlightedIndex = -1
@@ -196,6 +196,16 @@ export default class extends Controller {
   }
 
   showIsolatedCountry(countryCode) {
+    // Tiny countries are unrecognizable as map blobs - show the SVG instead
+    if (isShapeOnlyCountry(countryCode)) {
+      this.showShapeOnly(countryCode)
+      return
+    }
+
+    this.overlayShapeTarget.style.display = "none"
+    this.overlayContainerTarget.style.display = "block"
+    this.overlayMap.resize()
+
     if (!this.overlayMap.getLayer("isolated-country")) {
       if (this.overlayMap.isStyleLoaded()) {
         this.setupOverlayMapLayers()
@@ -222,6 +232,30 @@ export default class extends Controller {
         }
       )
     }
+  }
+
+  // Render the detailed local SVG (with its own scale bar) for tiny countries.
+  async showShapeOnly(countryCode) {
+    this.overlayContainerTarget.style.display = "none"
+    this.overlayShapeIconTarget.innerHTML = await loadCountrySvg(countryCode)
+    this.overlayShapeTarget.style.display = "block"
+    // Wait for layout so the silhouette's rendered size can be measured
+    requestAnimationFrame(() => this.updateShapeScale(countryCode))
+  }
+
+  updateShapeScale(countryCode) {
+    // Measure the wrapping <g> so multi-path silhouettes (islands) are fully covered
+    const shape = this.overlayShapeIconTarget.querySelector("g, path")
+    const scale = shape && shapeScaleBar(shape.getBoundingClientRect().width, countryBounds[countryCode])
+
+    if (!scale) {
+      this.overlayScaleTarget.style.display = "none"
+      return
+    }
+
+    this.overlayScaleTarget.textContent = scale.label
+    this.overlayScaleTarget.style.width = `${scale.barPx}px`
+    this.overlayScaleTarget.style.display = "block"
   }
 
   handleSearch(event) {
@@ -444,6 +478,7 @@ export default class extends Controller {
     this.searchBoxTarget.style.display = "none"
     this.lastGuessTarget.style.display = "none"
     this.overlayContainerTarget.style.display = "none"
+    this.overlayShapeTarget.style.display = "none"
 
     const scaleElements = document.querySelectorAll('.maplibregl-ctrl-scale')
     scaleElements.forEach(el => el.style.display = 'none')
@@ -466,6 +501,7 @@ export default class extends Controller {
 
     this.finishedBannerTarget.style.display = "none"
     this.overlayContainerTarget.style.display = "block"
+    this.overlayShapeTarget.style.display = "none"
     // Clear the inline style so the stylesheet's flex layout applies again
     this.startScreenTarget.style.display = ""
 

@@ -139,6 +139,10 @@ const PRACTICE_PAGE = (source, navDifficulty, difficultyLabel, description) => `
   </div>
   <div id="main-map" data-map-slot data-practice-target="mainContainer"></div>
   <div id="overlay-map" class="practice-overlay" data-practice-target="overlayContainer"></div>
+  <div class="overlay-shape practice-overlay" data-practice-target="overlayShape">
+    <div class="overlay-shape-svg" data-practice-target="overlayShapeIcon"></div>
+    <div class="overlay-scale" data-practice-target="overlayScale"></div>
+  </div>
   <div class="search-box" data-practice-target="searchBox" style="display: none;">
     <input type="text" data-practice-target="searchInput" data-action="input->practice#handleSearch keydown->practice#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-practice-target="dropdown"></div>
@@ -222,6 +226,10 @@ export const templates = {
   </div>
   <div id="main-map" data-map-slot data-quiz-hard-target="mainContainer"></div>
   <div id="overlay-map" data-quiz-hard-target="overlayContainer"></div>
+  <div class="overlay-shape hard-overlay" data-quiz-hard-target="overlayShape">
+    <div class="overlay-shape-svg" data-quiz-hard-target="overlayShapeIcon"></div>
+    <div class="overlay-scale" data-quiz-hard-target="overlayScale"></div>
+  </div>
   <div class="search-box" data-quiz-hard-target="searchBox" style="display: none;">
     <input type="text" data-quiz-hard-target="searchInput" data-action="input->quiz-hard#handleSearch keydown->quiz-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
     <div class="autocomplete-dropdown" data-quiz-hard-target="dropdown"></div>

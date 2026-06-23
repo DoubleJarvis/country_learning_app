@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion, countryBounds } from "country_names"
 import { quizDb } from "db"
-import { applyCountryShape, countryShapeMarkup } from "country_shapes"
+import { applyCountryShape, countryShapeMarkup, isShapeOnlyCountry, loadCountrySvg, shapeScaleBar } from "country_shapes"
 import { getSharedMap, whenMapReady } from "shared_map"
 
 export default class extends Controller {
@@ -11,6 +11,7 @@ export default class extends Controller {
                     "yellowCount", "redCount", "actionBtn", "finishedBanner",
                     "finalGreen", "finalYellow", "finalRed", "debugSearchInput", "debugDropdown",
                     "navButtons", "finalTime", "timerDisplay", "resultsList",
+                    "overlayShape", "overlayShapeIcon", "overlayScale",
                     "lastGuess", "lastGuessCard", "lastGuessShape", "lastGuessName"]
 
   connect() {
@@ -375,6 +376,16 @@ export default class extends Controller {
   }
 
   showIsolatedCountry(countryCode) {
+    // Tiny countries are unrecognizable as map blobs - show the SVG instead
+    if (isShapeOnlyCountry(countryCode)) {
+      this.showShapeOnly(countryCode)
+      return
+    }
+
+    this.overlayShapeTarget.style.display = "none"
+    this.overlayContainerTarget.style.display = "block"
+    this.overlayMap.resize()
+
     // Ensure layers exist before filtering
     if (!this.overlayMap.getLayer("isolated-country")) {
       // Wait for style to load, then try again
@@ -405,6 +416,30 @@ export default class extends Controller {
         }
       )
     }
+  }
+
+  // Render the detailed local SVG (with its own scale bar) for tiny countries.
+  async showShapeOnly(countryCode) {
+    this.overlayContainerTarget.style.display = "none"
+    this.overlayShapeIconTarget.innerHTML = await loadCountrySvg(countryCode)
+    this.overlayShapeTarget.style.display = "block"
+    // Wait for layout so the silhouette's rendered size can be measured
+    requestAnimationFrame(() => this.updateShapeScale(countryCode))
+  }
+
+  updateShapeScale(countryCode) {
+    // Measure the wrapping <g> so multi-path silhouettes (islands) are fully covered
+    const shape = this.overlayShapeIconTarget.querySelector("g, path")
+    const scale = shape && shapeScaleBar(shape.getBoundingClientRect().width, countryBounds[countryCode])
+
+    if (!scale) {
+      this.overlayScaleTarget.style.display = "none"
+      return
+    }
+
+    this.overlayScaleTarget.textContent = scale.label
+    this.overlayScaleTarget.style.width = `${scale.barPx}px`
+    this.overlayScaleTarget.style.display = "block"
   }
 
   handleSearch(event) {
@@ -784,8 +819,9 @@ export default class extends Controller {
     // Show region selection
     this.regionSelectionTarget.style.display = "block"
 
-    // Show overlay map container again
+    // Show overlay map container again, hide the SVG overlay
     this.overlayContainerTarget.style.display = "block"
+    this.overlayShapeTarget.style.display = "none"
 
     // Disable main map interaction again
     if (this.mainMap) {
@@ -847,8 +883,9 @@ export default class extends Controller {
     // List the incorrect (red) and shaky (yellow) countries under the card
     this.renderResultsList()
 
-    // Hide overlay map container
+    // Hide overlay map container and the SVG overlay
     this.overlayContainerTarget.style.display = "none"
+    this.overlayShapeTarget.style.display = "none"
 
     // Enable main map interaction
     if (this.mainMap) {

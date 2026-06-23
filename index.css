@@ -975,6 +975,73 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
   background: transparent;
 }
 
+/* SVG silhouette shown in place of the overlay map for tiny countries that
+   would otherwise be unrecognizable blobs. Mirrors the #overlay-map box. */
+.overlay-shape {
+  position: absolute;
+  z-index: 3;
+  display: none;
+  box-sizing: border-box;
+  padding: 24px;
+}
+
+.overlay-shape-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Inline silhouette styled to match the map's isolated country: grey fill,
+   gold border. Stroke stays a constant width regardless of shape size. */
+.overlay-shape-svg svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.overlay-shape-svg svg path {
+  fill: #3a3a3a;
+  stroke: #ffd700;
+  stroke-width: 1.5px;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Scale bar beside the silhouette, styled to match MapLibre's ScaleControl.
+   Width (the measured distance) is set inline by the controller. */
+.overlay-scale {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  margin: 0 0 10px 10px;
+  box-sizing: border-box;
+  background-color: rgba(42, 42, 42, 0.7);
+  color: #888;
+  border: 1px solid rgba(64, 64, 64, 0.5);
+  border-top: none;
+  font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  padding: 2px 5px;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+/* Hard mode: same box as #overlay-map */
+.overlay-shape.hard-overlay {
+  bottom: 15%;
+  left: 5%;
+  width: 45vw;
+  height: 45vh;
+}
+
+/* Practice mode: same box as #overlay-map.practice-overlay */
+.overlay-shape.practice-overlay {
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  width: 60vw;
+  height: 64vh;
+}
+
 #main-map {
   position: absolute;
   top: 0;
