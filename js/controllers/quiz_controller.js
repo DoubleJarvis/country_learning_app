@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion, countryBounds } from "country_names"
 import { quizDb } from "db"
-import { getSharedMap, whenMapReady } from "shared_map"
+import { getSharedMap, whenMapReady, enableMapInteraction } from "shared_map"
 import { applyCountryShape } from "country_shapes"
 
 export default class extends Controller {
@@ -708,6 +708,9 @@ export default class extends Controller {
 
     // Show finished banner
     this.finishedBannerTarget.style.display = "block"
+
+    // Always leave the finished map freely explorable
+    enableMapInteraction(this.map)
 
     // Zoom out to show the whole region
     this.map.flyTo({

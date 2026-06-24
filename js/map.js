@@ -111,6 +111,20 @@ export function resetSharedMap() {
   map.jumpTo({ center: [0, 20], zoom: 1.5 })
 }
 
+// Enables every user-interaction handler on a map. Game modes call this when a
+// game ends so the finished map is always freely pannable/zoomable.
+export function enableMapInteraction(map) {
+  if (!map) return
+
+  map.boxZoom.enable()
+  map.scrollZoom.enable()
+  map.dragPan.enable()
+  map.dragRotate.enable()
+  map.keyboard.enable()
+  map.doubleClickZoom.enable()
+  map.touchZoomRotate.enable()
+}
+
 function stripModeLayers() {
   for (const layer of map.getStyle().layers) {
     if (!BASE_LAYER_IDS.includes(layer.id)) {

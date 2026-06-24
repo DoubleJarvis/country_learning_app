@@ -3,7 +3,7 @@ import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion, countryBounds } from "country_names"
 import { quizDb } from "db"
 import { applyCountryShape, countryShapeMarkup, isShapeOnlyCountry, loadCountrySvg, shapeScaleBar } from "country_shapes"
-import { getSharedMap, whenMapReady } from "shared_map"
+import { getSharedMap, whenMapReady, enableMapInteraction } from "shared_map"
 
 export default class extends Controller {
   static targets = ["mainContainer", "overlayContainer", "searchInput", "searchBox", "dropdown",
@@ -887,16 +887,8 @@ export default class extends Controller {
     this.overlayContainerTarget.style.display = "none"
     this.overlayShapeTarget.style.display = "none"
 
-    // Enable main map interaction
-    if (this.mainMap) {
-      this.mainMap.boxZoom.enable()
-      this.mainMap.scrollZoom.enable()
-      this.mainMap.dragPan.enable()
-      this.mainMap.dragRotate.enable()
-      this.mainMap.keyboard.enable()
-      this.mainMap.doubleClickZoom.enable()
-      this.mainMap.touchZoomRotate.enable()
-    }
+    // Always leave the finished map freely explorable
+    enableMapInteraction(this.mainMap)
   }
 
   // Build the list of missed countries shown under the Game Complete card:

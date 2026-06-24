@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, countryBounds, getCountriesForRegion } from "country_names"
 import { getRandomCountryWithBordersFromRegion, getBorders } from "adjacency_helper"
-import { getSharedMap, whenMapReady } from "shared_map"
+import { getSharedMap, whenMapReady, enableMapInteraction } from "shared_map"
 import { countryShapeMarkup } from "country_shapes"
 
 export default class extends Controller {
@@ -667,6 +667,9 @@ export default class extends Controller {
     this.finalTimeTarget.textContent = timeString
     this.finalCorrectTarget.textContent = this.correctCount
     this.finalMistakesTarget.textContent = this.mistakeCount
+
+    // Always leave the finished map freely explorable
+    enableMapInteraction(this.map)
 
     // Show all missed countries
     const missedCountries = this.remainingCountries.filter(code => !this.guessedCountries.has(code))

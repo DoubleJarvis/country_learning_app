@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, countryBounds } from "country_names"
 import { getRandomCountryWithBorders, getBorders } from "adjacency_helper"
-import { getSharedMap, whenMapReady } from "shared_map"
+import { getSharedMap, whenMapReady, enableMapInteraction } from "shared_map"
 
 export default class extends Controller {
   static targets = ["container", "searchInput", "searchBox", "dropdown", "startScreen", "statsBar",
@@ -536,6 +536,9 @@ export default class extends Controller {
     this.finalTimeTarget.textContent = timeString
     this.finalCorrectTarget.textContent = `${this.correctGuesses} / ${this.borders.length}`
     this.finalIncorrectTarget.textContent = this.incorrectGuesses
+
+    // Always leave the finished map freely explorable
+    enableMapInteraction(this.map)
 
     // Calculate missed borders
     const missedBorders = this.borders.filter(code => !this.guessedBorders.has(code))

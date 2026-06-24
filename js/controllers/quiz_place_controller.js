@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { countriesMapping, getCountriesForRegion, countryBounds } from "country_names"
 import { quizDb } from "db"
-import { getSharedMap, whenMapReady } from "shared_map"
+import { getSharedMap, whenMapReady, enableMapInteraction } from "shared_map"
 import { applyCountryShape } from "country_shapes"
 
 const TROPIC_LAT = 23.43656
@@ -434,6 +434,9 @@ export default class extends Controller {
     this.statsBarTarget.style.display = "none"
     this.trayTarget.style.display = "none"
     this.finishedBannerTarget.style.display = "block"
+
+    // Always leave the finished map freely explorable
+    enableMapInteraction(this.map)
 
     this.map.flyTo({
       center: [0, 20],

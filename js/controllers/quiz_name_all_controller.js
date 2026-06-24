@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion } from "country_names"
 import { quizDb } from "db"
-import { getSharedMap, whenMapReady } from "shared_map"
+import { getSharedMap, whenMapReady, enableMapInteraction } from "shared_map"
 import { countryShapeMarkup } from "country_shapes"
 
 export default class extends Controller {
@@ -482,16 +482,8 @@ export default class extends Controller {
     this.updateGuessedList()
     this.finishedBannerTarget.style.display = 'block'
 
-    // Enable map interaction for results viewing
-    if (this.map) {
-      this.map.boxZoom.enable()
-      this.map.scrollZoom.enable()
-      this.map.dragPan.enable()
-      this.map.dragRotate.enable()
-      this.map.keyboard.enable()
-      this.map.doubleClickZoom.enable()
-      this.map.touchZoomRotate.enable()
-    }
+    // Always leave the finished map freely explorable
+    enableMapInteraction(this.map)
 
     const minutes = Math.floor(totalTime / 60000)
     const seconds = Math.floor((totalTime % 60000) / 1000)
