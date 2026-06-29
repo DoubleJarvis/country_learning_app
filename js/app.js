@@ -1,6 +1,6 @@
 import { Application } from "@hotwired/stimulus"
 import { templates } from "./templates.js"
-import { getSharedMap, getSharedMapElement, resetSharedMap } from "shared_map"
+import { getSharedMap, getSharedMapElement, resetSharedMap, preloadCountryTiles } from "shared_map"
 import { initSettings, applySettings, setSetting } from "settings"
 
 const stimulusApp = Application.start()
@@ -88,10 +88,51 @@ window.disableDebug = () => {
 
 // Load settings (initializes the db) before the first render so applySettings()
 // reads real values; later renders reuse the in-memory cache synchronously.
+// Full-screen "Loading assets" overlay shown while the tiles archive downloads.
+// Blocks the game UI (which isn't rendered until the download finishes anyway).
+function showAssetLoader() {
+  const loader = document.createElement('div')
+  loader.id = 'asset-loader'
+  loader.className = 'asset-loader'
+  loader.innerHTML = `
+    <div class="asset-loader-label">Loading assets…</div>
+    <div class="asset-loader-track"><div class="asset-loader-bar indeterminate" id="asset-loader-bar"></div></div>`
+  document.body.appendChild(loader)
+}
+
+function setAssetLoaderProgress(received, total) {
+  const bar = document.getElementById('asset-loader-bar')
+  if (!bar) return
+  if (total > 0) {
+    bar.classList.remove('indeterminate')
+    bar.style.width = `${Math.min(100, Math.round((received / total) * 100))}%`
+  }
+}
+
+function removeAssetLoader() {
+  document.getElementById('asset-loader')?.remove()
+}
+
 async function init() {
   await initSettings()
-  render()
+  // Pull the whole tiles archive into memory before the first map is built so
+  // every map resolves tiles locally (no HTTP Range requests). Show a loader
+  // while it downloads, then render once it's ready.
+  showAssetLoader()
+  await preloadCountryTiles(setAssetLoaderProgress)
+  await render()
+  removeAssetLoader()
 }
 
 window.addEventListener('hashchange', render)
 window.addEventListener('load', init)
+
+// Register the service worker that caches the app shell + assets for offline
+// play. Non-blocking; failures are logged but never break the page.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(error => {
+      console.error('Service worker registration failed:', error)
+    })
+  })
+}

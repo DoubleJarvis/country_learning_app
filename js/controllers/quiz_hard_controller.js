@@ -3,7 +3,7 @@ import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion, countryBounds } from "country_names"
 import { quizDb } from "db"
 import { applyCountryShape, countryShapeMarkup, isShapeOnlyCountry, loadCountrySvg, shapeScaleBar } from "country_shapes"
-import { getSharedMap, whenMapReady, enableMapInteraction } from "shared_map"
+import { getSharedMap, whenMapReady, enableMapInteraction, COUNTRIES_SOURCE, GLYPHS_URL } from "shared_map"
 
 export default class extends Controller {
   static targets = ["mainContainer", "overlayContainer", "searchInput", "searchBox", "dropdown",
@@ -53,12 +53,9 @@ export default class extends Controller {
       container: this.overlayContainerTarget,
       style: {
         version: 8,
-        glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+        glyphs: GLYPHS_URL,
         sources: {
-          countries: {
-            type: "vector",
-            url: "https://demotiles.maplibre.org/tiles/tiles.json"
-          }
+          countries: COUNTRIES_SOURCE
         },
         layers: []
       },

@@ -244,6 +244,54 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+/* "Loading assets" overlay shown while the tiles archive downloads at startup */
+.asset-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.asset-loader-label {
+  color: #b0b0b0;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.asset-loader-track {
+  width: 240px;
+  height: 8px;
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.asset-loader-bar {
+  height: 100%;
+  width: 0;
+  background: #4a9eff;
+  border-radius: 999px;
+  transition: width 0.15s ease;
+}
+
+/* Used until a Content-Length is known (or if the server doesn't send one) */
+.asset-loader-bar.indeterminate {
+  width: 40%;
+  animation: asset-loader-slide 1s ease-in-out infinite;
+}
+
+@keyframes asset-loader-slide {
+  0% { margin-left: -40%; }
+  100% { margin-left: 100%; }
+}
+
 .quiz-container {
   width: 100vw;
   height: 100vh;

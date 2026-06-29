@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, countryBounds } from "country_names"
 import { quizDb } from "db"
-import { getSharedMap, enableMapInteraction } from "shared_map"
+import { getSharedMap, enableMapInteraction, COUNTRIES_SOURCE, GLYPHS_URL } from "shared_map"
 import { applyCountryShape, isShapeOnlyCountry, loadCountrySvg, shapeScaleBar } from "country_shapes"
 
 // Practice mode: shows shapes of the player's worst (or slowest) countries in
@@ -50,12 +50,9 @@ export default class extends Controller {
       container: this.overlayContainerTarget,
       style: {
         version: 8,
-        glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+        glyphs: GLYPHS_URL,
         sources: {
-          countries: {
-            type: "vector",
-            url: "https://demotiles.maplibre.org/tiles/tiles.json"
-          }
+          countries: COUNTRIES_SOURCE
         },
         layers: []
       },
