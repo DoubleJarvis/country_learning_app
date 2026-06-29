@@ -2,8 +2,13 @@
 
 The app's basemap is a single **PMTiles** archive of Natural Earth's
 1:10m Admin-0 country polygons, served from this directory as
-`countries.pmtiles` and read by MapLibre via the `pmtiles://` protocol
+`countries.pmtiles` and read by MapLibre via a custom in-memory protocol
 (registered in `js/map.js`).
+
+We build from Natural Earth's **Ukraine point-of-view** file
+(`..._countries_ukr`), which attributes Crimea to Ukraine (merged into the `UKR`
+polygon). The default file shows it under Russian control. See "Disputed areas"
+below.
 
 It replaces MapLibre's low-resolution public demo tiles. The build keeps the
 same vector layer name (`countries`) and `ADM0_A3` property the app filters on,
@@ -20,9 +25,10 @@ via Homebrew):
 ```sh
 brew install tippecanoe
 
-# 1. Get the Natural Earth 1:10m countries as GeoJSON (already has ADM0_A3)
-curl -L -o ne_10m_admin_0_countries.geojson \
-  https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_0_countries.geojson
+# 1. Get the Natural Earth 1:10m countries (Ukraine POV: Crimea -> Ukraine).
+#    Same ADM0_A3 schema as the default file; only disputed borders differ.
+curl -L -o ne_10m_admin_0_countries_ukr.geojson \
+  https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_0_countries_ukr.geojson
 
 # 2. Build the PMTiles archive
 #    -l countries        -> source-layer name the app expects
@@ -36,7 +42,7 @@ tippecanoe -o countries.pmtiles \
   --no-feature-limit \
   --no-tile-size-limit \
   --force \
-  ne_10m_admin_0_countries.geojson
+  ne_10m_admin_0_countries_ukr.geojson
 ```
 
 Then place `countries.pmtiles` in this `tiles/` directory.
@@ -54,3 +60,19 @@ Then place `countries.pmtiles` in this `tiles/` directory.
 - Natural Earth's `ADM0_A3` matches the codes in `js/country_names.js`. The 10m
   set includes a few more small territories than the demo tiles; extra features
   are simply unstyled.
+
+## Disputed areas
+
+We build from the Ukraine POV file (`ne_10m_admin_0_countries_ukr`) so **Crimea
+is part of Ukraine** (`ADM0_A3 = UKR`) — the app's `UKR` filters then cover it
+automatically, no code change needed.
+
+Natural Earth ships several POV variants of this file (`_ukr`, `_iso`, `_rus`,
+etc.); each reflects one worldview across *all* disputed borders. `_ukr` and the
+de-jure `_iso` file both place Crimea in Ukraine. If a download 404s, list what's
+available:
+
+```sh
+curl -s https://api.github.com/repos/nvkelso/natural-earth-vector/contents/geojson \
+  | grep -o 'ne_10m_admin_0_countries[^"]*'
+```

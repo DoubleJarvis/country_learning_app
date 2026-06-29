@@ -13,7 +13,7 @@
 // those are cached at runtime: full offline works after one online load.
 //
 // Bump CACHE_VERSION to force clients onto a fresh cache.
-const CACHE_VERSION = "v1"
+const CACHE_VERSION = "v2"
 const CACHE = `country-learning-${CACHE_VERSION}`
 
 // Known CORS-enabled CDN entry points (transitive deps cached at runtime).
@@ -229,7 +229,15 @@ self.addEventListener("install", event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE)
     // Best-effort: don't let a single failed asset abort the whole install.
-    await Promise.allSettled(PRECACHE.map(url => cache.add(url)))
+    // Fetch with cache:"reload" so the precache bypasses the browser HTTP cache
+    // - otherwise a regenerated asset (e.g. rebuilt tiles) could be copied stale
+    // into the new versioned cache, defeating the CACHE_VERSION bump.
+    await Promise.allSettled(PRECACHE.map(async url => {
+      const response = await fetch(url, { cache: "reload" })
+      if (response && (response.ok || response.type === "opaque")) {
+        await cache.put(url, response.clone())
+      }
+    }))
     await self.skipWaiting()
   })())
 })
