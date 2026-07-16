@@ -354,36 +354,6 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* Quiz (hard): stack the Game Complete card and the results list as a single
-   column at top-left, so the scrollable list always sits under the card. */
-.quiz-hard-finish {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 2000;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-  max-width: calc(100vw - 40px);
-  max-height: calc(100vh - 40px);
-}
-
-.quiz-hard-finish .finished-banner {
-  position: static;
-  top: auto;
-  left: auto;
-  flex-shrink: 0;
-}
-
-.quiz-hard-finish .results-list {
-  overflow-y: auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .result-item {
   display: flex;
   align-items: center;
@@ -889,6 +859,65 @@ body {
 .stats-bar-stacked .action-btn {
   width: 100%;
   margin-top: auto;
+}
+
+/* Game-complete block: takes the Finish button's place at the bottom of the
+   stats column once the game ends (Quiz Normal/Hard), so the final state reads
+   as part of the score panel instead of a separate banner. */
+.stats-finished {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 1px solid #404040;
+}
+
+.stats-finished-title {
+  color: #e0e0e0;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Compact override of the full-size .restart-btn used by the other modes */
+.stats-finished .restart-btn {
+  width: 100%;
+  margin-top: 0;
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+/* Quiz (hard): the score panel and the results list share one top-left column,
+   so the list of missed countries sits under the score rather than beside it.
+   The wrapper owns the positioning; the stats bar inside it goes static. */
+.quiz-hard-finish {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: calc(100vw - 30px);
+  max-height: calc(100vh - 30px);
+}
+
+.quiz-hard-finish .stats-bar-top-left {
+  position: static;
+  flex-shrink: 0;
+}
+
+/* Only the list scrolls, so the score above it always stays in view */
+.quiz-hard-finish .results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 /* Base card (Practice mode): drops to a full-width second row in its wrapping

@@ -9,8 +9,8 @@ export default class extends Controller {
   static targets = ["mainContainer", "overlayContainer", "searchInput", "searchBox", "dropdown",
                     "regionSelection", "statsBar", "remainingCount", "greenCount",
                     "yellowCount", "redCount", "actionBtn", "finishedBanner",
-                    "finalGreen", "finalYellow", "finalRed", "debugSearchInput", "debugDropdown",
-                    "navButtons", "finalTime", "timerDisplay", "resultsList",
+                    "debugSearchInput", "debugDropdown",
+                    "navButtons", "timerDisplay", "resultsList",
                     "overlayShape", "overlayShapeIcon", "overlayScale",
                     "lastGuess", "lastGuessCard", "lastGuessShape", "lastGuessName"]
 
@@ -801,10 +801,11 @@ export default class extends Controller {
     this.overlayMap.setFilter("isolated-country", ["==", "ADM0_A3", ""])
     this.overlayMap.setFilter("isolated-country-outline", ["==", "ADM0_A3", ""])
 
-    // Hide stats, search box and finished banner
+    // Hide stats, search box and finished banner; restore the Finish button
     this.statsBarTarget.style.display = "none"
     this.searchBoxTarget.style.display = "none"
     this.finishedBannerTarget.style.display = "none"
+    this.actionBtnTarget.style.display = ""
     this.lastGuessTarget.style.display = "none"
     this.resultsListTarget.style.display = "none"
     this.resultsListTarget.innerHTML = ""
@@ -831,15 +832,10 @@ export default class extends Controller {
   endQuiz(completedFully = true) {
     this.isFinished = true
 
-    // Stop timer
+    // Stop the timer: the stats bar keeps showing the time it stopped at.
     this.stopTimer()
     this.endTime = Date.now()
     const elapsedMs = this.endTime - this.startTime
-    const totalSeconds = Math.floor(elapsedMs / 1000)
-    const minutes = Math.floor(totalSeconds / 60)
-    const seconds = totalSeconds % 60
-    const milliseconds = Math.floor((elapsedMs % 1000) / 10) // Show centiseconds (2 digits)
-    const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`
 
     // Record quiz run to database
     quizDb.recordQuizRun(
@@ -852,19 +848,12 @@ export default class extends Controller {
       completedFully ? 1 : 0
     )
 
-    // Update final stats
-    this.finalGreenTarget.textContent = this.stats.green
-    this.finalYellowTarget.textContent = this.stats.yellow
-    this.finalRedTarget.textContent = this.stats.red
-    this.finalTimeTarget.textContent = `Time: ${timeString}`
-
-    // Hide top left stats banner and search box
-    this.statsBarTarget.style.display = "none"
+    // The stats bar stays up and keeps showing the final tally; swap its Finish
+    // button for the game-complete block. The "It was:" card stays too, so the
+    // last country of the game is still readable.
     this.searchBoxTarget.style.display = "none"
-    this.lastGuessTarget.style.display = "none"
-
-    // Show finished banner
-    this.finishedBannerTarget.style.display = "block"
+    this.actionBtnTarget.style.display = "none"
+    this.finishedBannerTarget.style.display = "flex"
 
     // List the incorrect (red) and shaky (yellow) countries under the card
     this.renderResultsList()
