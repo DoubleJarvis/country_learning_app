@@ -1,19 +1,21 @@
-// Service worker for offline play.
+// Service worker for offline play. Optimized for a snappy production app:
+// cache-first for EVERYTHING, so a controlled page never waits on the network.
 //
 // Strategy:
 //  - install: precache the same-origin app shell (HTML, CSS, all JS, JSON data,
 //    the tiles archive, icons and every country silhouette SVG) plus the CORS-
-//    enabled CDN libs. Best-effort: one bad URL won't fail the whole install.
-//  - same-origin CODE (js/css/html/json): network-first, so edits stay fresh
-//    while online; falls back to cache when offline. The dev cache-buster (?v=)
-//    is stripped so one cache entry serves every reload.
-//  - everything else (tiles/svg/png, CDN libs, glyph fonts): cache-first.
+//    enabled CDN libs, fetched with cache:"reload" so a version bump always
+//    pulls fresh bytes. Best-effort: one bad URL won't fail the whole install.
+//  - fetch: cache-first for all GETs. Served from cache with no network hit (the
+//    dev cache-buster ?v= is ignored on match). Cache misses fall through to the
+//    network and get cached. CDN transitive imports are picked up this way, so
+//    full offline works after one online load.
 //
-// CDN libraries pull in transitive imports that can't all be pre-listed, so
-// those are cached at runtime: full offline works after one online load.
-//
-// Bump CACHE_VERSION to force clients onto a fresh cache.
-const CACHE_VERSION = "v2"
+// CONSEQUENCE (see README "Service worker / caching"): because nothing is ever
+// revalidated against the network, code/asset edits are INVISIBLE until the
+// cache is refreshed. Every deploy AND every local code change that you want to
+// see must bump CACHE_VERSION (or use DevTools "Update on reload" / Unregister).
+const CACHE_VERSION = "v3"
 const CACHE = `country-learning-${CACHE_VERSION}`
 
 // Known CORS-enabled CDN entry points (transitive deps cached at runtime).
@@ -256,31 +258,21 @@ function stripSearch(url) {
   return u.toString()
 }
 
-// Same-origin code we edit during development.
-function isCode(url) {
-  return /\.(js|css|html|json)$/.test(url.pathname)
-}
-
-async function cacheFirst(request) {
+// Cache-first for everything: serve the cached copy without touching the network
+// (the ?v= dev cache-buster is ignored on match, so one entry serves every load).
+// Only on a cache miss do we hit the network and cache the result. New content
+// ships via a CACHE_VERSION bump, whose install repopulates the cache fresh.
+async function cacheFirst(request, fallback) {
   const cache = await caches.open(CACHE)
   const cached = await cache.match(request, { ignoreSearch: true })
   if (cached) return cached
-  const response = await fetch(request)
-  if (response && (response.ok || response.type === "opaque")) {
-    await cache.put(stripSearch(request.url), response.clone())
-  }
-  return response
-}
-
-async function networkFirst(request, fallback) {
-  const cache = await caches.open(CACHE)
   try {
     const response = await fetch(request)
-    if (response && response.ok) await cache.put(stripSearch(request.url), response.clone())
+    if (response && (response.ok || response.type === "opaque")) {
+      await cache.put(stripSearch(request.url), response.clone())
+    }
     return response
   } catch (error) {
-    const cached = await cache.match(request, { ignoreSearch: true })
-    if (cached) return cached
     if (fallback) {
       const fb = await cache.match(fallback)
       if (fb) return fb
@@ -293,13 +285,10 @@ self.addEventListener("fetch", event => {
   const request = event.request
   if (request.method !== "GET") return
 
-  const url = new URL(request.url)
-  const sameOrigin = url.origin === self.location.origin
-
+  // SPA navigations resolve to the cached app shell; everything else is a plain
+  // cache-first lookup.
   if (request.mode === "navigate") {
-    event.respondWith(networkFirst(request, "./index.html"))
-  } else if (sameOrigin && isCode(url)) {
-    event.respondWith(networkFirst(request))
+    event.respondWith(cacheFirst(request, "./index.html"))
   } else {
     event.respondWith(cacheFirst(request))
   }
