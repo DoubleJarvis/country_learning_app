@@ -129,13 +129,21 @@ export default class extends Controller {
       filter: ["in", "ADM0_A3"]
     })
 
+    // Country names layer - build match expression for custom names
+    const nameMatchExpression = ["match", ["get", "ADM0_A3"]]
+    Object.entries(countriesMapping).forEach(([code, data]) => {
+      nameMatchExpression.push(code, data.display_name)
+    })
+    nameMatchExpression.push("") // default value
+
     this.map.addLayer({
       id: "country-names",
       type: "symbol",
       source: "countries",
       "source-layer": "countries",
       layout: {
-        "text-field": ["get", "NAME"],
+        "text-field": nameMatchExpression,
+        "text-font": ["Noto Sans Regular"],
         "text-size": 12,
         "text-letter-spacing": 0.05
       },
