@@ -6,6 +6,8 @@ plain files.
 
 - Map basemap: self-hosted Natural Earth vector tiles — see [tiles/README.md](tiles/README.md).
 - Offline support: a service worker ([sw.js](sw.js)) — see below.
+- Installable (PWA): [manifest.json](manifest.json) — see below; testing it on a
+  desktop or a real phone is covered in [pwa.md](pwa.md).
 
 ## Running locally
 
@@ -17,6 +19,45 @@ python -m http.server 8899
 
 No build step. Local JS modules are loaded through an import map in
 `index.html` with a per-load `?v=` cache-buster (see the inline `<script>`).
+
+## Installing (PWA)
+
+[manifest.json](manifest.json) declares `display: standalone`, so once installed
+the app runs in its own window — no tab strip, no URL bar — with its own icon in
+the dock/taskbar/home screen. Hash routes still drive navigation, you just can't
+see the URL.
+
+- **Desktop**: an install button appears in Chrome/Edge's address bar; Safari has
+  "Add to Dock".
+- **iOS**: Share → Add to Home Screen.
+- **HTTPS is required** to install anywhere except `localhost`, so the local
+  `python -m http.server` can't be installed from another device.
+
+Icons: `icon.png` (512, "any"), `icons/icon-192.png`, and
+`icons/icon-maskable-512.png` — the maskable one keeps the mark inside the 80%
+safe zone on an opaque background so Android's mask crops only background.
+
+**Everything the app needs offline must be in `PRECACHE_*` in [sw.js](sw.js).**
+The runtime cache-first path only fills on first use, so anything not precached
+is missing for a player who installs and goes offline before happening to
+trigger it. That's why `sql.js` (+ its `.wasm`) and the Noto Sans glyph range
+are precached rather than left to chance.
+
+## Storage
+
+The stats database is a SQLite file (a `Uint8Array`) held in **IndexedDB**
+(`country_learning` → `state` → `database`), stored as raw bytes.
+
+It used to live in `localStorage` as `JSON.stringify(Array.from(bytes))`, which
+inflates every byte into up to four UTF-16 characters — measured at ~4x against
+a ~5MB quota, so a long enough history would start silently failing to save.
+[js/db.js](js/db.js) migrates that copy on first load and only removes the
+`quiz_database` key once IndexedDB has committed the replacement.
+
+The app calls `navigator.storage.persist()` on startup ([js/app.js](js/app.js))
+so the browser won't evict the one thing here that can't be re-downloaded.
+Chrome only grants this for installed apps or sites with real engagement, and
+returns `false` otherwise — that's expected, not an error.
 
 ## Service worker / caching
 

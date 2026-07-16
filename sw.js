@@ -15,25 +15,39 @@
 // revalidated against the network, code/asset edits are INVISIBLE until the
 // cache is refreshed. Every deploy AND every local code change that you want to
 // see must bump CACHE_VERSION (or use DevTools "Update on reload" / Unregister).
-const CACHE_VERSION = "v3"
+const CACHE_VERSION = "v4"
 const CACHE = `country-learning-${CACHE_VERSION}`
 
 // Known CORS-enabled CDN entry points (transitive deps cached at runtime).
+//
+// These are precached rather than left to the runtime cache-first path because
+// that path only fills on first use: anything not fetched during an online
+// session simply isn't there offline. sql.js is needed for the stats database
+// (and pulls its own .wasm via locateFile), and the glyph range is only
+// requested once a symbol layer first draws a label - so without these two, a
+// player who installs and goes offline early loses their stats or their map
+// labels. Latin covers every display_name, hence the single 0-255 range.
 const PRECACHE_CDN = [
   "https://unpkg.com/@hotwired/stimulus@3.2.2/dist/stimulus.js",
   "https://ga.jspm.io/npm:maplibre-gl@4.7.1/dist/maplibre-gl.js",
   "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css",
-  "https://esm.sh/pmtiles@3"
+  "https://esm.sh/pmtiles@3",
+  "https://sql.js.org/dist/sql-wasm.js",
+  "https://sql.js.org/dist/sql-wasm.wasm",
+  "https://demotiles.maplibre.org/font/Noto%20Sans%20Regular/0-255.pbf"
 ]
 
 const PRECACHE_SHELL = [
   "./",
   "./index.html",
   "./index.css",
+  "./manifest.json",
   "./adjacency.json",
   "./tiles/countries.pmtiles",
   "./icon.png",
   "./icon.svg",
+  "./icons/icon-192.png",
+  "./icons/icon-maskable-512.png",
   "./js/app.js",
   "./js/map.js",
   "./js/country_names.js",

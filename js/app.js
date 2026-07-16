@@ -113,7 +113,22 @@ function removeAssetLoader() {
   document.getElementById('asset-loader')?.remove()
 }
 
+// Ask the browser not to evict our storage. The stats database is the only
+// thing here that can't be re-downloaded, and script-writable storage is fair
+// game for eviction under pressure otherwise. Installed apps are typically
+// granted this without a prompt; a refusal is not fatal, so never block on it.
+async function requestPersistentStorage() {
+  if (!navigator.storage?.persist) return
+  try {
+    if (await navigator.storage.persisted()) return
+    await navigator.storage.persist()
+  } catch (error) {
+    console.error('Persistent storage request failed:', error)
+  }
+}
+
 async function init() {
+  requestPersistentStorage()
   await initSettings()
   // Pull the whole tiles archive into memory before the first map is built so
   // every map resolves tiles locally (no HTTP Range requests). Show a loader

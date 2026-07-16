@@ -2,6 +2,84 @@
 // Manages quiz guess history
 
 // ---------------------------------------------------------------------------
+// Persistence
+//
+// The database is a SQLite file - a Uint8Array - which IndexedDB stores as-is.
+// It used to live in localStorage as JSON.stringify(Array.from(bytes)): every
+// byte became up to 4 characters ("255,") stored as UTF-16, so a few hundred KB
+// of history could exhaust the ~5MB quota and saves would start throwing.
+// Players from that era are migrated on first load, and the old copy is only
+// dropped once its replacement is safely stored.
+// ---------------------------------------------------------------------------
+const IDB_NAME = 'country_learning'
+const IDB_STORE = 'state'
+const IDB_KEY = 'database'
+const LEGACY_STORAGE_KEY = 'quiz_database'
+
+function openIdb() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(IDB_NAME, 1)
+    request.onupgradeneeded = () => {
+      if (!request.result.objectStoreNames.contains(IDB_STORE)) {
+        request.result.createObjectStore(IDB_STORE)
+      }
+    }
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
+}
+
+async function idbRead() {
+  const idb = await openIdb()
+  try {
+    return await new Promise((resolve, reject) => {
+      const request = idb.transaction(IDB_STORE, 'readonly').objectStore(IDB_STORE).get(IDB_KEY)
+      request.onsuccess = () => resolve(request.result ?? null)
+      request.onerror = () => reject(request.error)
+    })
+  } finally {
+    idb.close()
+  }
+}
+
+// Resolves only once the transaction has committed, so callers can safely act
+// on the write having landed (the legacy cleanup depends on this).
+async function idbWrite(bytes) {
+  const idb = await openIdb()
+  try {
+    await new Promise((resolve, reject) => {
+      const transaction = idb.transaction(IDB_STORE, 'readwrite')
+      transaction.objectStore(IDB_STORE).put(bytes, IDB_KEY)
+      transaction.oncomplete = () => resolve()
+      transaction.onerror = () => reject(transaction.error)
+      transaction.onabort = () => reject(transaction.error)
+    })
+  } finally {
+    idb.close()
+  }
+}
+
+// The stored database bytes, falling back to a legacy localStorage copy when
+// IndexedDB has nothing yet. Returns null for a fresh start.
+async function readStoredDatabase() {
+  try {
+    const stored = await idbRead()
+    if (stored) return new Uint8Array(stored)
+  } catch (error) {
+    console.error('Failed to read database from IndexedDB:', error)
+  }
+
+  const legacy = localStorage.getItem(LEGACY_STORAGE_KEY)
+  if (!legacy) return null
+  try {
+    return new Uint8Array(JSON.parse(legacy))
+  } catch (error) {
+    console.error('Failed to read legacy database from localStorage:', error)
+    return null
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Schema migrations
 //
 // Append-only, ordered list. Each migration runs once per database, in version
@@ -82,21 +160,24 @@ class QuizDatabase {
         locateFile: file => `https://sql.js.org/dist/${file}`
       })
 
-      // Load the existing database from localStorage, or start a new one
-      const savedDb = localStorage.getItem('quiz_database')
-      if (savedDb) {
-        const uint8Array = new Uint8Array(JSON.parse(savedDb))
-        this.db = new this.SQL.Database(uint8Array)
-      } else {
-        this.db = new this.SQL.Database()
-      }
+      // Load the existing database from storage, or start a new one
+      const stored = await readStoredDatabase()
+      this.db = stored ? new this.SQL.Database(stored) : new this.SQL.Database()
 
       // Bring the schema up to date. Only persist if something actually
       // changed, so a normal load (nothing pending) does almost no work.
       const changed = this.runMigrations()
 
       this.initialized = true
-      if (changed) this.saveToLocalStorage()
+
+      // Write through when the schema moved, and when we're still running off
+      // the legacy localStorage copy - that one only goes once IndexedDB has
+      // committed its replacement, so a failure here just retries next load.
+      const legacyPending = localStorage.getItem(LEGACY_STORAGE_KEY) !== null
+      if (changed || legacyPending) {
+        await this.saveNow()
+        if (legacyPending) localStorage.removeItem(LEGACY_STORAGE_KEY)
+      }
     } catch (error) {
       // A failed migration throws before we save, so the stored database is
       // left exactly as it was — the app keeps the last good copy.
@@ -214,16 +295,18 @@ class QuizDatabase {
     }
   }
 
-  saveToLocalStorage() {
-    if (!this.db) return
+  // Fire-and-forget persist for the synchronous call sites (after a guess, a
+  // finished run, a setting change). The export is taken synchronously, so the
+  // bytes match the moment of the call even though the write settles later.
+  save() {
+    this.saveNow().catch(error => {
+      console.error('Failed to save database:', error)
+    })
+  }
 
-    try {
-      const data = this.db.export()
-      const arrayString = JSON.stringify(Array.from(data))
-      localStorage.setItem('quiz_database', arrayString)
-    } catch (error) {
-      console.error('Failed to save database to localStorage:', error)
-    }
+  async saveNow() {
+    if (!this.db) return
+    await idbWrite(this.db.export())
   }
 
   recordGuess(countryCode, displayName, quizType, guessType, guessedCode = null, guessedName = null, timeMs = null) {
@@ -239,7 +322,7 @@ class QuizDatabase {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [countryCode, displayName, quizType, guessType, guessedCode, guessedName, timeMs, timestamp]
       )
-      this.saveToLocalStorage()
+      this.save()
     } catch (error) {
       console.error('Failed to record guess:', error)
     }
@@ -339,7 +422,7 @@ class QuizDatabase {
       if (this.db) this.db.close()
       this.db = new this.SQL.Database()
       this.runMigrations()
-      this.saveToLocalStorage()
+      this.save()
     } catch (error) {
       console.error('Failed to clear data:', error)
     }
@@ -375,7 +458,7 @@ class QuizDatabase {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [quizType, region, correctCount, shakyCount, incorrectCount, timeMs, completedFully, timestamp]
       )
-      this.saveToLocalStorage()
+      this.save()
     } catch (error) {
       console.error('Failed to record quiz run:', error)
     }
@@ -538,7 +621,7 @@ class QuizDatabase {
          ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
         [key, value]
       )
-      this.saveToLocalStorage()
+      this.save()
     } catch (error) {
       console.error('Failed to set setting:', error)
     }
