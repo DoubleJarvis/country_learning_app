@@ -3,7 +3,7 @@ import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion, countryBounds } from "country_names"
 import { quizDb } from "db"
 import { applyCountryShape, countryShapeMarkup, isShapeOnlyCountry, loadCountrySvg, shapeScaleBar } from "country_shapes"
-import { getSharedMap, whenMapReady, enableMapInteraction, COUNTRIES_SOURCE, GLYPHS_URL } from "shared_map"
+import { getSharedMap, whenMapReady, COUNTRIES_SOURCE, GLYPHS_URL } from "shared_map"
 
 export default class extends Controller {
   static targets = ["mainContainer", "overlayContainer", "searchInput", "searchBox", "dropdown",
@@ -820,17 +820,6 @@ export default class extends Controller {
     this.overlayContainerTarget.style.display = "block"
     this.overlayShapeTarget.style.display = "none"
 
-    // Disable main map interaction again
-    if (this.mainMap) {
-      this.mainMap.boxZoom.disable()
-      this.mainMap.scrollZoom.disable()
-      this.mainMap.dragPan.disable()
-      this.mainMap.dragRotate.disable()
-      this.mainMap.keyboard.disable()
-      this.mainMap.doubleClickZoom.disable()
-      this.mainMap.touchZoomRotate.disable()
-    }
-
     // Zoom out
     this.mainMap.flyTo({
       center: [0, 20],
@@ -883,9 +872,6 @@ export default class extends Controller {
     // Hide overlay map container and the SVG overlay
     this.overlayContainerTarget.style.display = "none"
     this.overlayShapeTarget.style.display = "none"
-
-    // Always leave the finished map freely explorable
-    enableMapInteraction(this.mainMap)
   }
 
   // Build the list of missed countries shown under the Game Complete card:

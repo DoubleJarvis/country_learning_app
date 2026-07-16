@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { countriesMapping, getCountriesForRegion, countryBounds } from "country_names"
 import { quizDb } from "db"
-import { getSharedMap, whenMapReady, enableMapInteraction } from "shared_map"
+import { getSharedMap, whenMapReady } from "shared_map"
 import { applyCountryShape } from "country_shapes"
 
 const TROPIC_LAT = 23.43656
@@ -199,14 +199,6 @@ export default class extends Controller {
     if (!this.map.getLayer("countries-placed-green")) {
       this.setupLayers()
     }
-
-    this.map.boxZoom.enable()
-    this.map.scrollZoom.enable()
-    this.map.dragPan.enable()
-    this.map.dragRotate.enable()
-    this.map.keyboard.enable()
-    this.map.doubleClickZoom.enable()
-    this.map.touchZoomRotate.enable()
 
     this.nextCountry()
   }
@@ -435,9 +427,6 @@ export default class extends Controller {
     this.trayTarget.style.display = "none"
     this.finishedBannerTarget.style.display = "block"
 
-    // Always leave the finished map freely explorable
-    enableMapInteraction(this.map)
-
     this.map.flyTo({
       center: [0, 20],
       zoom: 1.5,
@@ -463,14 +452,6 @@ export default class extends Controller {
     this.statsBarTarget.style.display = "none"
     this.trayTarget.style.display = "none"
     this.regionSelectionTarget.style.display = "block"
-
-    this.map.boxZoom.disable()
-    this.map.scrollZoom.disable()
-    this.map.dragPan.disable()
-    this.map.dragRotate.disable()
-    this.map.keyboard.disable()
-    this.map.doubleClickZoom.disable()
-    this.map.touchZoomRotate.disable()
 
     this.map.jumpTo({ center: [0, 20], zoom: 1.5 })
   }

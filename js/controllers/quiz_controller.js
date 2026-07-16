@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion, countryBounds } from "country_names"
 import { quizDb } from "db"
-import { getSharedMap, whenMapReady, enableMapInteraction } from "shared_map"
+import { getSharedMap, whenMapReady } from "shared_map"
 import { applyCountryShape } from "country_shapes"
 
 export default class extends Controller {
@@ -200,15 +200,6 @@ export default class extends Controller {
     if (navElement) {
       navElement.style.display = 'block'
     }
-
-    // Enable map interaction now that the game has started
-    this.map.boxZoom.enable()
-    this.map.scrollZoom.enable()
-    this.map.dragPan.enable()
-    this.map.dragRotate.enable()
-    this.map.keyboard.enable()
-    this.map.doubleClickZoom.enable()
-    this.map.touchZoomRotate.enable()
 
     // Start the quiz
     this.nextCountry()
@@ -649,17 +640,6 @@ export default class extends Controller {
       navElement.style.display = 'none'
     }
 
-    // Disable map interaction again for the region selection screen
-    if (this.map) {
-      this.map.boxZoom.disable()
-      this.map.scrollZoom.disable()
-      this.map.dragPan.disable()
-      this.map.dragRotate.disable()
-      this.map.keyboard.disable()
-      this.map.doubleClickZoom.disable()
-      this.map.touchZoomRotate.disable()
-    }
-
     // Show region selection
     this.regionSelectionTarget.style.display = "block"
 
@@ -708,9 +688,6 @@ export default class extends Controller {
 
     // Show finished banner
     this.finishedBannerTarget.style.display = "block"
-
-    // Always leave the finished map freely explorable
-    enableMapInteraction(this.map)
 
     // Zoom out to show the whole region
     this.map.flyTo({

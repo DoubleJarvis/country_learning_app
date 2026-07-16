@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, countryBounds } from "country_names"
 import { quizDb } from "db"
-import { getSharedMap, enableMapInteraction, COUNTRIES_SOURCE, GLYPHS_URL } from "shared_map"
+import { getSharedMap, COUNTRIES_SOURCE, GLYPHS_URL } from "shared_map"
 import { applyCountryShape, isShapeOnlyCountry, loadCountrySvg, shapeScaleBar } from "country_shapes"
 
 // Practice mode: shows shapes of the player's worst (or slowest) countries in
@@ -483,9 +483,6 @@ export default class extends Controller {
     // Bring the world preview back behind the banner
     this.mainMap.setFilter("countries-preview-fill", null)
     this.mainMap.setFilter("countries-preview-outline", null)
-
-    // Always leave the finished map freely explorable
-    enableMapInteraction(this.mainMap)
 
     this.finishedBannerTarget.style.display = "block"
   }

@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, countryBounds, getCountriesForRegion } from "country_names"
 import { getRandomCountryWithBordersFromRegion, getBorders } from "adjacency_helper"
-import { getSharedMap, whenMapReady, enableMapInteraction } from "shared_map"
+import { getSharedMap, whenMapReady } from "shared_map"
 import { countryShapeMarkup } from "country_shapes"
 
 export default class extends Controller {
@@ -217,15 +217,6 @@ export default class extends Controller {
     if (navElement) {
       navElement.style.display = 'block'
     }
-
-    // Enable map interaction now that the game has started
-    this.map.boxZoom.enable()
-    this.map.scrollZoom.enable()
-    this.map.dragPan.enable()
-    this.map.dragRotate.enable()
-    this.map.keyboard.enable()
-    this.map.doubleClickZoom.enable()
-    this.map.touchZoomRotate.enable()
 
     // Focus the input
     this.searchInputTarget.focus()
@@ -668,9 +659,6 @@ export default class extends Controller {
     this.finalCorrectTarget.textContent = this.correctCount
     this.finalMistakesTarget.textContent = this.mistakeCount
 
-    // Always leave the finished map freely explorable
-    enableMapInteraction(this.map)
-
     // Show all missed countries
     const missedCountries = this.remainingCountries.filter(code => !this.guessedCountries.has(code))
     const guessedCountriesList = Array.from(this.guessedCountries)
@@ -758,17 +746,6 @@ export default class extends Controller {
     const navElement = document.querySelector('.maplibregl-ctrl-top-right')
     if (navElement) {
       navElement.style.display = 'none'
-    }
-
-    // Disable map interaction again for the region selection screen
-    if (this.map) {
-      this.map.boxZoom.disable()
-      this.map.scrollZoom.disable()
-      this.map.dragPan.disable()
-      this.map.dragRotate.disable()
-      this.map.keyboard.disable()
-      this.map.doubleClickZoom.disable()
-      this.map.touchZoomRotate.disable()
     }
   }
 

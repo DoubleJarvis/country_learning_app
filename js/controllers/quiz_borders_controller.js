@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, countryBounds } from "country_names"
 import { getRandomCountryWithBorders, getBorders } from "adjacency_helper"
-import { getSharedMap, whenMapReady, enableMapInteraction } from "shared_map"
+import { getSharedMap, whenMapReady } from "shared_map"
 
 export default class extends Controller {
   static targets = ["container", "searchInput", "searchBox", "dropdown", "startScreen", "statsBar",
@@ -213,15 +213,6 @@ export default class extends Controller {
     if (navElement) {
       navElement.style.display = 'block'
     }
-
-    // Enable map interaction now that the game has started
-    this.map.boxZoom.enable()
-    this.map.scrollZoom.enable()
-    this.map.dragPan.enable()
-    this.map.dragRotate.enable()
-    this.map.keyboard.enable()
-    this.map.doubleClickZoom.enable()
-    this.map.touchZoomRotate.enable()
 
     // Focus the input
     this.searchInputTarget.focus()
@@ -537,9 +528,6 @@ export default class extends Controller {
     this.finalCorrectTarget.textContent = `${this.correctGuesses} / ${this.borders.length}`
     this.finalIncorrectTarget.textContent = this.incorrectGuesses
 
-    // Always leave the finished map freely explorable
-    enableMapInteraction(this.map)
-
     // Calculate missed borders
     const missedBorders = this.borders.filter(code => !this.guessedBorders.has(code))
     const guessedBordersList = Array.from(this.guessedBorders)
@@ -607,17 +595,6 @@ export default class extends Controller {
     const navElement = document.querySelector('.maplibregl-ctrl-top-right')
     if (navElement) {
       navElement.style.display = 'none'
-    }
-
-    // Disable map interaction again for the start screen
-    if (this.map) {
-      this.map.boxZoom.disable()
-      this.map.scrollZoom.disable()
-      this.map.dragPan.disable()
-      this.map.dragRotate.disable()
-      this.map.keyboard.disable()
-      this.map.doubleClickZoom.disable()
-      this.map.touchZoomRotate.disable()
     }
   }
 }

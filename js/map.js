@@ -164,8 +164,7 @@ export function getSharedMap() {
     },
     center: [0, 20],
     zoom: 1.5,
-    projection: "mercator",
-    interactive: false
+    projection: "mercator"
   })
 
   map.on("load", () => {
@@ -191,35 +190,17 @@ export function whenMapReady(callback) {
 }
 
 // Returns the shared map to its mode-neutral state: only the base preview
-// layers, default world view, no interaction. Called between mode switches.
+// layers, default world view. Called between mode switches.
+//
+// Interaction is deliberately left on: the shared map is pannable/zoomable in
+// every mode from the moment it renders, including on the region-selection and
+// results screens.
 export function resetSharedMap() {
   if (!map) return
 
   whenMapReady(stripModeLayers)
 
-  map.boxZoom.disable()
-  map.scrollZoom.disable()
-  map.dragPan.disable()
-  map.dragRotate.disable()
-  map.keyboard.disable()
-  map.doubleClickZoom.disable()
-  map.touchZoomRotate.disable()
-
   map.jumpTo({ center: [0, 20], zoom: 1.5 })
-}
-
-// Enables every user-interaction handler on a map. Game modes call this when a
-// game ends so the finished map is always freely pannable/zoomable.
-export function enableMapInteraction(map) {
-  if (!map) return
-
-  map.boxZoom.enable()
-  map.scrollZoom.enable()
-  map.dragPan.enable()
-  map.dragRotate.enable()
-  map.keyboard.enable()
-  map.doubleClickZoom.enable()
-  map.touchZoomRotate.enable()
 }
 
 function stripModeLayers() {
