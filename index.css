@@ -1683,3 +1683,395 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
   .country-overall-stats { width: 100%; justify-content: space-between; }
   .country-quiz-breakdown { flex-direction: column; gap: 10px; }
 }
+
+/* Mobile-only chrome (hamburger + backdrop): hidden by default; the mobile
+   media query below reveals them. Without this base rule a <button> defaults to
+   inline-block and leaks onto the desktop layout. */
+.mobile-menu-btn,
+.mobile-menu-backdrop {
+  display: none;
+}
+
+/* ==========================================================================
+   MOBILE LAYOUT  (see mobile_layout.md)
+   --------------------------------------------------------------------------
+   Everything below is scoped to narrow viewports; the desktop layout above is
+   untouched. Strategy is "overlay": the map stays full-bleed and compact chrome
+   floats over it — a status strip at the top, the action row at the bottom, the
+   nav behind a hamburger. The shell is pinned to --app-height (the space above
+   the on-screen keyboard, synced from visualViewport in app.js), so the action
+   row sits just above the keyboard instead of behind it.
+   ========================================================================== */
+@media (max-width: 700px) {
+  /* Shell pinned to the space above the keyboard. Chrome positions against
+     this box with position:absolute (not fixed), so it tracks the keyboard. */
+  .quiz-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: var(--app-height, 100dvh);
+    overflow: hidden;
+    /* Establishes the containing block for position:fixed descendants, so the
+       reveal bar anchors to this (keyboard-aware) box rather than the layout
+       viewport — the reliable cross-platform way to keep it above the keyboard,
+       and to escape the status strip's own positioning context. */
+    transform: translateZ(0);
+  }
+
+  #quiz-map, #main-map {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Pinch-zoom replaces the on-screen zoom/compass control. The attribution (i)
+     button collides with the action row and isn't legally required here — the
+     basemap is public-domain Natural Earth served locally, and MapLibre GL JS
+     (BSD) has no runtime attribution requirement — so hide it on mobile. The
+     scale bar (bottom-left) stays; it's useful for judging country size. */
+  .maplibregl-ctrl-top-right,
+  .maplibregl-ctrl-bottom-right { display: none !important; }
+
+  /* ---- Status strip -------------------------------------------------------
+     Collapse the tall stacked stats panel into a single 40px bar across the
+     top: bare colour-coded numbers, no labels, no boxes. Left padding clears
+     the hamburger. */
+  .stats-bar-top-left {
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px 8px 46px;
+    border-radius: 0;
+    border-width: 0 0 1px 0;
+    box-shadow: none;
+    z-index: 1500;
+  }
+
+  .stats-bar-stacked,
+  .stats-bar-stacked .stats-col,
+  .stats-bar-stacked .stats-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .stats-bar-stacked .stats-col { flex: 1; }
+
+  /* Bare numbers: drop the box chrome and the labels. */
+  .stats-bar-stacked .stat {
+    flex-direction: row;
+    gap: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    font-size: 15px;
+  }
+
+  .stats-bar .stat-label { display: none; }
+
+  .stats-bar-stacked .stat-value { font-size: 15px; }
+
+  /* Icons in front of each stat so the categories are distinguishable by shape,
+     not colour alone (the labels are hidden on the strip). Each icon inherits
+     its stat's colour. */
+  .stats-bar .stat.green .stat-value::before { content: "\2713"; margin-right: 3px; }   /* ✓ first try */
+  .stats-bar .stat.yellow .stat-value::before { content: "\21BA"; margin-right: 3px; }  /* ↺ second try */
+  .stats-bar .stat.red .stat-value::before { content: "\2717"; margin-right: 3px; }     /* ✗ failed */
+  .stats-bar .stat.timer .stat-value::before { content: "\23F1\FE0E "; }                /* ⏱ time (text style) */
+
+  /* Finish stays reachable as a compact button at the strip's right edge.
+     (The nav — mode switching — is what the hamburger menu is for.) */
+  .stats-bar-stacked .action-btn {
+    width: auto;
+    margin: 0 0 0 auto;
+    padding: 4px 10px;
+    font-size: 11px;
+    flex: none;
+  }
+
+  /* ---- Reveal ("It was:") -------------------------------------------------
+     Pull the last-guess card out of the strip and float it as a compact bar
+     just above the action row, so the last country stays visible without
+     eating a whole column. */
+  /* Compact card anchored to the top-left, just under the status strip, hugging
+     its content. No "It was:" label — just the shape and the name beside it. */
+  .stats-bar-stacked .last-guess {
+    position: fixed;
+    left: 8px;
+    right: auto;
+    top: 46px;
+    bottom: auto;
+    width: fit-content;
+    max-width: calc(100% - 16px);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 8px;
+    background: rgba(20, 20, 20, 0.92);
+    border: 1px solid #404040;
+    border-radius: 8px;
+    z-index: 1600;
+  }
+
+  /* Drop the "It was:" label on mobile. */
+  .stats-bar-stacked .last-guess .last-guess-label { display: none; }
+
+  .stats-bar-stacked .last-guess .guessed-country {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: none;
+    background: none;
+  }
+
+  /* Roughly double the desktop shape size — the shape carries the recognition. */
+  .stats-bar-stacked .last-guess .country-shape {
+    width: 40px;
+    height: 40px;
+    flex: none;
+  }
+
+  /* Name to the right of the shape: smaller, wrapping to at most two lines. The
+     desktop rule reserves 3 lines via min-height/column-flex — undo that here. */
+  .stats-bar-stacked .last-guess .country-name {
+    width: auto;
+    min-height: 0;
+    max-width: 44vw;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: left;
+    white-space: normal;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* ---- Action row ---------------------------------------------------------
+     Input + Skip pinned just above the keyboard. */
+  .search-box {
+    left: 8px;
+    right: 8px;
+    bottom: 10px;
+    width: auto;
+    max-width: none;
+    transform: none;
+    box-sizing: border-box;
+    gap: 8px;
+  }
+
+  /* Without this the input's intrinsic width (from its placeholder) refuses to
+     shrink, pushing the Skip button off the right edge. */
+  .search-box input { min-width: 0; }
+
+  /* Trim the flanking buttons so all three fit the row on a narrow screen. */
+  .search-box .recenter-btn { padding: 10px 12px; flex: none; }
+  .search-box .skip-btn { padding: 10px 14px; flex: none; }
+
+  /* ---- Hamburger + nav sheet ---------------------------------------------- */
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    width: 34px;
+    height: 30px;
+    padding: 0;
+    font-size: 18px;
+    line-height: 1;
+    color: #e0e0e0;
+    background: #2a2a2a;
+    border: 1px solid #404040;
+    border-radius: 6px;
+    z-index: 2100;
+    cursor: pointer;
+  }
+
+  .mobile-menu-backdrop {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+  }
+
+  .quiz-container.menu-open .mobile-menu-backdrop { display: block; }
+
+  /* Nav in the game shell: hidden until the hamburger opens it as a sheet.
+     Scoped to .quiz-container so it does NOT hide the stats page's nav (that page
+     has no hamburger — hiding it there would trap the user). */
+  .quiz-container .nav-container {
+    display: none;
+  }
+
+  /* Stats page is a scrolling content page, not the game shell. Show its nav
+     inline at the top, wrapped to fit the width, rather than behind a menu. */
+  .stats-container .nav-container {
+    position: static;
+    right: auto;
+    width: 100%;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .quiz-container.menu-open .nav-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: auto;
+    width: 220px;
+    max-width: 80vw;
+    padding: 48px 12px 12px;
+    background: #1e1e1e;
+    border-right: 1px solid #404040;
+    overflow-y: auto;
+    z-index: 2050;
+  }
+
+  .quiz-container.menu-open .nav-item { width: 100%; }
+
+  /* STATS is a single link, not a label + difficulty-buttons group. In the sheet
+     it was inheriting .nav-label's divider border-bottom (meant to separate a
+     label from the buttons below it), leaving a stray underline floating in an
+     oversized box. Make it a clean, compact menu row instead. */
+  .quiz-container.menu-open .single-nav {
+    padding: 9px 16px;
+  }
+
+  .quiz-container.menu-open .single-nav .nav-label {
+    border-bottom: none;
+    padding: 0;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+}
+
+/* ---- Mobile: mode-specific adjustments (see mobile_layout.md) ------------- */
+@media (max-width: 700px) {
+  /* Generalise the strip treatment to the plain stats bar too (Name All,
+     Borders use the non-stacked variant): bare numbers in a row, compact
+     Finish. The .stats-bar-stacked rules above still add the reveal handling. */
+  .stats-bar-top-left .stats-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .stats-bar-top-left .stat {
+    flex-direction: row;
+    gap: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    font-size: 15px;
+  }
+
+  .stats-bar-top-left .action-btn {
+    width: auto;
+    margin: 0 0 0 auto;
+    padding: 4px 10px;
+    font-size: 11px;
+    flex: none;
+  }
+
+  /* Name All: the input lives in .game-ui, not a bare .search-box. Anchor that
+     wrapper as the action row instead. */
+  .game-ui {
+    left: 8px;
+    right: 8px;
+    bottom: 10px;
+    width: auto;
+    max-width: none;
+    transform: none;
+  }
+
+  /* Name All Hard: the guessed list is the content, not the map. Fill the band
+     between the strip and the action row; only the list scrolls. Map hidden
+     (it shows nothing during play). */
+  .finish-panel {
+    position: absolute;
+    inset: 44px 8px 62px 8px;
+  }
+
+  .quiz-container:has(.game-ui:not([style*="none"])) .finish-panel {
+    bottom: 62px;
+  }
+
+  .guessed-countries {
+    max-height: none;
+    height: 100%;
+  }
+
+  /* ---- Borders (normal): the target-country prompt must stay on the strip.
+     Its inline stats bar has an extra .country-info block; lay the strip out as
+     prompt + compact counts. ---- */
+  .stats-bar .country-info {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+    padding: 0;
+  }
+
+  .stats-bar .country-info .target-country-label { display: none; }
+
+  .stats-bar .country-info .target-country-name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  /* "Borders: N" is redundant with the found/wrong counts alongside; drop it to
+     keep the prompt strip uncramped. */
+  .stats-bar .country-info .borders-count { display: none; }
+
+  /* ---- Quiz Hard: the silhouette is the question. Give the overlay map (or the
+     SVG silhouette) the whole content band; the progress map behind it isn't
+     shown during play. ---- */
+  #overlay-map,
+  .overlay-shape.hard-overlay {
+    position: absolute;
+    inset: 44px 8px 72px 8px;
+    width: auto;
+    height: auto;
+    top: 44px;
+    left: 8px;
+    right: 8px;
+    bottom: 72px;
+    z-index: 900;
+  }
+
+  /* Quiz Hard nests its strip inside .quiz-hard-finish (a positioned wrapper
+     that forces the strip position:static). Neutralise the wrapper on mobile so
+     the strip anchors to the shell like every other mode; its children lay out
+     directly against .quiz-container. */
+  .quiz-hard-finish { display: contents; }
+
+  .quiz-hard-finish .stats-bar-top-left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
+
+  /* On the (full-height) finish screen the results list fills below the strip. */
+  .quiz-hard-finish .results-list {
+    position: absolute;
+    inset: 92px 8px 8px 8px;
+    max-height: none;
+  }
+}

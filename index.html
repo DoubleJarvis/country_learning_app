@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- interactive-widget=resizes-content: on Android the layout viewport shrinks
+       to the space above the on-screen keyboard, so the mobile shell (pinned to
+       --app-height) sits above it. iOS ignores this key; app.js drives the same
+       result there from the visualViewport API. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
   <title>Country Learning</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="application-name" content="Country Learning">

@@ -1,3 +1,14 @@
+// Mobile-only chrome: a hamburger button that toggles the nav sheet, plus the
+// backdrop that dismisses it. Both are display:none on desktop (see index.css);
+// the toggle is wired by a delegated handler in app.js, so no controller code.
+// The nav itself is already in every template — on mobile it renders as the
+// sheet this button reveals.
+const MOBILE_MENU = () => `
+<button class="mobile-menu-btn" data-menu-toggle aria-label="Menu">
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+</button>
+<div class="mobile-menu-backdrop" data-menu-close></div>`
+
 const NAV = (activeMode, activeDifficulty, controllerName = null) => `
 <div class="nav-container"${controllerName ? ` data-${controllerName}-target="navButtons"` : ''}>
   <a href="#stats" class="nav-item single-nav${activeMode === 'stats' ? ' active' : ''}">
@@ -102,6 +113,7 @@ const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, but
 // source value picks which stats list (worst/slowest) fills the country pool.
 const PRACTICE_PAGE = (source, navDifficulty, difficultyLabel, description) => `
 <div data-controller="practice" data-practice-source-value="${source}" class="quiz-container">
+  ${MOBILE_MENU()}
   ${NAV('practice', navDifficulty, 'practice')}
   <div class="start-screen" data-practice-target="startScreen">
     <div class="region-header">
@@ -151,7 +163,7 @@ const PRACTICE_PAGE = (source, navDifficulty, difficultyLabel, description) => `
     <div class="overlay-scale" data-practice-target="overlayScale"></div>
   </div>
   <div class="search-box" data-practice-target="searchBox" style="display: none;">
-    <input type="text" data-practice-target="searchInput" data-action="input->practice#handleSearch keydown->practice#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
+    <input type="text" data-practice-target="searchInput" data-action="input->practice#handleSearch keydown->practice#handleKeydown" placeholder="Enter country name..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
     <div class="autocomplete-dropdown" data-practice-target="dropdown"></div>
     <button class="skip-btn" data-action="click->practice#skip keydown.shift+enter@window->practice#skip" title="Shift+Enter">Skip</button>
   </div>
@@ -160,6 +172,7 @@ const PRACTICE_PAGE = (source, navDifficulty, difficultyLabel, description) => `
 export const templates = {
   quiz: () => `
 <div data-controller="quiz" class="quiz-container">
+  ${MOBILE_MENU()}
   ${NAV('quiz', 'n', 'quiz')}
   ${REGION_SELECTION('quiz', 'Quiz', 'Normal', 'A country is highlighted on the map. Identify it by name.')}
   ${STATS_BAR_TOP_LEFT('quiz',
@@ -175,12 +188,12 @@ export const templates = {
   <div id="quiz-map" data-map-slot data-quiz-target="container"></div>
   <div class="search-box" data-quiz-target="searchBox" style="display: none;">
     <button class="recenter-btn" data-action="click->quiz#recenter" title="Re-center on current country">🎯</button>
-    <input type="text" data-quiz-target="searchInput" data-action="input->quiz#handleSearch keydown->quiz#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
+    <input type="text" data-quiz-target="searchInput" data-action="input->quiz#handleSearch keydown->quiz#handleKeydown" placeholder="Enter country name..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
     <div class="autocomplete-dropdown" data-quiz-target="dropdown"></div>
     <button class="skip-btn" data-action="click->quiz#skip keydown.shift+enter@window->quiz#skip" title="Shift+Enter">Skip</button>
   </div>
   <div class="debug-search-box" style="display: none;">
-    <input type="text" data-quiz-target="debugSearchInput" data-action="input->quiz#handleDebugSearch keydown->quiz#handleDebugKeydown" placeholder="DEBUG: Set country to guess..." autocomplete="off" />
+    <input type="text" data-quiz-target="debugSearchInput" data-action="input->quiz#handleDebugSearch keydown->quiz#handleDebugKeydown" placeholder="DEBUG: Set country to guess..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
     <div class="autocomplete-dropdown" data-quiz-target="debugDropdown"></div>
   </div>
   <div class="debug-fill-box" style="display: none;">
@@ -192,6 +205,7 @@ export const templates = {
 
   quiz_hard: () => `
 <div data-controller="quiz-hard" class="quiz-container">
+  ${MOBILE_MENU()}
   ${NAV('quiz', 'h', 'quiz-hard')}
   ${REGION_SELECTION('quiz-hard', 'Quiz', 'Hard', 'A country is shown without context. Identify it by name.')}
   <div class="quiz-hard-finish">
@@ -214,12 +228,12 @@ export const templates = {
     <div class="overlay-scale" data-quiz-hard-target="overlayScale"></div>
   </div>
   <div class="search-box" data-quiz-hard-target="searchBox" style="display: none;">
-    <input type="text" data-quiz-hard-target="searchInput" data-action="input->quiz-hard#handleSearch keydown->quiz-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
+    <input type="text" data-quiz-hard-target="searchInput" data-action="input->quiz-hard#handleSearch keydown->quiz-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
     <div class="autocomplete-dropdown" data-quiz-hard-target="dropdown"></div>
     <button class="skip-btn" data-action="click->quiz-hard#skip keydown.shift+enter@window->quiz-hard#skip" title="Shift+Enter">Skip</button>
   </div>
   <div class="debug-search-box" style="display: none;">
-    <input type="text" data-quiz-hard-target="debugSearchInput" data-action="input->quiz-hard#handleDebugSearch keydown->quiz-hard#handleDebugKeydown" placeholder="DEBUG: Set country to guess..." autocomplete="off" />
+    <input type="text" data-quiz-hard-target="debugSearchInput" data-action="input->quiz-hard#handleDebugSearch keydown->quiz-hard#handleDebugKeydown" placeholder="DEBUG: Set country to guess..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
     <div class="autocomplete-dropdown" data-quiz-hard-target="debugDropdown"></div>
   </div>
   <div class="debug-fill-box" style="display: none;">
@@ -231,6 +245,7 @@ export const templates = {
 
   quiz_borders: () => `
 <div data-controller="quiz-borders" class="quiz-container">
+  ${MOBILE_MENU()}
   ${NAV('borders', 'n', 'quiz-borders')}
   <div class="start-screen" data-quiz-borders-target="startScreen">
     <div class="region-header">
@@ -247,7 +262,7 @@ export const templates = {
     </p>
     <button data-action="click->quiz-borders#startGame" class="start-btn">Start Game</button>
   </div>
-  <div class="stats-bar" data-quiz-borders-target="statsBar" style="display: none; position: absolute; top: 15px; left: 15px; padding: 8px 12px; z-index: 1000;">
+  <div class="stats-bar stats-bar-top-left" data-quiz-borders-target="statsBar" style="display: none;">
     <div class="country-info">
       <div class="target-country-label">Target Country:</div>
       <div class="target-country-name" data-quiz-borders-target="countryName"></div>
@@ -274,13 +289,14 @@ export const templates = {
   <div id="quiz-map" data-map-slot data-quiz-borders-target="container"></div>
   <div class="search-box" data-quiz-borders-target="searchBox" style="display: none;">
     <button class="recenter-btn" data-action="click->quiz-borders#recenter" title="Re-center on target country">🎯</button>
-    <input type="text" data-quiz-borders-target="searchInput" data-action="input->quiz-borders#handleSearch keydown->quiz-borders#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
+    <input type="text" data-quiz-borders-target="searchInput" data-action="input->quiz-borders#handleSearch keydown->quiz-borders#handleKeydown" placeholder="Enter country name..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
     <div class="autocomplete-dropdown" data-quiz-borders-target="dropdown"></div>
   </div>
 </div>`,
 
   quiz_borders_hard: () => `
 <div data-controller="quiz-borders-hard" class="quiz-container">
+  ${MOBILE_MENU()}
   ${NAV('borders', 'h', 'quiz-borders-hard')}
   ${REGION_SELECTION('quiz-borders-hard', 'Borders', 'Hard', 'Identify every country in the region by naming its neighbours. A new target country is given each time you clear all its borders.')}
   ${STATS_BAR_TOP_LEFT('quiz-borders-hard',
@@ -308,13 +324,14 @@ export const templates = {
   <div id="quiz-map" data-map-slot data-quiz-borders-hard-target="container"></div>
   <div class="search-box" data-quiz-borders-hard-target="searchBox" style="display: none;">
     <button class="recenter-btn" data-action="click->quiz-borders-hard#recenter" title="Re-center on target country">🎯</button>
-    <input type="text" data-quiz-borders-hard-target="searchInput" data-action="input->quiz-borders-hard#handleSearch keydown->quiz-borders-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" />
+    <input type="text" data-quiz-borders-hard-target="searchInput" data-action="input->quiz-borders-hard#handleSearch keydown->quiz-borders-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
     <div class="autocomplete-dropdown" data-quiz-borders-hard-target="dropdown"></div>
   </div>
 </div>`,
 
   quiz_place: () => `
 <div data-controller="quiz-place" class="quiz-container">
+  ${MOBILE_MENU()}
   ${NAV('place', 'n', 'quiz-place')}
   ${REGION_SELECTION('quiz-place', 'Place', 'Normal', 'Drag the named country to its real location on an empty world map. Drop it within its true bounds to lock it in.')}
   ${STATS_BAR_TOP_LEFT('quiz-place',
@@ -349,6 +366,7 @@ export const templates = {
 
   quiz_name_all_easy: () => `
 <div data-controller="quiz-name-all-easy" class="quiz-container">
+  ${MOBILE_MENU()}
   ${NAV('name_all', 'e', 'quiz-name-all-easy')}
   ${REGION_SELECTION('quiz-name-all-easy', 'Name All', 'Easy', 'All country outlines are shown on the map. Identify each one by name — they colour in as you guess.')}
   <div class="finish-panel">
@@ -378,7 +396,7 @@ export const templates = {
   )}
   <div class="game-ui" style="display: none;" data-quiz-name-all-easy-target="gameUI">
     <div class="search-box" data-quiz-name-all-easy-target="searchBox">
-      <input type="text" data-quiz-name-all-easy-target="searchInput" data-action="input->quiz-name-all-easy#handleSearch keydown->quiz-name-all-easy#handleKeydown" placeholder="Type country name..." autocomplete="off" />
+      <input type="text" data-quiz-name-all-easy-target="searchInput" data-action="input->quiz-name-all-easy#handleSearch keydown->quiz-name-all-easy#handleKeydown" placeholder="Type country name..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
       <div class="autocomplete-dropdown" data-quiz-name-all-easy-target="dropdown"></div>
     </div>
   </div>
@@ -391,6 +409,7 @@ export const templates = {
 
   quiz_name_all: () => `
 <div data-controller="quiz-name-all" class="quiz-container">
+  ${MOBILE_MENU()}
   ${NAV('name_all', 'n', 'quiz-name-all')}
   ${REGION_SELECTION('quiz-name-all', 'Name All', 'Normal', 'No outlines shown. Identify every country by name — each guess adds it to the map to give you context.')}
   <div class="finish-panel">
@@ -420,7 +439,7 @@ export const templates = {
   )}
   <div class="game-ui" style="display: none;" data-quiz-name-all-target="gameUI">
     <div class="search-box" data-quiz-name-all-target="searchBox">
-      <input type="text" data-quiz-name-all-target="searchInput" data-action="input->quiz-name-all#handleSearch keydown->quiz-name-all#handleKeydown" placeholder="Type country name..." autocomplete="off" />
+      <input type="text" data-quiz-name-all-target="searchInput" data-action="input->quiz-name-all#handleSearch keydown->quiz-name-all#handleKeydown" placeholder="Type country name..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
       <div class="autocomplete-dropdown" data-quiz-name-all-target="dropdown"></div>
     </div>
   </div>
@@ -433,6 +452,7 @@ export const templates = {
 
   quiz_name_all_hard: () => `
 <div data-controller="quiz-name-all-hard" class="quiz-container">
+  ${MOBILE_MENU()}
   ${NAV('name_all', 'h', 'quiz-name-all-hard')}
   ${REGION_SELECTION('quiz-name-all-hard', 'Name All', 'Hard', 'No outlines, no map feedback. Identify every country by name — guesses only appear in a list, with no geographic context.')}
   <div class="finish-panel">
@@ -462,7 +482,7 @@ export const templates = {
   )}
   <div class="game-ui" style="display: none;" data-quiz-name-all-hard-target="gameUI">
     <div class="search-box" data-quiz-name-all-hard-target="searchBox">
-      <input type="text" data-quiz-name-all-hard-target="searchInput" data-action="input->quiz-name-all-hard#handleSearch keydown->quiz-name-all-hard#handleKeydown" placeholder="Type country name..." autocomplete="off" />
+      <input type="text" data-quiz-name-all-hard-target="searchInput" data-action="input->quiz-name-all-hard#handleSearch keydown->quiz-name-all-hard#handleKeydown" placeholder="Type country name..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
       <div class="autocomplete-dropdown" data-quiz-name-all-hard-target="dropdown"></div>
     </div>
   </div>
@@ -546,7 +566,7 @@ export const templates = {
     <div class="country-stats-section">
       <h2>By Country</h2>
       <div class="filter-controls">
-        <input type="text" data-stats-target="searchInput" data-action="input->stats#filterCountries" placeholder="Search countries..." class="search-input" />
+        <input type="text" data-stats-target="searchInput" data-action="input->stats#filterCountries" placeholder="Search countries..." class="search-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
         <select data-stats-target="sortSelect" data-action="change->stats#sortCountries" class="sort-select">
           <option value="name">Sort by Name</option>
           <option value="total-desc">Sort by Total (High to Low)</option>

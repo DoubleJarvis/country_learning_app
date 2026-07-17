@@ -106,6 +106,23 @@ export function preloadCountryTiles(onProgress) {
 
 const BASE_LAYER_IDS = ["background", "countries-preview-fill", "countries-preview-outline"]
 
+// Width at/below which the mobile layout is active (must match the CSS
+// breakpoint in index.css).
+export const MOBILE_BREAKPOINT = 700
+export const isMobileLayout = () => window.innerWidth <= MOBILE_BREAKPOINT
+
+// fitBounds options for framing a single country. Desktop keeps its generous
+// symmetric padding; mobile uses tight, asymmetric padding so the country lands
+// in the clear band between the top status strip and the bottom action row /
+// keyboard rather than behind them, and a higher maxZoom because a country that
+// fills a 1280px window is a speck at 360.
+export function countryFitOptions() {
+  if (isMobileLayout()) {
+    return { padding: { top: 60, bottom: 104, left: 24, right: 24 }, maxZoom: 5.5 }
+  }
+  return { padding: { top: 150, bottom: 150, left: 150, right: 150 }, maxZoom: 4 }
+}
+
 let map = null
 let mapElement = null
 let styleReady = false

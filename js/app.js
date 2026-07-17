@@ -142,6 +142,53 @@ async function init() {
 window.addEventListener('hashchange', render)
 window.addEventListener('load', init)
 
+// --- Mobile shell plumbing ---------------------------------------------------
+
+// The mobile layout pins the app to the space above the on-screen keyboard.
+// 100dvh isn't enough on its own: iOS Safari doesn't shrink the layout viewport
+// for the keyboard (it overlays it), so we drive an explicit --app-height from
+// the visualViewport height, which *is* the space above the keyboard on both
+// platforms. The CSS falls back to 100dvh until this runs.
+function syncViewportHeight() {
+  const vv = window.visualViewport
+  const height = vv ? vv.height : window.innerHeight
+  document.documentElement.style.setProperty('--app-height', `${Math.round(height)}px`)
+  // The shared map's canvas must follow the content area or the projection
+  // (and every fitBounds) is computed against stale dimensions.
+  resizeSharedMapSoon()
+}
+
+let resizePending = false
+function resizeSharedMapSoon() {
+  if (resizePending) return
+  resizePending = true
+  requestAnimationFrame(() => {
+    resizePending = false
+    getSharedMap()?.resize()
+  })
+}
+
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', syncViewportHeight)
+  window.visualViewport.addEventListener('scroll', syncViewportHeight)
+}
+window.addEventListener('resize', syncViewportHeight)
+window.addEventListener('load', syncViewportHeight)
+
+// Mobile menu: a single delegated handler toggles `.menu-open` on the current
+// page's `.quiz-container`, so no per-controller code is needed. The nav lives
+// in every template already; on mobile CSS renders it as a sheet when open.
+document.addEventListener('click', event => {
+  if (event.target.closest('[data-menu-toggle]')) {
+    event.target.closest('.quiz-container')?.classList.toggle('menu-open')
+    return
+  }
+  // Backdrop, or following a nav link, closes it.
+  if (event.target.closest('[data-menu-close]') || event.target.closest('.nav-container a')) {
+    document.querySelector('.quiz-container.menu-open')?.classList.remove('menu-open')
+  }
+})
+
 // Register the service worker that caches the app shell + assets for offline
 // play. Non-blocking; failures are logged but never break the page.
 if ('serviceWorker' in navigator) {

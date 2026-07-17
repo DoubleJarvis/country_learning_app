@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, countryBounds } from "country_names"
 import { getRandomCountryWithBorders, getBorders } from "adjacency_helper"
-import { getSharedMap, whenMapReady } from "shared_map"
+import { getSharedMap, whenMapReady, countryFitOptions } from "shared_map"
 
 export default class extends Controller {
   static targets = ["container", "searchInput", "searchBox", "dropdown", "startScreen", "statsBar",
@@ -250,11 +250,7 @@ export default class extends Controller {
     // bounds format: [west, south, east, north]
     this.map.fitBounds(
       [[bounds[0], bounds[1]], [bounds[2], bounds[3]]],
-      {
-        padding: { top: 150, bottom: 150, left: 150, right: 150 },
-        duration: 500,
-        maxZoom: 4
-      }
+      { duration: 500, ...countryFitOptions() }
     )
   }
 
