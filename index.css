@@ -1951,7 +1951,13 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
     z-index: 2050;
   }
 
-  .quiz-container.menu-open .nav-item { width: 100%; }
+  /* border-box: STATS is .nav-item + .single-nav on one element, so its 16px
+     padding and 2px border would otherwise add onto the 100% width and hang
+     out past the sheet's right edge. */
+  .quiz-container.menu-open .nav-item {
+    width: 100%;
+    box-sizing: border-box;
+  }
 
   /* STATS is a single link, not a label + difficulty-buttons group. In the sheet
      it was inheriting .nav-label's divider border-bottom (meant to separate a
@@ -1966,6 +1972,53 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
     padding: 0;
     font-size: 14px;
     letter-spacing: 0.5px;
+  }
+
+  /* ---- Region select / start screen cards ---------------------------------
+     The desktop card is a fixed 560×580 footprint; on a phone that's taller
+     than the (overflow:hidden) shell, so it clips at both ends with no way to
+     scroll. Size it to the viewport instead and let the card itself scroll.
+     The 60px height allowance keeps the top edge clear of the hamburger.
+     justify-content:flex-start (not center) — centering scrollable overflow
+     makes the top unreachable. */
+  .region-selection,
+  .start-screen {
+    width: calc(100vw - 20px);
+    max-width: none;
+    min-height: 0;
+    max-height: calc(var(--app-height, 100dvh) - 60px);
+    overflow-y: auto;
+    padding: 20px 16px;
+    justify-content: flex-start;
+  }
+
+  .region-selection h1,
+  .start-screen h1 { font-size: 24px; }
+
+  .region-header { margin-bottom: 14px; }
+
+  .region-description {
+    font-size: 14px;
+    padding: 14px;
+    margin-bottom: 18px;
+  }
+
+  .region-select-label {
+    font-size: 17px;
+    margin-bottom: 14px;
+  }
+
+  /* minmax(0, 1fr): a bare 1fr track can't shrink below the buttons'
+     min-content width, which pushed the grid out through the card's right
+     padding. Let the buttons wrap instead. */
+  .region-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .region-buttons button {
+    padding: 12px 8px;
+    font-size: 16px;
   }
 }
 

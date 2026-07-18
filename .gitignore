@@ -1,0 +1,3 @@
+*.pem
+server.pid
+__pychache__/
