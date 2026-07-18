@@ -14,8 +14,33 @@ plain files.
 Serve the project root with any static server, e.g.:
 
 ```sh
-python -m http.server 8899
+python3 serve.py   # → http://localhost:8800 and https://<this-machine>:8843
 ```
+
+([serve.py](serve.py) serves both; anything that serves static files works for
+plain-HTTP development, e.g. `python -m http.server 8899`.)
+
+### HTTPS (for testing from a phone)
+
+Installing the PWA / registering the service worker from another device needs a
+secure context, which plain HTTP can't provide — that's what the `:8843` HTTPS
+listener is for.
+
+It picks up an [mkcert](https://github.com/FiloSottile/mkcert)-generated
+cert/key pair from the project root (gitignored; it also refuses to serve
+`*.pem` so the private key can't be fetched over the LAN). One-time setup:
+
+```sh
+brew install mkcert
+mkcert -install                              # create + trust the local CA
+mkcert <lan-ip> <hostname>.local localhost   # e.g. mkcert 192.168.0.236 macbook.local localhost
+```
+
+Re-run the last command if your LAN IP changes. Other devices must trust
+mkcert's root CA (`rootCA.pem` in `mkcert -CAROOT`): on Android install it via
+Settings → "CA certificate" (Firefox additionally needs "Use third party CA
+certificates" from its secret settings); on iOS install the profile, then
+enable it under Settings → General → About → Certificate Trust Settings.
 
 No build step. Local JS modules are loaded through an import map in
 `index.html` with a per-load `?v=` cache-buster (see the inline `<script>`).
@@ -30,8 +55,9 @@ see the URL.
 - **Desktop**: an install button appears in Chrome/Edge's address bar; Safari has
   "Add to Dock".
 - **iOS**: Share → Add to Home Screen.
-- **HTTPS is required** to install anywhere except `localhost`, so the local
-  `python -m http.server` can't be installed from another device.
+- **HTTPS is required** to install anywhere except `localhost`, so a plain
+  HTTP server can't be installed from another device — use the HTTPS port of
+  `serve.py` (see "Running locally") for that.
 
 Icons: `icon.png` (512, "any"), `icons/icon-192.png`, and
 `icons/icon-maskable-512.png` — the maskable one keeps the mark inside the 80%
