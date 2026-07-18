@@ -12,7 +12,7 @@ Service workers and install both require a **secure context**. That means HTTPS,
 plus a hardcoded exception for **`localhost` / `127.0.0.1` / `::1`**.
 
 The exception is the *name* `localhost` — not "an address on your own network".
-So `http://192.168.x.x:8899` is **not** a secure context: no service worker
+So `http://192.168.x.x:8800` is **not** a secure context: no service worker
 registers, nothing is cached, and there's no install prompt. There is no "it's
 my LAN, trust me" heuristic. Every option below is a way around that one rule.
 
@@ -21,10 +21,10 @@ my LAN, trust me" heuristic. Every option below is a way around that one rule.
 Nothing to set up — `localhost` is already inside the exception:
 
 ```sh
-python3 -m http.server 8899
+python3 serve.py
 ```
 
-Open <http://localhost:8899> in Chrome:
+Open <http://localhost:8800> in Chrome:
 
 - **Install**: an install icon appears in the address bar. Installed, it opens
   in its own window — no tabs, no URL bar.
@@ -45,12 +45,12 @@ Open <http://localhost:8899> in Chrome:
 
 **Option 1 — port forwarding (easiest, no HTTPS, no certs).** Connect by USB,
 then on the desktop open `chrome://inspect/#devices` → **Port forwarding** → map
-`8899` to `localhost:8899`. The phone loads <http://localhost:8899> and, as far
+`8800` to `localhost:8800`. The phone loads <http://localhost:8800> and, as far
 as it's concerned, that *is* localhost — secure context, worker registers,
 install works.
 
 **Option 2 — force the LAN IP.** On the phone: `chrome://flags` →
-**"Insecure origins treated as secure"** → add `http://192.168.x.x:8899` →
+**"Insecure origins treated as secure"** → add `http://192.168.x.x:8800` →
 enable → relaunch. This overrides the secure-context check for that origin only.
 Undo it when you're done.
 
@@ -67,47 +67,35 @@ a cosmetic demo, not a test of anything in `sw.js`.
 
 ## HTTPS on the LAN with mkcert
 
-Real certs for your LAN IP, trusted by the phone. Works for both platforms.
+Real certs for your LAN IP, trusted by the phone. Works for both platforms, and
+it's already wired into the repo: [serve.py](serve.py) serves HTTPS on `:8843`
+using whatever mkcert cert/key pair it finds in the project root.
 
 ```sh
 # once per machine: create and trust the local CA (asks for your password)
 mkcert -install
 
-# cert for the address the phone will hit — find it with: ipconfig getifaddr en0
-mkcert 192.168.0.236 localhost
-# -> 192.168.0.236+1.pem  and  192.168.0.236+1-key.pem
+# cert for the addresses the phone will hit — LAN IP: ipconfig getifaddr en0
+mkcert 192.168.0.236 macbook.local localhost
+# -> 192.168.0.236+2.pem and 192.168.0.236+2-key.pem, picked up by serve.py
+
+python3 serve.py   # → https://192.168.0.236:8843
 ```
 
-`http.server` has no TLS flag, so wrap the socket (adjust the two filenames):
-
-```python
-# serve_https.py — serves the current directory over HTTPS
-import http.server
-import ssl
-
-PORT = 8443
-CERT = "192.168.0.236+1.pem"
-KEY = "192.168.0.236+1-key.pem"
-
-context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-context.load_cert_chain(CERT, KEY)
-
-server = http.server.ThreadingHTTPServer(("0.0.0.0", PORT), http.server.SimpleHTTPRequestHandler)
-server.socket = context.wrap_socket(server.socket, server_side=True)
-print(f"serving https://0.0.0.0:{PORT}")
-server.serve_forever()
-```
-
-Then trust the CA on the phone. Copy `rootCA.pem` from `$(mkcert -CAROOT)` and:
+Re-run the `mkcert` command whenever the LAN IP changes. Then trust the CA on
+the phone. Copy `rootCA.pem` from `$(mkcert -CAROOT)` and:
 
 - **Android**: Settings → Security → Encryption & credentials → Install a
-  certificate → **CA certificate**. Chrome honours user-added CAs.
+  certificate → **CA certificate**. Chrome honours user-added CAs; Firefox
+  needs **"Use third party CA certificates"** enabled first (Settings → About
+  Firefox → tap the logo 5 times → Secret Settings).
 - **iOS**: install the profile (Settings → Profile Downloaded), then the step
   everyone misses — Settings → General → About → **Certificate Trust Settings**
   → toggle full trust for the mkcert CA. Without it the cert is installed but
   not trusted, and Safari still refuses.
 
-Don't commit the `.pem` files.
+The `.pem` files are gitignored — keep them out of commits, and `serve.py`
+refuses to serve them so the private key can't be fetched over the LAN.
 
 ## Tunnel (no certs, works everywhere)
 
@@ -115,7 +103,7 @@ Least friction, especially for iOS — a public HTTPS URL with a real cert:
 
 ```sh
 brew install cloudflared
-cloudflared tunnel --url http://localhost:8899
+cloudflared tunnel --url http://localhost:8800
 ```
 
 Trade-off: the app is briefly reachable from the internet.
