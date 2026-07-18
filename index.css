@@ -1792,29 +1792,37 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
   }
 
   /* ---- Reveal ("It was:") -------------------------------------------------
-     Pull the last-guess card out of the strip and float it as a compact bar
-     just above the action row, so the last country stays visible without
-     eating a whole column. */
-  /* Compact card anchored to the top-left, just under the status strip, hugging
-     its content. No "It was:" label — just the shape and the name beside it. */
+     A full-width bar directly under the status strip. It's a child of the strip,
+     so top:100% pins it to the strip's bottom edge whatever the strip's height
+     (taller on the finish screen). The country-presentation area below reserves
+     room for it, so it never overlaps the silhouette. No "It was:" label — just
+     the shape and the name beside it. */
   .stats-bar-stacked .last-guess {
-    position: fixed;
-    left: 8px;
-    right: auto;
-    top: 46px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
     bottom: auto;
-    width: fit-content;
-    max-width: calc(100% - 16px);
+    width: auto;
+    max-width: none;
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 8px;
-    padding: 6px 12px 6px 8px;
-    background: rgba(20, 20, 20, 0.92);
-    border: 1px solid #404040;
-    border-radius: 8px;
+    padding: 6px 12px;
+    background: rgba(20, 20, 20, 0.96);
+    border: 0;
+    border-bottom: 1px solid #404040;
+    border-radius: 0;
     z-index: 1600;
+  }
+
+  /* On the finish screen the results list is the content and the strip carries
+     the Game Complete block; the reveal would overlap both, so hide it there.
+     (.stats-finished is display:none during play, shown on finish.) */
+  .stats-bar-stacked:has(.stats-finished:not([style*="none"])) .last-guess {
+    display: none;
   }
 
   /* Drop the "It was:" label on mobile. */
@@ -2041,18 +2049,28 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
   /* ---- Quiz Hard: the silhouette is the question. Give the overlay map (or the
      SVG silhouette) the whole content band; the progress map behind it isn't
      shown during play. ---- */
+  /* Top clears the status strip (~38px) plus the reveal bar below it (~54px), so
+     the silhouette is never obscured by the "it was" bar. The space is reserved
+     even before the first guess (when the bar is empty), so framing is stable
+     from country to country. */
   #overlay-map,
   .overlay-shape.hard-overlay {
     position: absolute;
-    inset: 44px 8px 72px 8px;
+    inset: 94px 8px 72px 8px;
     width: auto;
     height: auto;
-    top: 44px;
+    top: 94px;
     left: 8px;
     right: 8px;
     bottom: 72px;
     z-index: 900;
   }
+
+  /* The overlay map is transparent except for the current silhouette, so the
+     shared progress map behind it only peeks through uselessly around the shape.
+     Drop it entirely for Quiz Hard on mobile — the silhouette is the whole game,
+     and the finish screen uses the results list, not this map. */
+  #main-map[data-quiz-hard-target="mainContainer"] { display: none; }
 
   /* Quiz Hard nests its strip inside .quiz-hard-finish (a positioned wrapper
      that forces the strip position:static). Neutralise the wrapper on mobile so

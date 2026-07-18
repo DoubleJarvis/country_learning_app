@@ -244,7 +244,7 @@ export default class extends Controller {
     // bounds format: [west, south, east, north]
     this.map.fitBounds(
       [[bounds[0], bounds[1]], [bounds[2], bounds[3]]],
-      { duration: 500, ...countryFitOptions() }
+      { duration: 500, ...countryFitOptions({ underReveal: true }) }
     )
   }
 

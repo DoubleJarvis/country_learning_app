@@ -33,6 +33,14 @@ export default class extends Controller {
 
     this.initializeMaps()
     this.initializeDatabase()
+
+    // The isolated-country overlay is a separate MapLibre instance, so app.js's
+    // shared-map resize on viewport changes doesn't reach it. On mobile the
+    // on-screen keyboard resizes the overlay's box; without re-fitting, the
+    // silhouette is framed against stale dimensions and tall countries (Benin)
+    // get clipped. Re-fit the current country whenever the viewport changes.
+    this.boundViewportResize = () => this.handleViewportResize()
+    window.visualViewport?.addEventListener("resize", this.boundViewportResize)
   }
 
   async initializeDatabase() {
@@ -41,7 +49,15 @@ export default class extends Controller {
 
   disconnect() {
     this.stopTimer()
+    window.visualViewport?.removeEventListener("resize", this.boundViewportResize)
     if (this.overlayMap) this.overlayMap.remove()
+  }
+
+  handleViewportResize() {
+    if (!this.overlayMap || this.isFinished || !this.currentCountry) return
+    // showIsolatedCountry resizes the overlay map and re-fits (or re-renders the
+    // SVG for shape-only countries) against the new box.
+    this.showIsolatedCountry(this.currentCountry)
   }
 
   initializeMaps() {

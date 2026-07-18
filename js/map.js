@@ -116,9 +116,15 @@ export const isMobileLayout = () => window.innerWidth <= MOBILE_BREAKPOINT
 // in the clear band between the top status strip and the bottom action row /
 // keyboard rather than behind them, and a higher maxZoom because a country that
 // fills a 1280px window is a speck at 360.
-export function countryFitOptions() {
+//
+// underReveal: modes with the "it was" reveal bar (Quiz Normal/Hard) pass true so
+// the top padding also clears that bar, which sits below the strip.
+export function countryFitOptions({ underReveal = false } = {}) {
   if (isMobileLayout()) {
-    return { padding: { top: 60, bottom: 104, left: 24, right: 24 }, maxZoom: 5.5 }
+    return {
+      padding: { top: underReveal ? 100 : 60, bottom: 104, left: 24, right: 24 },
+      maxZoom: 5.5
+    }
   }
   return { padding: { top: 150, bottom: 150, left: 150, right: 150 }, maxZoom: 4 }
 }
