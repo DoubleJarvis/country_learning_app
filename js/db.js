@@ -589,6 +589,40 @@ class QuizDatabase {
     }
   }
 
+  // Pairs of countries the player confuses with each other, most-confused
+  // first. "Guessed Slovakia when it was Slovenia" and the reverse collapse
+  // into one unordered pair via the CASE ordering.
+  getConfusedPairs(limit = 30) {
+    if (!this.db) return []
+
+    try {
+      const stmt = this.db.prepare(`
+        SELECT
+          CASE WHEN country_code < guessed_country_code THEN country_code ELSE guessed_country_code END AS code_a,
+          CASE WHEN country_code < guessed_country_code THEN guessed_country_code ELSE country_code END AS code_b,
+          COUNT(*) as mixup_count,
+          MAX(timestamp) as last_timestamp
+        FROM guesses
+        WHERE guessed_country_code IS NOT NULL AND guessed_country_code != country_code
+        GROUP BY code_a, code_b
+        ORDER BY mixup_count DESC, last_timestamp DESC
+        LIMIT ?
+      `)
+      stmt.bind([limit])
+
+      const results = []
+      while (stmt.step()) {
+        results.push(stmt.getAsObject())
+      }
+      stmt.free()
+
+      return results
+    } catch (error) {
+      console.error('Failed to get confused pairs:', error)
+      return []
+    }
+  }
+
   getSetting(key) {
     if (!this.db) return null
 

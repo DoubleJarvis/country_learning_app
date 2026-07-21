@@ -41,6 +41,7 @@ const NAV = (activeMode, activeDifficulty, controllerName = null) => `
     <div class="difficulty-buttons">
       <a href="#practice_worst" class="difficulty-btn${activeMode === 'practice' && activeDifficulty === 'w' ? ' active' : ''}" title="Worst guesses">W</a>
       <a href="#practice_slowest" class="difficulty-btn${activeMode === 'practice' && activeDifficulty === 's' ? ' active' : ''}" title="Slowest guesses">S</a>
+      <a href="#practice_pairs" class="difficulty-btn${activeMode === 'practice' && activeDifficulty === 'm' ? ' active' : ''}" title="Mix-ups">M</a>
     </div>
   </div>
 </div>`;
@@ -499,6 +500,65 @@ export const templates = {
   practice_slowest: () => PRACTICE_PAGE('slowest', 's', 'Slowest',
     'Practice the countries that take you the longest to name. Their shapes are shown one by one in random order — name each one. The session keeps going until you press Finish.'),
 
+  practice_pairs: () => `
+<div data-controller="practice-pairs" class="quiz-container">
+  ${MOBILE_MENU()}
+  ${NAV('practice', 'm', 'practice-pairs')}
+  <div class="start-screen" data-practice-pairs-target="startScreen">
+    <div class="region-header">
+      <h1>Practice</h1>
+      <div class="region-difficulty pairs">Mix-ups</div>
+    </div>
+    <p class="region-description">Pairs of countries you've mixed up in quizzes are shown as two shapes side by side with both names. Tap a name, then the shape you think it belongs to — the other name takes the remaining shape, and both get labelled so you can see which is which. The session keeps going until you press Finish.</p>
+    <button data-action="click->practice-pairs#startPractice" data-practice-pairs-target="startBtn" class="start-btn">Start practice</button>
+  </div>
+  <div class="stats-bar stats-bar-top-left" data-practice-pairs-target="statsBar" style="display: none;">
+    <div class="stats-group">
+      <div class="stat green">
+        <span class="stat-label">Correct:</span>
+        <span class="stat-value" data-practice-pairs-target="correctCount">0</span>
+      </div>
+      <div class="stat red">
+        <span class="stat-label">Incorrect:</span>
+        <span class="stat-value" data-practice-pairs-target="incorrectCount">0</span>
+      </div>
+    </div>
+    <button class="action-btn" data-practice-pairs-target="actionBtn" data-action="click->practice-pairs#finish">Finish</button>
+  </div>
+  <div class="pair-panel" data-practice-pairs-target="pairPanel" style="display: none;">
+    <div class="pair-names">
+      <button class="pair-name" data-index="0" data-practice-pairs-target="nameCardA" data-action="click->practice-pairs#selectName"></button>
+      <button class="pair-name" data-index="1" data-practice-pairs-target="nameCardB" data-action="click->practice-pairs#selectName"></button>
+    </div>
+    <div class="pair-hint" data-practice-pairs-target="pairHint">Tap the shape that matches the highlighted name</div>
+    <div class="pair-feedback" data-practice-pairs-target="feedback" style="display: none;"></div>
+    <button class="pair-next-btn" data-practice-pairs-target="nextBtn" data-action="click->practice-pairs#next keydown.enter@window->practice-pairs#next" style="display: none;">Next</button>
+  </div>
+  <div class="pair-shapes" data-practice-pairs-target="shapesArea" style="display: none;">
+    <button class="pair-shape-card" data-practice-pairs-target="shapeCard" data-action="click->practice-pairs#selectShape">
+      <div class="pair-shape-svg"></div>
+      <div class="pair-shape-scale"></div>
+      <div class="pair-shape-name"></div>
+    </button>
+    <button class="pair-shape-card" data-practice-pairs-target="shapeCard" data-action="click->practice-pairs#selectShape">
+      <div class="pair-shape-svg"></div>
+      <div class="pair-shape-scale"></div>
+      <div class="pair-shape-name"></div>
+    </button>
+  </div>
+  <div class="finished-banner" data-practice-pairs-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Practice Complete!</h2>
+      <div class="finished-time" data-practice-pairs-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">Correct:</span><span class="finished-value" data-practice-pairs-target="finalCorrect">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Incorrect:</span><span class="finished-value" data-practice-pairs-target="finalIncorrect">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->practice-pairs#restart">Restart</button>
+    </div>
+  </div>
+</div>`,
+
   stats: () => `
 <div data-controller="stats" class="stats-container">
   ${NAV('stats', '')}
@@ -555,7 +615,10 @@ export const templates = {
     </div>
     <div class="performance-sections">
       <div class="worst-countries-section">
-        <h2>Worst guesses</h2>
+        <div class="worst-header">
+          <h2>Worst guesses</h2>
+          <a href="#practice_pairs" class="practice-pairs-btn">Practice mix-ups</a>
+        </div>
         <div class="worst-list" data-stats-target="worstList"><div class="loading">Loading worst guesses...</div></div>
       </div>
       <div class="slowest-countries-section">

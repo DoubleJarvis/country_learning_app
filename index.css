@@ -190,6 +190,12 @@
   border-color: rgba(167, 139, 250, 0.4);
 }
 
+.region-difficulty.pairs {
+  color: #2dd4bf;
+  background: rgba(45, 212, 191, 0.12);
+  border-color: rgba(45, 212, 191, 0.4);
+}
+
 .region-description {
   color: #b0b0b0;
   font-size: 15px;
@@ -820,6 +826,186 @@ body {
 }
 
 .start-btn:disabled:hover { background-color: #2a2a2a; }
+
+/* Mix-ups practice: floating panel at the top centre holding the two name
+   cards, the hint/feedback line, and the Next button. The map beneath shows
+   both candidate countries. */
+.pair-panel {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: #2a2a2a;
+  border: 2px solid #404040;
+  border-radius: 8px;
+  padding: 14px 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  max-width: min(560px, calc(100vw - 40px));
+  box-sizing: border-box;
+}
+
+.pair-names {
+  display: flex;
+  gap: 12px;
+}
+
+.pair-name {
+  padding: 10px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #1a1a1a;
+  color: #b0b0b0;
+  border: 2px solid #404040;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pair-name:hover:not(:disabled) { border-color: #666; color: #e0e0e0; }
+
+.pair-name.active {
+  color: #fff;
+  border-color: #4a9eff;
+  background: rgba(74, 158, 255, 0.18);
+}
+
+.pair-name.correct {
+  color: #4ade80;
+  border-color: rgba(74, 222, 128, 0.6);
+  background: rgba(74, 222, 128, 0.12);
+  cursor: default;
+}
+
+.pair-name.incorrect {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.6);
+  background: rgba(239, 68, 68, 0.12);
+  cursor: default;
+}
+
+.pair-hint {
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+}
+
+.pair-feedback {
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.pair-feedback.correct { color: #4ade80; }
+.pair-feedback.incorrect { color: #ef4444; }
+
+.pair-next-btn {
+  padding: 8px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: #4a9eff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pair-next-btn:hover { background-color: #3a8eee; }
+
+/* The two clickable silhouette cards, filling the space below the pair panel.
+   Each silhouette is styled like the hard-quiz overlay (grey fill, gold
+   border) with its own scale bar; the true name appears on the card once the
+   round resolves. */
+.pair-shapes {
+  position: absolute;
+  top: 190px;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1000px, calc(100vw - 60px));
+  display: flex;
+  gap: 30px;
+  z-index: 500;
+}
+
+.pair-shape-card {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  background: #222;
+  border: 2px solid #404040;
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.pair-shape-card:hover:not(:disabled) { border-color: #4a9eff; background: #262b33; }
+.pair-shape-card:disabled { cursor: default; }
+
+.pair-shape-card.correct { border-color: rgba(74, 222, 128, 0.6); }
+.pair-shape-card.incorrect { border-color: rgba(239, 68, 68, 0.6); }
+
+.pair-shape-svg {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.pair-shape-svg svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pair-shape-svg svg path {
+  fill: #3a3a3a;
+  stroke: #ffd700;
+  stroke-width: 1.5px;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.pair-shape-card.correct .pair-shape-svg svg path { fill: rgba(74, 222, 128, 0.55); }
+.pair-shape-card.incorrect .pair-shape-svg svg path { fill: rgba(239, 68, 68, 0.5); }
+
+/* Scale bar in the card's corner, same look as .overlay-scale */
+.pair-shape-scale {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: none;
+  box-sizing: border-box;
+  background-color: rgba(42, 42, 42, 0.7);
+  color: #888;
+  border: 1px solid rgba(64, 64, 64, 0.5);
+  border-top: none;
+  font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  padding: 2px 5px;
+  white-space: nowrap;
+}
+
+/* Reserve the line so the layout doesn't jump when the name is revealed */
+.pair-shape-name {
+  min-height: 24px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 
 /* Practice mode reuses the Quiz reveal layout (.stats-bar-stacked): a compact
    left column of stats + Finish, with the last-guess card alongside. */
@@ -1627,6 +1813,32 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
   color: #e0e0e0;
 }
 
+/* Worst guesses heading + the "Practice mix-ups" shortcut, same row treatment
+   as .runs-header */
+.worst-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.worst-header h2 { margin: 0; }
+
+.practice-pairs-btn {
+  padding: 8px 20px;
+  background: #4a9eff;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.9em;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.practice-pairs-btn:hover { background: #3a8eee; }
+
 .worst-list, .slowest-list {
   background-color: #2a2a2a;
   border: 2px solid #404040;
@@ -2046,6 +2258,60 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
     padding: 4px 10px;
     font-size: 11px;
     flex: none;
+  }
+
+  /* Mix-ups practice: the pair panel becomes a full-width band under the
+     status strip instead of a floating centred card. */
+  .pair-panel {
+    top: 48px;
+    left: 8px;
+    right: 8px;
+    transform: none;
+    max-width: none;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .pair-names { width: 100%; }
+
+  .pair-name {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 8px;
+    font-size: 15px;
+  }
+
+  /* Shape cards fill the band between the pair panel and the bottom edge.
+     Top clears the status strip (~40px) plus the panel at its tallest
+     (feedback + Next), so framing is stable across phases. */
+  .pair-shapes {
+    top: 210px;
+    bottom: 16px;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    transform: none;
+    gap: 8px;
+  }
+
+  .pair-shape-card {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  /* Narrow cards: the revealed name spans most of the width, so the scale bar
+     moves to the top corner to stay clear of it. */
+  .pair-shape-scale {
+    top: 10px;
+    bottom: auto;
+    left: 10px;
+    border-top: 1px solid rgba(64, 64, 64, 0.5);
+    border-bottom: none;
+  }
+
+  .pair-shape-name {
+    font-size: 14px;
+    min-height: 18px;
   }
 
   /* Name All: the input lives in .game-ui, not a bare .search-box. Anchor that

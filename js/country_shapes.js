@@ -37,7 +37,9 @@ export function countryShapeMarkup(code, extraClass = '') {
 const svgTextCache = new Map()
 export async function loadCountrySvg(code) {
   if (svgTextCache.has(code)) return svgTextCache.get(code)
-  const text = await (await fetch(countryShapeUrl(code))).text()
+  const response = await fetch(countryShapeUrl(code))
+  if (!response.ok) throw new Error(`No shape SVG for ${code} (HTTP ${response.status})`)
+  const text = await response.text()
   svgTextCache.set(code, text)
   return text
 }

@@ -17,6 +17,7 @@ const routes = {
   '#quiz_place':         'quiz_place',
   '#practice_worst':     'practice_worst',
   '#practice_slowest':   'practice_slowest',
+  '#practice_pairs':     'practice_pairs',
   '#stats':              'stats',
 }
 
