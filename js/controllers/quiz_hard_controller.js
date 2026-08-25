@@ -270,6 +270,11 @@ export default class extends Controller {
     this.searchBoxTarget.style.display = "flex"
     this.updateStats()
 
+    // Overlay's backdrop-blur (CSS) should only apply once there's an
+    // isolated country to stand out against it - not while the empty
+    // overlay box sits over the region-selection screen.
+    this.element.classList.add("quiz-active")
+
     // Set main map view to show entire region (no zooming later)
     this.setRegionView(region)
 
@@ -832,6 +837,7 @@ export default class extends Controller {
 
     // Show region selection
     this.regionSelectionTarget.style.display = "block"
+    this.element.classList.remove("quiz-active")
 
     // Show overlay map container again, hide the SVG overlay
     this.overlayContainerTarget.style.display = "block"

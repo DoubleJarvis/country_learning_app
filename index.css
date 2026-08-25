@@ -1238,6 +1238,16 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
   background: transparent;
 }
 
+/* Quiz Hard mode: blur the main map showing through the transparent parts of
+   the overlay's canvas so the isolated country reads clearly against it.
+   Scoped to .quiz-active (set once a country is being guessed) so the empty
+   overlay box doesn't blur the region-selection screen underneath it. */
+[data-controller="quiz-hard"].quiz-active #overlay-map,
+.quiz-active .overlay-shape.hard-overlay {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
 /* SVG silhouette shown in place of the overlay map for tiny countries that
    would otherwise be unrecognizable blobs. Mirrors the #overlay-map box. */
 .overlay-shape {
