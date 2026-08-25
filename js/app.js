@@ -1,6 +1,6 @@
 import { Application } from "@hotwired/stimulus"
 import { templates } from "./templates.js"
-import { getSharedMap, getSharedMapElement, resetSharedMap, preloadCountryTiles } from "shared_map"
+import { getSharedMap, getExistingSharedMap, getSharedMapElement, resetSharedMap, preloadCountryTiles } from "shared_map"
 import { initSettings, applySettings, setSetting } from "settings"
 
 const stimulusApp = Application.start()
@@ -68,6 +68,12 @@ function placeSharedMap() {
     element.style.display = 'block'
     slot.appendChild(element)
     getSharedMap()
+    // Re-parenting can change the container's size (e.g. coming back from a
+    // route that hides the map via CSS, which collapses it to 0x0 and zeroes
+    // MapLibre's canvas/transform). MapLibre's own ResizeObserver eventually
+    // catches this, but not reliably in the same tick as this synchronous
+    // DOM rebuild, leaving the base layers blank until the next pan/zoom.
+    resizeSharedMapSoon()
   } else {
     element.style.display = 'none'
     document.body.appendChild(element)
@@ -165,7 +171,13 @@ function resizeSharedMapSoon() {
   resizePending = true
   requestAnimationFrame(() => {
     resizePending = false
-    getSharedMap()?.resize()
+    // Deliberately not getSharedMap(): this can fire (via the 'load' listeners
+    // below) before init()'s first render() has placed the map element in the
+    // DOM. Constructing it against that still-detached, 0x0 element permanently
+    // seeds MapLibre's transform at a fallback size - it only self-corrects
+    // once its internal ResizeObserver happens to notice the real size later,
+    // leaving the base layers blank until the next pan/zoom.
+    getExistingSharedMap()?.resize()
   })
 }
 

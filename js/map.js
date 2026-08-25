@@ -144,6 +144,15 @@ export function getSharedMapElement() {
   return mapElement
 }
 
+// Exposes the map only if it's already been constructed, without triggering
+// construction. getSharedMap() below builds the map against whatever element
+// getSharedMapElement() currently returns - before placeSharedMap() has
+// appended that element to the DOM, it's a detached node, so building against
+// it there would seed MapLibre's transform against the wrong size.
+export function getExistingSharedMap() {
+  return map
+}
+
 export function getSharedMap() {
   if (map) return map
 
