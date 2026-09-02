@@ -341,10 +341,16 @@ body {
 /* Name All Hard shows its results list live during play too (not just on
    finish), with the live score bar still up above it - unlike every other
    .finish-panel mode, where the score bar is always hidden by the time the
-   list appears. Its list needs to start below that bar instead of sharing
-   the same top-left origin. */
+   list appears. During play its list needs to start below that bar instead
+   of sharing the same top-left origin; once the game ends the score bar is
+   hidden like everywhere else, so the finish card can move back up to line
+   up with every other mode. */
 [data-controller="quiz-name-all-hard"] .finish-panel {
   top: 88px;
+}
+
+[data-controller="quiz-name-all-hard"]:has(.finished-banner[style*="flex"]) .finish-panel {
+  top: 15px;
 }
 
 .finish-panel .finished-banner {
