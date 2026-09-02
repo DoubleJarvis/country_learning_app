@@ -251,7 +251,7 @@ export default class extends Controller {
     this.pairPanelTarget.style.display = "none"
     this.shapesAreaTarget.style.display = "none"
 
-    this.finishedBannerTarget.style.display = "block"
+    this.finishedBannerTarget.style.display = "flex"
   }
 
   restart() {

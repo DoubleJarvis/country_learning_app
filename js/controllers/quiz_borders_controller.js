@@ -519,7 +519,7 @@ export default class extends Controller {
     this.searchBoxTarget.style.display = "none"
 
     // Show finished banner
-    this.finishedBannerTarget.style.display = "block"
+    this.finishedBannerTarget.style.display = "flex"
     this.finalTimeTarget.textContent = timeString
     this.finalCorrectTarget.textContent = `${this.correctGuesses} / ${this.borders.length}`
     this.finalIncorrectTarget.textContent = this.incorrectGuesses

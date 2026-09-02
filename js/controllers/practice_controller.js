@@ -484,7 +484,7 @@ export default class extends Controller {
     this.mainMap.setFilter("countries-preview-fill", null)
     this.mainMap.setFilter("countries-preview-outline", null)
 
-    this.finishedBannerTarget.style.display = "block"
+    this.finishedBannerTarget.style.display = "flex"
   }
 
   restart() {

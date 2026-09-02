@@ -9,6 +9,7 @@ export default class extends Controller {
   static targets = ["mainContainer", "overlayContainer", "searchInput", "searchBox", "dropdown",
                     "regionSelection", "statsBar", "remainingCount", "greenCount",
                     "yellowCount", "redCount", "actionBtn", "finishedBanner",
+                    "finalTime", "finalGreen", "finalYellow", "finalRed",
                     "debugSearchInput", "debugDropdown",
                     "navButtons", "timerDisplay", "resultsList",
                     "overlayShape", "overlayShapeIcon", "overlayScale",
@@ -854,7 +855,6 @@ export default class extends Controller {
   endQuiz(completedFully = true) {
     this.isFinished = true
 
-    // Stop the timer: the stats bar keeps showing the time it stopped at.
     this.stopTimer()
     this.endTime = Date.now()
     const elapsedMs = this.endTime - this.startTime
@@ -870,11 +870,14 @@ export default class extends Controller {
       completedFully ? 1 : 0
     )
 
-    // The stats bar stays up and keeps showing the final tally; swap its Finish
-    // button for the game-complete block. The "It was:" card stays too, so the
-    // last country of the game is still readable.
+    this.finalTimeTarget.textContent = this.timerDisplayTarget.textContent
+    this.finalGreenTarget.textContent = this.stats.green
+    this.finalYellowTarget.textContent = this.stats.yellow
+    this.finalRedTarget.textContent = this.stats.red
+
     this.searchBoxTarget.style.display = "none"
-    this.actionBtnTarget.style.display = "none"
+    this.statsBarTarget.style.display = "none"
+    this.lastGuessTarget.style.display = "none"
     this.finishedBannerTarget.style.display = "flex"
 
     // List the incorrect (red) and shaky (yellow) countries under the card

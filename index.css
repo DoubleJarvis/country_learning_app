@@ -309,17 +309,28 @@ body {
   height: 100%;
 }
 
-/* Finish panel: banner fixed top-left, country list filling the remaining
-   width and the full viewport height beside it. The panel is click-through
-   wherever its children are hidden. */
+/* Finish panel: used by modes that also show a results list (missed/guessed
+   countries). The banner sits top-left in the same spot the live score
+   occupied, with the list filling the remaining width beside it. Nothing here
+   dims or blocks the rest of the screen - it's click-through everywhere except
+   its own children, so the nav stays usable and the map stays interactive
+   while the game-complete state is up. */
 .finish-panel {
-  position: fixed;
-  /* Starts below the navigation bar so it's never covered by it */
-  inset: 100px 20px 20px 20px;
+  position: absolute;
+  /* Same top-left origin as the standalone .finished-banner below, so modes
+     with a results list (e.g. Quiz Hard) line up with modes that don't
+     (e.g. Quiz Normal). */
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
   display: flex;
   align-items: flex-start;
-  gap: 20px;
-  z-index: 1900;
+  gap: 16px;
+  /* Below .search-box/.game-ui (z-index: 1000): Name All Hard keeps its
+     results list visible during play, not just on finish, and it must not
+     steal clicks from the search input sitting underneath it. */
+  z-index: 900;
   pointer-events: none;
 }
 
@@ -327,36 +338,56 @@ body {
   pointer-events: auto;
 }
 
+/* Name All Hard shows its results list live during play too (not just on
+   finish), with the live score bar still up above it - unlike every other
+   .finish-panel mode, where the score bar is always hidden by the time the
+   list appears. Its list needs to start below that bar instead of sharing
+   the same top-left origin. */
+[data-controller="quiz-name-all-hard"] .finish-panel {
+  top: 88px;
+}
+
 .finish-panel .finished-banner {
   position: static;
   flex-shrink: 0;
+  max-height: 100%;
 }
 
-/* While the bottom game bar is visible (Name All hard gameplay), keep the
-   panel clear of it; on finish screens the bar is hidden and the full
-   height is available. */
-.quiz-container:has(.game-ui:not([style*="none"])) .finish-panel {
-  bottom: 230px;
-}
-
-/* Finished Banner */
+/* Finished banner: same corner the live score bar (.stats-bar-top-left)
+   occupies, sized to its content up to a cap so it never runs off a narrow
+   screen. Standalone (no results list) modes position it directly; modes with
+   a list get this positioning from .finish-panel instead (see above). */
 .finished-banner {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  top: 15px;
+  left: 15px;
+  max-width: min(340px, calc(100vw - 30px));
+  max-height: calc(100% - 30px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   background: #2a2a2a;
   border: 2px solid #404040;
   border-radius: 12px;
-  padding: 40px;
-  z-index: 2000;
+  padding: 24px;
+  box-sizing: border-box;
+  z-index: 900;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   text-align: center;
 }
 
+.finished-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 100%;
+}
+
 .finished-content h2 {
   color: #e0e0e0;
-  font-size: 32px;
-  margin: 0 0 10px 0;
+  font-size: 22px;
+  margin: 0 0 8px 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -398,15 +429,16 @@ body {
 
 .finished-time {
   color: #4a9eff;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
-  margin-bottom: 30px;
+  margin-bottom: 14px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .finished-stats {
   display: flex;
-  gap: 30px;
+  flex-wrap: wrap;
+  gap: 12px 18px;
   justify-content: center;
 }
 
@@ -414,19 +446,19 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .finished-label {
   color: #888;
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .finished-value {
   color: #e0e0e0;
-  font-size: 36px;
+  font-size: 26px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -436,9 +468,8 @@ body {
 .finished-stat.incorrect .finished-value { color: #fbbf24; }
 
 .restart-btn {
-  margin-top: 20px;
-  padding: 15px 40px;
-  font-size: 18px;
+  padding: 11px 28px;
+  font-size: 15px;
   background-color: #4a9eff;
   color: white;
   border: none;
@@ -446,6 +477,10 @@ body {
   cursor: pointer;
   transition: background-color 0.2s;
   font-weight: 600;
+}
+
+.finished-content .restart-btn {
+  margin-top: 16px;
 }
 
 .restart-btn:hover { background-color: #3a8eee; }
@@ -683,12 +718,18 @@ body {
   backdrop-filter: blur(4px);
 }
 
-/* Guessed countries list */
+/* Guessed countries list: sits inside .finish-panel beside the compact score
+   banner, filling the remaining width and stretching to the panel's full
+   height (align-self: stretch overrides the panel's flex-start default just
+   for this item, so the banner itself stays sized to its own content). */
 .guessed-countries {
   flex: 1;
   min-width: 0;
+  min-height: 0;
+  max-height: 100%;
   align-self: stretch;
   overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .guessed-grid {
@@ -1047,63 +1088,19 @@ body {
   margin-top: auto;
 }
 
-/* Game-complete block: takes the Finish button's place at the bottom of the
-   stats column once the game ends (Quiz Normal/Hard), so the final state reads
-   as part of the score panel instead of a separate banner. */
-.stats-finished {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 4px;
-  margin-top: auto;
-  padding-top: 6px;
-  border-top: 1px solid #404040;
-}
-
-.stats-finished-title {
-  color: #e0e0e0;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: center;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-/* Compact override of the full-size .restart-btn used by the other modes */
-.stats-finished .restart-btn {
-  width: 100%;
-  margin-top: 0;
-  padding: 6px 12px;
-  font-size: 11px;
-}
-
-/* Quiz (hard): the score panel and the results list share one top-left column,
-   so the list of missed countries sits under the score rather than beside it.
-   The wrapper owns the positioning; the stats bar inside it goes static. */
-.quiz-hard-finish {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  max-width: calc(100vw - 30px);
-  max-height: calc(100vh - 30px);
-}
-
-.quiz-hard-finish .stats-bar-top-left {
-  position: static;
-  flex-shrink: 0;
-}
-
-/* Only the list scrolls, so the score above it always stays in view */
-.quiz-hard-finish .results-list {
+/* Quiz Hard's per-country results list (missed/shaky countries), shown inside
+   .finish-panel beside the score. Same treatment as .guessed-countries. */
+.results-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  overflow-y: auto;
+  flex: 1;
+  min-width: 0;
   min-height: 0;
+  max-height: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 /* Base card (Practice mode): drops to a full-width second row in its wrapping
@@ -1324,10 +1321,14 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
   z-index: 1;
 }
 
-/* Missed countries (borders hard) */
+/* Missed countries (borders hard): same "only this scrolls" treatment as
+   .guessed-countries above. */
 .missed-countries {
   flex: 1;
   min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  box-sizing: border-box;
   align-self: stretch;
   overflow-y: auto;
 }
@@ -2040,13 +2041,6 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
     z-index: 1600;
   }
 
-  /* On the finish screen the results list is the content and the strip carries
-     the Game Complete block; the reveal would overlap both, so hide it there.
-     (.stats-finished is display:none during play, shown on finish.) */
-  .stats-bar-stacked:has(.stats-finished:not([style*="none"])) .last-guess {
-    display: none;
-  }
-
   /* Drop the "It was:" label on mobile. */
   .stats-bar-stacked .last-guess .last-guess-label { display: none; }
 
@@ -2335,21 +2329,34 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
     transform: none;
   }
 
-  /* Name All Hard: the guessed list is the content, not the map. Fill the band
-     between the strip and the action row; only the list scrolls. Map hidden
-     (it shows nothing during play). */
+  /* Finished banner/panel: drop the desktop corner-card sizing in favour of a
+     full-width card, positioned below the hamburger so it's never covered by
+     it. Standalone banners (no results list) position directly; .finish-panel
+     handles it for the modes with a list, see below. */
+  .finished-banner {
+    top: 44px;
+    left: 8px;
+    right: 8px;
+    max-width: none;
+  }
+
   .finish-panel {
-    position: absolute;
-    inset: 44px 8px 62px 8px;
+    top: 44px;
+    left: 8px;
+    right: 8px;
+    bottom: 12px;
+    flex-direction: column;
+    gap: 10px;
   }
 
-  .quiz-container:has(.game-ui:not([style*="none"])) .finish-panel {
-    bottom: 62px;
-  }
-
-  .guessed-countries {
+  /* Row layout on desktop keeps the banner at its own content size (flex-start
+     cross-axis); in the column layout here the cross-axis is width, so the
+     same flex-start would leave the banner narrow and left-aligned. Stretch it
+     to match the list's full width instead. */
+  .finish-panel .finished-banner {
+    position: static;
+    align-self: stretch;
     max-height: none;
-    height: 100%;
   }
 
   /* ---- Borders (normal): the target-country prompt must stay on the strip.
@@ -2398,25 +2405,4 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
      Drop it entirely for Quiz Hard on mobile — the silhouette is the whole game,
      and the finish screen uses the results list, not this map. */
   #main-map[data-quiz-hard-target="mainContainer"] { display: none; }
-
-  /* Quiz Hard nests its strip inside .quiz-hard-finish (a positioned wrapper
-     that forces the strip position:static). Neutralise the wrapper on mobile so
-     the strip anchors to the shell like every other mode; its children lay out
-     directly against .quiz-container. */
-  .quiz-hard-finish { display: contents; }
-
-  .quiz-hard-finish .stats-bar-top-left {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-  }
-
-  /* On the (full-height) finish screen the results list fills below the strip. */
-  .quiz-hard-finish .results-list {
-    position: absolute;
-    inset: 92px 8px 8px 8px;
-    max-height: none;
-  }
 }

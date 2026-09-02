@@ -78,20 +78,15 @@ const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, but
 
   // Reveal variant (Quiz Normal/Hard): stats stack vertically in a left column
   // with the Finish button beneath them, and the "It was:" card sits alongside
-  // on the right. When the game ends the Finish button is swapped for the
-  // game-complete block, so the whole end state stays in this one panel rather
-  // than a separate banner - the card stays up as well, showing the game's last
-  // country.
+  // on the right. On finish the whole bar (including the card) is hidden in
+  // favour of the shared .finished-banner modal, which carries its own final
+  // tally.
   if (withReveal) {
     return `
 <div class="stats-bar stats-bar-top-left stats-bar-stacked" data-${controllerName}-target="statsBar" style="display: none;">
   <div class="stats-col">
     ${statsGroup}
     ${button}
-    <div class="stats-finished" data-${controllerName}-target="finishedBanner" style="display: none;">
-      <span class="stats-finished-title">Game Complete!</span>
-      <button class="restart-btn" data-action="click->${controllerName}#restart">Restart</button>
-    </div>
   </div>
   <div class="last-guess" data-${controllerName}-target="lastGuess" style="display: none;">
     <span class="last-guess-label">It was:</span>
@@ -186,6 +181,18 @@ export const templates = {
     ],
     'Finish', 'click->quiz#finish', 'actionBtn', true
   )}
+  <div class="finished-banner" data-quiz-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Game Complete!</h2>
+      <div class="finished-time" data-quiz-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">First Try:</span><span class="finished-value" data-quiz-target="finalGreen">0</span></div>
+        <div class="finished-stat yellow"><span class="finished-label">Second Try:</span><span class="finished-value" data-quiz-target="finalYellow">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Failed:</span><span class="finished-value" data-quiz-target="finalRed">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->quiz#restart">Restart</button>
+    </div>
+  </div>
   <div id="quiz-map" data-map-slot data-quiz-target="container"></div>
   <div class="search-box" data-quiz-target="searchBox" style="display: none;">
     <button class="recenter-btn" data-action="click->quiz#recenter" title="Re-center on current country">🎯</button>
@@ -209,18 +216,30 @@ export const templates = {
   ${MOBILE_MENU()}
   ${NAV('quiz', 'h', 'quiz-hard')}
   ${REGION_SELECTION('quiz-hard', 'Quiz', 'Hard', 'A country is shown without context. Identify it by name.')}
-  <div class="quiz-hard-finish">
-    ${STATS_BAR_TOP_LEFT('quiz-hard',
-      [
-        { label: 'Remaining', target: 'remainingCount' },
-        { label: 'First try', target: 'greenCount', color_class: 'green' },
-        { label: 'Second try', target: 'yellowCount', color_class: 'yellow' },
-        { label: 'Failed', target: 'redCount', color_class: 'red' },
-        { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
-      ],
-      'Finish', 'click->quiz-hard#finish', 'actionBtn', true
-    )}
-    <div class="results-list" data-quiz-hard-target="resultsList" style="display: none;"></div>
+  ${STATS_BAR_TOP_LEFT('quiz-hard',
+    [
+      { label: 'Remaining', target: 'remainingCount' },
+      { label: 'First try', target: 'greenCount', color_class: 'green' },
+      { label: 'Second try', target: 'yellowCount', color_class: 'yellow' },
+      { label: 'Failed', target: 'redCount', color_class: 'red' },
+      { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
+    ],
+    'Finish', 'click->quiz-hard#finish', 'actionBtn', true
+  )}
+  <div class="finish-panel">
+  <div class="finished-banner" data-quiz-hard-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Game Complete!</h2>
+      <div class="finished-time" data-quiz-hard-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">First Try:</span><span class="finished-value" data-quiz-hard-target="finalGreen">0</span></div>
+        <div class="finished-stat yellow"><span class="finished-label">Second Try:</span><span class="finished-value" data-quiz-hard-target="finalYellow">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Failed:</span><span class="finished-value" data-quiz-hard-target="finalRed">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->quiz-hard#restart">Restart</button>
+    </div>
+  </div>
+  <div class="results-list" data-quiz-hard-target="resultsList" style="display: none;"></div>
   </div>
   <div id="main-map" data-map-slot data-quiz-hard-target="mainContainer"></div>
   <div id="overlay-map" data-quiz-hard-target="overlayContainer"></div>

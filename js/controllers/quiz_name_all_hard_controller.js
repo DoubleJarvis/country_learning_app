@@ -334,7 +334,7 @@ export default class extends Controller {
         const highlightedName = this.highlightMatchedLetters(name, this.suggestionMatches[index])
         return `<div class="autocomplete-item ${index === this.highlightedIndex ? "highlighted" : ""}"
                      data-index="${index}"
-                     data-action="click->quiz-name-all#selectSuggestion">${highlightedName}</div>`
+                     data-action="click->quiz-name-all-hard#selectSuggestion">${highlightedName}</div>`
       })
       .join("")
 
@@ -467,8 +467,14 @@ export default class extends Controller {
 
     this.gameUITarget.style.display = 'none'
     this.statsBarTarget.style.display = 'none'
-    this.guessedListTarget.style.display = 'none'
-    this.finishedBannerTarget.style.display = 'block'
+    this.finishedBannerTarget.style.display = 'flex'
+
+    if (this.incorrectCountries.length > 0) {
+      this.updateGuessedList()
+      this.guessedListTarget.style.display = 'block'
+    } else {
+      this.guessedListTarget.style.display = 'none'
+    }
 
     const minutes = Math.floor(totalTime / 60000)
     const seconds = Math.floor((totalTime % 60000) / 1000)

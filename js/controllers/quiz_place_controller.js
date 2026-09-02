@@ -425,7 +425,7 @@ export default class extends Controller {
 
     this.statsBarTarget.style.display = "none"
     this.trayTarget.style.display = "none"
-    this.finishedBannerTarget.style.display = "block"
+    this.finishedBannerTarget.style.display = "flex"
 
     this.map.flyTo({
       center: [0, 20],

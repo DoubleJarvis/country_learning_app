@@ -488,7 +488,7 @@ export default class extends Controller {
     // Show guessed list on finish (Normal mode)
     this.guessedListTarget.style.display = 'block'
     this.updateGuessedList()
-    this.finishedBannerTarget.style.display = 'block'
+    this.finishedBannerTarget.style.display = 'flex'
 
     const minutes = Math.floor(totalTime / 60000)
     const seconds = Math.floor((totalTime % 60000) / 1000)

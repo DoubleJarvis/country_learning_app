@@ -354,7 +354,7 @@ export default class extends Controller {
         const highlightedName = this.highlightMatchedLetters(name, this.suggestionMatches[index])
         return `<div class="autocomplete-item ${index === this.highlightedIndex ? "highlighted" : ""}"
                      data-index="${index}"
-                     data-action="click->quiz-name-all#selectSuggestion">${highlightedName}</div>`
+                     data-action="click->quiz-name-all-easy#selectSuggestion">${highlightedName}</div>`
       })
       .join("")
 
@@ -496,7 +496,7 @@ export default class extends Controller {
     // Show guessed list on finish (Normal mode)
     this.guessedListTarget.style.display = 'block'
     this.updateGuessedList()
-    this.finishedBannerTarget.style.display = 'block'
+    this.finishedBannerTarget.style.display = 'flex'
 
     const minutes = Math.floor(totalTime / 60000)
     const seconds = Math.floor((totalTime % 60000) / 1000)
