@@ -1763,6 +1763,7 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
 .run-quiz-type.quiz { background-color: #4a9eff; color: white; }
 .run-quiz-type.name_all { background-color: #8b5cf6; color: white; }
 .run-quiz-type.place { background-color: #10b981; color: white; }
+.run-quiz-type.flags { background-color: #ec4899; color: white; }
 
 .run-difficulty {
   font-weight: 600;
