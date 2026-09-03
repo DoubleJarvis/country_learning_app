@@ -21,6 +21,12 @@ const NAV = (activeMode, activeDifficulty, controllerName = null) => `
       <a href="#quiz_hard" class="difficulty-btn${activeMode === 'quiz' && activeDifficulty === 'h' ? ' active' : ''}" title="Hard">H</a>
     </div>
   </div>
+  <div class="nav-item game-mode-nav${activeMode === 'flags' ? ' active' : ''}">
+    <div class="nav-label">Flags</div>
+    <div class="difficulty-buttons">
+      <a href="#flags" class="difficulty-btn${activeMode === 'flags' && activeDifficulty === 'n' ? ' active' : ''}" title="Normal">N</a>
+    </div>
+  </div>
   <div class="nav-item game-mode-nav${activeMode === 'name_all' ? ' active' : ''}">
     <div class="nav-label">Name All</div>
     <div class="difficulty-buttons">
@@ -58,7 +64,7 @@ const REGION_SELECTION = (controllerName, mode, difficulty, description = '') =>
   </div>
 </div>`;
 
-const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, buttonTarget, withReveal = false) => {
+const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, buttonTarget, withReveal = false, revealVariant = 'shape') => {
   const statsGroup = `
   <div class="stats-group">
     ${stats.map(s => `
@@ -75,6 +81,12 @@ const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, but
   // favour of the shared .finished-banner modal, which carries its own final
   // tally.
   if (withReveal) {
+    // Flags mode reveals a full-colour flag image in the card instead of the
+    // recolourable silhouette; the target name stays `lastGuessShape` so the
+    // controller code is otherwise identical.
+    const revealMedia = revealVariant === 'flag'
+      ? `<img class="country-flag" data-${controllerName}-target="lastGuessShape" alt="" />`
+      : `<div class="country-shape" data-${controllerName}-target="lastGuessShape"></div>`
     return `
 <div class="stats-bar stats-bar-top-left stats-bar-stacked" data-${controllerName}-target="statsBar" style="display: none;">
   <div class="stats-col">
@@ -84,7 +96,7 @@ const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, but
   <div class="last-guess" data-${controllerName}-target="lastGuess" style="display: none;">
     <span class="last-guess-label">It was:</span>
     <div class="guessed-country" data-${controllerName}-target="lastGuessCard">
-      <div class="country-shape" data-${controllerName}-target="lastGuessShape"></div>
+      ${revealMedia}
       <div class="country-name" data-${controllerName}-target="lastGuessName"></div>
     </div>
   </div>
@@ -288,6 +300,55 @@ export const templates = {
            data-action="pointerdown->quiz-place#startDrag pointermove->quiz-place#moveDrag pointerup->quiz-place#endDrag pointercancel->quiz-place#cancelDrag"></div>
     </div>
     <button class="skip-btn" data-action="click->quiz-place#skip keydown.shift+enter@window->quiz-place#skip" title="Shift+Enter">Skip</button>
+  </div>
+</div>`,
+
+  flags: () => `
+<div data-controller="flags" class="quiz-container">
+  ${MOBILE_MENU()}
+  ${NAV('flags', 'n', 'flags')}
+  ${REGION_SELECTION('flags', 'Flags', 'Normal', 'A country is shown by its flag alone. Identify it by name.')}
+  ${STATS_BAR_TOP_LEFT('flags',
+    [
+      { label: 'Remaining', target: 'remainingCount' },
+      { label: 'First try', target: 'greenCount', color_class: 'green' },
+      { label: 'Second try', target: 'yellowCount', color_class: 'yellow' },
+      { label: 'Failed', target: 'redCount', color_class: 'red' },
+      { label: 'Time', target: 'timerDisplay', color_class: 'timer' }
+    ],
+    'Finish', 'click->flags#finish', 'actionBtn', true, 'flag'
+  )}
+  <div class="finish-panel">
+  <div class="finished-banner" data-flags-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Game Complete!</h2>
+      <div class="finished-time" data-flags-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">First Try:</span><span class="finished-value" data-flags-target="finalGreen">0</span></div>
+        <div class="finished-stat yellow"><span class="finished-label">Second Try:</span><span class="finished-value" data-flags-target="finalYellow">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Failed:</span><span class="finished-value" data-flags-target="finalRed">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->flags#restart">Restart</button>
+    </div>
+  </div>
+  <div class="results-list" data-flags-target="resultsList" style="display: none;"></div>
+  </div>
+  <div class="flag-overlay" data-flags-target="flagOverlay" style="display: none;">
+    <img class="flag-overlay-img" data-flags-target="flagImage" alt="" />
+  </div>
+  <div class="search-box" data-flags-target="searchBox" style="display: none;">
+    <input type="text" data-flags-target="searchInput" data-action="input->flags#handleSearch keydown->flags#handleKeydown" placeholder="Enter country name..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+    <div class="autocomplete-dropdown" data-flags-target="dropdown"></div>
+    <button class="skip-btn" data-action="click->flags#skip keydown.shift+enter@window->flags#skip" title="Shift+Enter">Skip</button>
+  </div>
+  <div class="debug-search-box" style="display: none;">
+    <input type="text" data-flags-target="debugSearchInput" data-action="input->flags#handleDebugSearch keydown->flags#handleDebugKeydown" placeholder="DEBUG: Set country to guess..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+    <div class="autocomplete-dropdown" data-flags-target="debugDropdown"></div>
+  </div>
+  <div class="debug-fill-box" style="display: none;">
+    <button class="debug-fill-btn" data-action="click->flags#debugFill">Debug: Fill</button>
+    <button class="debug-fast-fill-btn" data-action="click->flags#debugFastFill">Debug: Fast Fill</button>
+    <button class="debug-realistic-fill-btn" data-action="click->flags#debugRealisticFill">Debug: Fill Realistic</button>
   </div>
 </div>`,
 

@@ -13,6 +13,7 @@ const routes = {
   '#quiz_name_all':      'quiz_name_all',
   '#quiz_name_all_hard': 'quiz_name_all_hard',
   '#quiz_place':         'quiz_place',
+  '#flags':              'flags',
   '#practice_worst':     'practice_worst',
   '#practice_slowest':   'practice_slowest',
   '#practice_pairs':     'practice_pairs',

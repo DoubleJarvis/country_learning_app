@@ -502,6 +502,7 @@ class QuizDatabase {
           SUM(CASE WHEN guess_type = 'shaky' THEN 1 ELSE 0 END) as shaky_count,
           SUM(CASE WHEN guess_type = 'correct' THEN 1 ELSE 0 END) as correct_count
         FROM guesses
+        WHERE quiz_type != 'flags'
         GROUP BY country_code, country_display_name
         HAVING incorrect_count > 0
         ORDER BY incorrect_count DESC, shaky_count DESC
@@ -535,7 +536,7 @@ class QuizDatabase {
           MIN(time_ms) as best_time_ms,
           MAX(time_ms) as worst_time_ms
         FROM guesses
-        WHERE time_ms IS NOT NULL AND time_ms > 0
+        WHERE time_ms IS NOT NULL AND time_ms > 0 AND quiz_type != 'flags'
         GROUP BY country_code, country_display_name
         HAVING guess_count >= 1
         ORDER BY avg_time_ms DESC
@@ -604,6 +605,7 @@ class QuizDatabase {
           MAX(timestamp) as last_timestamp
         FROM guesses
         WHERE guessed_country_code IS NOT NULL AND guessed_country_code != country_code
+          AND quiz_type != 'flags'
         GROUP BY code_a, code_b
         ORDER BY mixup_count DESC, last_timestamp DESC
         LIMIT ?

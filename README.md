@@ -146,7 +146,8 @@ cover the worker, if you prefer to stay in the browser.)
 
 - Precached on install: the app shell (`index.html`, `index.css`, every JS file
   under `js/`), `tiles/countries.pmtiles`, app icons, all
-  country SVGs under `icons/countries/`, and the top-level CDN libraries.
+  country silhouette SVGs under `icons/countries/`, all flag SVGs under
+  `icons/flags/`, and the top-level CDN libraries.
 - Cached at runtime (first online load): CDN transitive imports, glyph fonts,
   and anything else fetched. So **full** offline coverage is guaranteed after one
   complete online load following an install.
