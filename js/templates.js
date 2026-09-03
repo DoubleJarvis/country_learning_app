@@ -452,24 +452,21 @@ export const templates = {
     <button class="action-btn" data-practice-pairs-target="actionBtn" data-action="click->practice-pairs#finish">Finish</button>
   </div>
   <div class="pair-panel" data-practice-pairs-target="pairPanel" style="display: none;">
-    <div class="pair-names">
-      <button class="pair-name" data-index="0" data-practice-pairs-target="nameCardA" data-action="click->practice-pairs#selectName"></button>
-      <button class="pair-name" data-index="1" data-practice-pairs-target="nameCardB" data-action="click->practice-pairs#selectName"></button>
-    </div>
-    <div class="pair-hint" data-practice-pairs-target="pairHint">Tap the shape that matches the highlighted name</div>
+    <div class="pair-prompt" data-practice-pairs-target="promptName"></div>
+    <div class="pair-hint" data-practice-pairs-target="pairHint">Tap the shape that matches this name</div>
     <div class="pair-feedback" data-practice-pairs-target="feedback" style="display: none;"></div>
     <button class="pair-next-btn" data-practice-pairs-target="nextBtn" data-action="click->practice-pairs#next keydown.enter@window->practice-pairs#next" style="display: none;">Next</button>
   </div>
   <div class="pair-shapes" data-practice-pairs-target="shapesArea" style="display: none;">
     <button class="pair-shape-card" data-practice-pairs-target="shapeCard" data-action="click->practice-pairs#selectShape">
+      <div class="pair-shape-name"></div>
       <div class="pair-shape-svg"></div>
       <div class="pair-shape-scale"></div>
-      <div class="pair-shape-name"></div>
     </button>
     <button class="pair-shape-card" data-practice-pairs-target="shapeCard" data-action="click->practice-pairs#selectShape">
+      <div class="pair-shape-name"></div>
       <div class="pair-shape-svg"></div>
       <div class="pair-shape-scale"></div>
-      <div class="pair-shape-name"></div>
     </button>
   </div>
   <div class="finished-banner" data-practice-pairs-target="finishedBanner" style="display: none;">

@@ -5,23 +5,23 @@ import { loadCountrySvg, shapeScaleBar } from "country_shapes"
 
 // Mix-ups practice: pairs of countries the player has confused with each other
 // (recorded as real country + wrong guess on every incorrect quiz answer) are
-// shown as two silhouettes side by side with both names. The player assigns one
-// name to a shape; the other name takes the remaining shape, and both get
-// labelled so the difference is learned visually. No map in this mode — just
-// the local SVG silhouettes, each with its own scale bar. Endless rounds until
-// Finish; nothing is ever recorded to the database.
+// shown as two silhouettes side by side, with only ONE name given as the
+// prompt. The player taps the shape they think matches that name; whichever
+// shape they pick, both get labelled with their true name so the difference
+// is learned visually either way. No map in this mode — just the local SVG
+// silhouettes, each with its own scale bar. Endless rounds until Finish;
+// nothing is ever recorded to the database.
 export default class extends Controller {
   static targets = ["startScreen", "startBtn", "statsBar", "correctCount", "incorrectCount",
-                    "actionBtn", "pairPanel", "pairHint", "nameCardA", "nameCardB",
+                    "actionBtn", "pairPanel", "pairHint", "promptName",
                     "feedback", "nextBtn", "shapesArea", "shapeCard", "finishedBanner",
                     "finalCorrect", "finalIncorrect", "finalTime"]
 
   connect() {
     this.pool = []
     this.deck = []
-    this.currentPair = null   // [codeA, codeB] in display order of the name cards
+    this.currentPair = null   // [promptCode, otherCode] - index 0 is always the named prompt
     this.shapeOrder = null    // same two codes in display order of the shape cards
-    this.activeIndex = 0      // which name card is being assigned
     this.phase = "idle"       // "idle" | "assign" | "feedback"
     this.stats = { correct: 0, incorrect: 0 }
     this.isFinished = false
@@ -93,14 +93,14 @@ export default class extends Controller {
       }
     }
 
-    // Name cards and shape cards are shuffled independently, so the card
-    // positions never give the pairing away.
+    // currentPair[0] is the prompt; the shuffle picks which of the two codes
+    // that is, so it varies round to round. Shape cards are shuffled
+    // independently, so their left/right position never gives it away.
     this.currentPair = [...this.deck.shift()].sort(() => Math.random() - 0.5)
     this.shapeOrder = [...this.currentPair].sort(() => Math.random() - 0.5)
-    this.activeIndex = 0
     this.phase = "assign"
 
-    this.renderNameCards()
+    this.renderPrompt()
     this.renderShapes()
     this.feedbackTarget.style.display = "none"
     this.nextBtnTarget.style.display = "none"
@@ -111,14 +111,9 @@ export default class extends Controller {
     return countriesMapping[code]?.display_name || code
   }
 
-  renderNameCards() {
-    const cards = [this.nameCardATarget, this.nameCardBTarget]
-    cards.forEach((card, index) => {
-      card.textContent = this.displayName(this.currentPair[index])
-      card.classList.toggle("active", index === this.activeIndex)
-      card.classList.remove("correct", "incorrect")
-      card.disabled = false
-    })
+  renderPrompt() {
+    this.promptNameTarget.textContent = this.displayName(this.currentPair[0])
+    this.promptNameTarget.classList.remove("correct", "incorrect")
   }
 
   async renderShapes() {
@@ -173,12 +168,6 @@ export default class extends Controller {
     scaleEl.style.display = "block"
   }
 
-  selectName(event) {
-    if (this.phase !== "assign") return
-    this.activeIndex = parseInt(event.currentTarget.dataset.index)
-    this.renderNameCards()
-  }
-
   selectShape(event) {
     if (this.phase !== "assign") return
 
@@ -191,9 +180,8 @@ export default class extends Controller {
   resolveRound(clickedCode) {
     this.phase = "feedback"
 
-    const activeCode = this.currentPair[this.activeIndex]
-    const wasCorrect = clickedCode === activeCode
-    const nameCards = [this.nameCardATarget, this.nameCardBTarget]
+    const promptCode = this.currentPair[0]
+    const wasCorrect = clickedCode === promptCode
 
     if (wasCorrect) {
       this.stats.correct++
@@ -202,12 +190,7 @@ export default class extends Controller {
     }
     this.updateStats()
 
-    // The one assignment decides both: right → both right, wrong → both wrong
-    nameCards.forEach(card => {
-      card.classList.remove("active")
-      card.classList.add(wasCorrect ? "correct" : "incorrect")
-      card.disabled = true
-    })
+    this.promptNameTarget.classList.add(wasCorrect ? "correct" : "incorrect")
 
     // Reveal each shape's true name on its card
     this.shapeCardTargets.forEach(card => {
