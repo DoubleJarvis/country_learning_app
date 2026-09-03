@@ -40,7 +40,6 @@ export default class extends Controller {
   disconnect() {
     this.stopTimer()
     if (this.map) {
-      this.map.removeControl(this.navControl)
       this.map.removeControl(this.scaleControl)
     }
   }
@@ -48,22 +47,16 @@ export default class extends Controller {
   initializeMap() {
     this.map = getSharedMap()
 
-    this.navControl = new maplibregl.NavigationControl()
-    this.map.addControl(this.navControl, "top-right")
     this.scaleControl = new maplibregl.ScaleControl({
       maxWidth: 100,
       unit: 'metric'
     })
     this.map.addControl(this.scaleControl, 'bottom-left')
 
-    // Hide scale and navigation controls initially
+    // Hide scale control initially
     const scaleElement = document.querySelector('.maplibregl-ctrl-scale')
     if (scaleElement) {
       scaleElement.style.display = 'none'
-    }
-    const navElement = document.querySelector('.maplibregl-ctrl-top-right')
-    if (navElement) {
-      navElement.style.display = 'none'
     }
 
     whenMapReady(() => {
@@ -191,14 +184,10 @@ export default class extends Controller {
       this.setupLayers()
     }
 
-    // Show scale and navigation controls when quiz starts
+    // Show scale control when quiz starts
     const scaleElement = document.querySelector('.maplibregl-ctrl-scale')
     if (scaleElement) {
       scaleElement.style.display = 'block'
-    }
-    const navElement = document.querySelector('.maplibregl-ctrl-top-right')
-    if (navElement) {
-      navElement.style.display = 'block'
     }
 
     // Start the quiz
@@ -627,14 +616,10 @@ export default class extends Controller {
     this.actionBtnTarget.style.display = ""
     this.lastGuessTarget.style.display = "none"
 
-    // Hide scale and navigation controls
+    // Hide scale control
     const scaleElement = document.querySelector('.maplibregl-ctrl-scale')
     if (scaleElement) {
       scaleElement.style.display = 'none'
-    }
-    const navElement = document.querySelector('.maplibregl-ctrl-top-right')
-    if (navElement) {
-      navElement.style.display = 'none'
     }
 
     // Show region selection

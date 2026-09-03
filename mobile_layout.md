@@ -212,34 +212,6 @@ finally has room to be.
 - Map hidden during play (it shows nothing anyway). On finish it returns at full
   height with the green/red reveal.
 
-## Borders — Normal
-
-The only mode with a **prompt that must stay on screen**: "which countries
-border X?" — X can't scroll away. It gets the strip's centre; stats compress
-around it.
-
-```
-┌──────────────────────────────────────┐
-│ ☰       Ukraine  3/7        0:22     │  prompt is the strip
-├──────────────────────────────────────┤
-│                                      │
-│         ▓▓▓ ← target (blue/gold)     │
-│      ▓▓▓█▓▓▓▓                        │  target + neighbours framed
-│         ▓▓▓   ← guessed (green)      │  together — the answer is
-│                                      │  spatial, so the frame must
-│                                      │  hold the whole neighbourhood
-├──────────────────────────────────────┤
-│  🎯 │ Enter country name…  │  Skip   │
-└──────────────────────────────────────┘
-```
-
-- `3/7` (found/total) replaces two labelled boxes; incorrect count can go in the
-  menu or as a third chip.
-- Framing differs from Quiz: fit the target **plus its neighbours**, not the
-  target alone — otherwise you're guessing blind at what's off-screen.
-
----
-
 ## Cross-cutting mechanics
 
 **Knowing the keyboard height.** This is the whole premise, and `100vh` won't do

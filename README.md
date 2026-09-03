@@ -1,7 +1,7 @@
 # Country Learning
 
-A static, no-build single-page app for learning world geography (quizzes, border
-games, "name all" modes, practice). Stimulus controllers + MapLibre, served as
+A static, no-build single-page app for learning world geography (quizzes,
+"name all" modes, practice). Stimulus controllers + MapLibre, served as
 plain files.
 
 - Map basemap: self-hosted Natural Earth vector tiles — see [tiles/README.md](tiles/README.md).
@@ -145,7 +145,7 @@ cover the worker, if you prefer to stay in the browser.)
 ### What's cached
 
 - Precached on install: the app shell (`index.html`, `index.css`, every JS file
-  under `js/`), `adjacency.json`, `tiles/countries.pmtiles`, app icons, all
+  under `js/`), `tiles/countries.pmtiles`, app icons, all
   country SVGs under `icons/countries/`, and the top-level CDN libraries.
 - Cached at runtime (first online load): CDN transitive imports, glyph fonts,
   and anything else fetched. So **full** offline coverage is guaranteed after one

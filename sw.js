@@ -15,7 +15,7 @@
 // revalidated against the network, code/asset edits are INVISIBLE until the
 // cache is refreshed. Every deploy AND every local code change that you want to
 // see must bump CACHE_VERSION (or use DevTools "Update on reload" / Unregister).
-const CACHE_VERSION = "v6"
+const CACHE_VERSION = "v7"
 const CACHE = `country-learning-${CACHE_VERSION}`
 
 // Known CORS-enabled CDN entry points (transitive deps cached at runtime).
@@ -42,7 +42,6 @@ const PRECACHE_SHELL = [
   "./index.html",
   "./index.css",
   "./manifest.json",
-  "./adjacency.json",
   "./tiles/countries.pmtiles",
   "./icon.png",
   "./icon.svg",
@@ -52,14 +51,11 @@ const PRECACHE_SHELL = [
   "./js/map.js",
   "./js/country_names.js",
   "./js/country_shapes.js",
-  "./js/adjacency_helper.js",
   "./js/db.js",
   "./js/settings.js",
   "./js/templates.js",
   "./js/controllers/practice_controller.js",
   "./js/controllers/practice_pairs_controller.js",
-  "./js/controllers/quiz_borders_controller.js",
-  "./js/controllers/quiz_borders_hard_controller.js",
   "./js/controllers/quiz_controller.js",
   "./js/controllers/quiz_hard_controller.js",
   "./js/controllers/quiz_name_all_controller.js",

@@ -21,13 +21,6 @@ const NAV = (activeMode, activeDifficulty, controllerName = null) => `
       <a href="#quiz_hard" class="difficulty-btn${activeMode === 'quiz' && activeDifficulty === 'h' ? ' active' : ''}" title="Hard">H</a>
     </div>
   </div>
-  <div class="nav-item game-mode-nav${activeMode === 'borders' ? ' active' : ''}">
-    <div class="nav-label">Borders</div>
-    <div class="difficulty-buttons">
-      <a href="#quiz_borders" class="difficulty-btn${activeMode === 'borders' && activeDifficulty === 'n' ? ' active' : ''}" title="Normal">N</a>
-      <a href="#quiz_borders_hard" class="difficulty-btn${activeMode === 'borders' && activeDifficulty === 'h' ? ' active' : ''}" title="Hard">H</a>
-    </div>
-  </div>
   <div class="nav-item game-mode-nav${activeMode === 'name_all' ? ' active' : ''}">
     <div class="nav-label">Name All</div>
     <div class="difficulty-buttons">
@@ -260,92 +253,6 @@ export const templates = {
     <button class="debug-fill-btn" data-action="click->quiz-hard#debugFill">Debug: Fill</button>
     <button class="debug-fast-fill-btn" data-action="click->quiz-hard#debugFastFill">Debug: Fast Fill</button>
     <button class="debug-realistic-fill-btn" data-action="click->quiz-hard#debugRealisticFill">Debug: Fill Realistic</button>
-  </div>
-</div>`,
-
-  quiz_borders: () => `
-<div data-controller="quiz-borders" class="quiz-container">
-  ${MOBILE_MENU()}
-  ${NAV('borders', 'n', 'quiz-borders')}
-  <div class="start-screen" data-quiz-borders-target="startScreen">
-    <div class="region-header">
-      <h1>Borders</h1>
-      <div class="region-difficulty normal">Normal</div>
-    </div>
-    <p class="region-description">Guess all the bordering countries of a randomly selected country.</p>
-    <p class="game-rules">
-      <strong>Rules:</strong><br>
-      - You'll see a highlighted country and its name<br>
-      - Guess all countries that share a border with it<br>
-      - You have <strong>2x the number of borders</strong> as attempts<br>
-      - Already guessed borders won't count against you
-    </p>
-    <button data-action="click->quiz-borders#startGame" class="start-btn">Start Game</button>
-  </div>
-  <div class="stats-bar stats-bar-top-left" data-quiz-borders-target="statsBar" style="display: none;">
-    <div class="country-info">
-      <div class="target-country-label">Target Country:</div>
-      <div class="target-country-name" data-quiz-borders-target="countryName"></div>
-      <div class="borders-count">Borders: <span data-quiz-borders-target="bordersTotal">0</span></div>
-    </div>
-    <div class="stats-group">
-      <div class="stat"><span class="stat-label">Attempts Left:</span><span class="stat-value" data-quiz-borders-target="remainingCount">0</span></div>
-      <div class="stat green"><span class="stat-label">Found:</span><span class="stat-value" data-quiz-borders-target="correctCount">0</span></div>
-      <div class="stat red"><span class="stat-label">Wrong:</span><span class="stat-value" data-quiz-borders-target="incorrectCount">0</span></div>
-    </div>
-    <button class="action-btn" data-quiz-borders-target="actionBtn" data-action="click->quiz-borders#finish">Finish</button>
-  </div>
-  <div class="finished-banner" data-quiz-borders-target="finishedBanner" style="display: none;">
-    <div class="finished-content">
-      <h2>Game Complete!</h2>
-      <div class="finished-time" data-quiz-borders-target="finalTime"></div>
-      <div class="finished-stats">
-        <div class="finished-stat green"><span class="finished-label">Neighbours Found:</span><span class="finished-value" data-quiz-borders-target="finalCorrect">0</span></div>
-        <div class="finished-stat red"><span class="finished-label">Wrong Guesses:</span><span class="finished-value" data-quiz-borders-target="finalIncorrect">0</span></div>
-      </div>
-      <button class="restart-btn action-btn" data-action="click->quiz-borders#restart">Play Again</button>
-    </div>
-  </div>
-  <div id="quiz-map" data-map-slot data-quiz-borders-target="container"></div>
-  <div class="search-box" data-quiz-borders-target="searchBox" style="display: none;">
-    <button class="recenter-btn" data-action="click->quiz-borders#recenter" title="Re-center on target country">🎯</button>
-    <input type="text" data-quiz-borders-target="searchInput" data-action="input->quiz-borders#handleSearch keydown->quiz-borders#handleKeydown" placeholder="Enter country name..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
-    <div class="autocomplete-dropdown" data-quiz-borders-target="dropdown"></div>
-  </div>
-</div>`,
-
-  quiz_borders_hard: () => `
-<div data-controller="quiz-borders-hard" class="quiz-container">
-  ${MOBILE_MENU()}
-  ${NAV('borders', 'h', 'quiz-borders-hard')}
-  ${REGION_SELECTION('quiz-borders-hard', 'Borders', 'Hard', 'Identify every country in the region by naming its neighbours. A new target country is given each time you clear all its borders.')}
-  ${STATS_BAR_TOP_LEFT('quiz-borders-hard',
-    [
-      { label: 'Remaining', target: 'remainingCount' },
-      { label: 'Found', target: 'correctCount', color_class: 'green' },
-      { label: 'Mistakes', target: 'mistakesCount', color_class: 'red' }
-    ],
-    'Finish', 'click->quiz-borders-hard#finish', 'actionBtn'
-  )}
-  <div class="finish-panel">
-  <div class="finished-banner" data-quiz-borders-hard-target="finishedBanner" style="display: none;">
-    <div class="finished-content">
-      <h2>Game Complete!</h2>
-      <div class="finished-time" data-quiz-borders-hard-target="finalTime"></div>
-      <div class="finished-stats">
-        <div class="finished-stat green"><span class="finished-label">Countries Found:</span><span class="finished-value" data-quiz-borders-hard-target="finalCorrect">0</span></div>
-        <div class="finished-stat red"><span class="finished-label">Mistakes:</span><span class="finished-value" data-quiz-borders-hard-target="finalMistakes">0</span></div>
-      </div>
-      <button class="restart-btn action-btn" data-action="click->quiz-borders-hard#restart">Play Again</button>
-    </div>
-  </div>
-  <div class="missed-countries" data-quiz-borders-hard-target="missedList" style="display: none;"></div>
-  </div>
-  <div id="quiz-map" data-map-slot data-quiz-borders-hard-target="container"></div>
-  <div class="search-box" data-quiz-borders-hard-target="searchBox" style="display: none;">
-    <button class="recenter-btn" data-action="click->quiz-borders-hard#recenter" title="Re-center on target country">🎯</button>
-    <input type="text" data-quiz-borders-hard-target="searchInput" data-action="input->quiz-borders-hard#handleSearch keydown->quiz-borders-hard#handleKeydown" placeholder="Enter country name..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
-    <div class="autocomplete-dropdown" data-quiz-borders-hard-target="dropdown"></div>
   </div>
 </div>`,
 

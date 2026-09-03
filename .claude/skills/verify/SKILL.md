@@ -9,12 +9,23 @@ Static SPA, no build step — edits to js/css are live on reload.
 
 ## Launch
 
+`serve.py` hardcodes HTTP on :8800 and HTTPS on :8843 — those are the user's
+own ports for their own running instance. **Never launch `serve.py` for
+testing, and never bind anything to 8800/8843.** The user may already have it
+running; stealing the port fails your launch, and blanket-killing it (e.g.
+`pkill -f serve.py`) kills a server that isn't yours to kill. Use a plain
+static server on a different, clearly-distinct port instead — no build step,
+so `python3 -m http.server` from the repo root is enough:
+
 ```bash
-python3 serve.py   # HTTP on :8800, HTTPS on :8843 (needs the mkcert pair in repo root)
+python3 -m http.server 8890   # any port other than 8800/8843
 ```
 
-Drive `http://localhost:8800/#<route>` (routes in js/app.js). localhost is a
-secure context, so the service worker registers even over HTTP.
+Drive `http://localhost:8890/#<route>` (routes in js/app.js). localhost is a
+secure context, so the service worker registers even over plain HTTP — you
+don't need serve.py's HTTPS/mkcert path for testing. When done, kill only the
+specific process you started (by the PID you captured at launch), never a
+pattern-matched pkill.
 
 ## Drive with Playwright
 

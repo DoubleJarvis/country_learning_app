@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Country Learning",
   "short_name": "Countries",
-  "description": "Learn the world's countries: quizzes, border games and shape practice. Works offline.",
+  "description": "Learn the world's countries: quizzes, name-all games and shape practice. Works offline.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

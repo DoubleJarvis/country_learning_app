@@ -9,8 +9,6 @@ const routes = {
   '':                    'quiz',
   '#quiz':               'quiz',
   '#quiz_hard':          'quiz_hard',
-  '#quiz_borders':       'quiz_borders',
-  '#quiz_borders_hard':  'quiz_borders_hard',
   '#quiz_name_all_easy': 'quiz_name_all_easy',
   '#quiz_name_all':      'quiz_name_all',
   '#quiz_name_all_hard': 'quiz_name_all_hard',

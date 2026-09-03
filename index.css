@@ -1,17 +1,15 @@
-/* Quiz Navigation Styles */
+/* Quiz Navigation Styles: a vertical bar pinned to the right edge of the
+   screen, Stats on top and every mode stacked below it. align-items: stretch
+   (the flex default) sizes every item to the width of the widest one, so the
+   bar reads as a single clean column rather than ragged-width buttons. */
 .nav-container {
   position: absolute;
   top: 20px;
-  right: calc((100vw - 1200px) / 2 + 20px);
+  right: 20px;
   display: flex;
+  flex-direction: column;
   gap: 8px;
   z-index: 2000;
-}
-
-@media (max-width: 1240px) {
-  .nav-container {
-    right: 20px;
-  }
 }
 
 .nav-item {
@@ -30,7 +28,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px;
+  padding: 8px 10px;
   text-decoration: none;
   cursor: pointer;
 }
@@ -49,11 +47,10 @@
 .game-mode-nav {
   display: flex;
   flex-direction: column;
-  min-width: 70px;
 }
 
 .nav-label {
-  padding: 6px 8px 4px 8px;
+  padding: 6px 6px 4px 6px;
   text-align: center;
   color: #888;
   font-size: 11px;
@@ -75,7 +72,7 @@
 
 .difficulty-btn {
   flex: 1;
-  padding: 8px 4px;
+  padding: 8px 2px;
   text-align: center;
   background: #2a2a2a;
   color: #888;
@@ -201,7 +198,6 @@
   font-size: 15px;
   margin: 0 0 25px 0;
   line-height: 1.5;
-  /* Boxed like .game-rules on the borders start screen */
   text-align: left;
   background: #1a1a1a;
   padding: 20px;
@@ -319,10 +315,13 @@ body {
   position: absolute;
   /* Same top-left origin as the standalone .finished-banner below, so modes
      with a results list (e.g. Quiz Hard) line up with modes that don't
-     (e.g. Quiz Normal). */
+     (e.g. Quiz Normal). Right clears the vertical nav bar (~79px wide,
+     right: 20px) plus a gap, so the list never runs under it - the nav floats
+     above everything (z-index: 2000) and would otherwise cover the list's
+     top-right corner. */
   top: 15px;
   left: 15px;
-  right: 15px;
+  right: 115px;
   bottom: 15px;
   display: flex;
   align-items: flex-start;
@@ -405,6 +404,7 @@ body {
   border-radius: 8px;
   border: 2px solid;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  pointer-events: auto;
 }
 
 .result-item.incorrect {
@@ -727,7 +727,12 @@ body {
 /* Guessed countries list: sits inside .finish-panel beside the compact score
    banner, filling the remaining width and stretching to the panel's full
    height (align-self: stretch overrides the panel's flex-start default just
-   for this item, so the banner itself stays sized to its own content). */
+   for this item, so the banner itself stays sized to its own content).
+   pointer-events: none here, re-enabled on .guessed-grid below - the grid
+   only occupies as much height as it has rows, so this keeps the map behind
+   draggable through the (often large) empty space beneath a short list,
+   while wheel-scrolling still bubbles up to this element's overflow-y when
+   the cursor is over an actual tile. */
 .guessed-countries {
   flex: 1;
   min-width: 0;
@@ -736,12 +741,14 @@ body {
   align-self: stretch;
   overflow-y: auto;
   box-sizing: border-box;
+  pointer-events: none;
 }
 
 .guessed-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 8px;
+  pointer-events: auto;
 }
 
 .guessed-country {
@@ -810,7 +817,7 @@ body {
   font-size: 16px;
 }
 
-/* Borders mode start screen */
+/* Practice modes' start screen */
 .start-screen {
   position: absolute;
   top: 50%;
@@ -836,20 +843,6 @@ body {
 
 .start-screen h1 { color: #e0e0e0; margin: 0 0 6px 0; font-size: 32px; }
 .start-screen p { color: #b0b0b0; margin: 0 0 20px 0; font-size: 18px; line-height: 1.5; }
-
-.game-rules {
-  text-align: left;
-  background: #1a1a1a;
-  padding: 20px;
-  border-radius: 8px;
-  font-size: 14px !important;
-  line-height: 1.8 !important;
-  margin-bottom: 30px !important;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.game-rules strong { color: #4a9eff; }
 
 .start-btn {
   padding: 15px 40px;
@@ -1095,7 +1088,9 @@ body {
 }
 
 /* Quiz Hard's per-country results list (missed/shaky countries), shown inside
-   .finish-panel beside the score. Same treatment as .guessed-countries. */
+   .finish-panel beside the score. Same treatment as .guessed-countries:
+   pointer-events: none here (re-enabled per-row below) so the map behind
+   stays draggable through the empty space below a short list. */
 .results-list {
   display: flex;
   flex-direction: column;
@@ -1106,6 +1101,7 @@ body {
   max-height: 100%;
   align-self: stretch;
   box-sizing: border-box;
+  pointer-events: none;
   overflow-y: auto;
 }
 
@@ -1203,30 +1199,6 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
   width: 60vw;
   height: 64vh;
 }
-
-/* Borders mode custom stats bar */
-.stats-bar .country-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding-right: 20px;
-  border-right: 2px solid #404040;
-}
-
-.target-country-label {
-  color: #888;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.target-country-name {
-  color: #4a9eff;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.borders-count { color: #b0b0b0; font-size: 11px; }
 
 /* Hard mode overlay map */
 #overlay-map {
@@ -1327,38 +1299,6 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
   z-index: 1;
 }
 
-/* Missed countries (borders hard): same "only this scrolls" treatment as
-   .guessed-countries above. */
-.missed-countries {
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
-  max-height: 100%;
-  box-sizing: border-box;
-  align-self: stretch;
-  overflow-y: auto;
-}
-
-.missed-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 8px;
-}
-
-.missed-country {
-  padding: 8px;
-  background: #4d2a1e;
-  border-radius: 4px;
-  font-size: 13px;
-  color: #ef4444;
-  text-align: center;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
 /* Debug boxes */
 .debug-search-box {
   position: absolute;
@@ -1453,6 +1393,11 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
   width: 100%;
   min-height: 100vh;
   padding: 20px;
+  /* Extra clearance on the right so the centred content column never runs
+     under the vertical nav bar, which floats above it (position: absolute)
+     rather than taking up space in the document flow. Reset to the base 20px
+     on mobile, where the nav is repositioned inline instead of overlapping. */
+  padding-right: 140px;
   box-sizing: border-box;
   position: relative;
 }
@@ -2142,13 +2087,22 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
     display: none;
   }
 
+  /* The nav no longer overlaps content once it's inline (below), so the extra
+     right clearance from the desktop rule isn't needed here. */
+  .stats-container {
+    padding-right: 20px;
+  }
+
   /* Stats page is a scrolling content page, not the game shell. Show its nav
-     inline at the top, wrapped to fit the width, rather than behind a menu. */
+     inline at the top, wrapped to fit the width, rather than behind a menu.
+     flex-direction: row overrides the desktop vertical bar - this row wraps
+     instead of stacking. */
   .stats-container .nav-container {
     position: static;
     right: auto;
     width: 100%;
     box-sizing: border-box;
+    flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
     margin-bottom: 16px;
@@ -2244,9 +2198,9 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
 
 /* ---- Mobile: mode-specific adjustments (see mobile_layout.md) ------------- */
 @media (max-width: 700px) {
-  /* Generalise the strip treatment to the plain stats bar too (Name All,
-     Borders use the non-stacked variant): bare numbers in a row, compact
-     Finish. The .stats-bar-stacked rules above still add the reveal handling. */
+  /* Generalise the strip treatment to the plain stats bar too (Name All uses
+     the non-stacked variant): bare numbers in a row, compact Finish. The
+     .stats-bar-stacked rules above still add the reveal handling. */
   .stats-bar-top-left .stats-group {
     flex-direction: row;
     align-items: center;
@@ -2364,27 +2318,6 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
     align-self: stretch;
     max-height: none;
   }
-
-  /* ---- Borders (normal): the target-country prompt must stay on the strip.
-     Its inline stats bar has an extra .country-info block; lay the strip out as
-     prompt + compact counts. ---- */
-  .stats-bar .country-info {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 6px;
-    padding: 0;
-  }
-
-  .stats-bar .country-info .target-country-label { display: none; }
-
-  .stats-bar .country-info .target-country-name {
-    font-size: 15px;
-    font-weight: 600;
-  }
-
-  /* "Borders: N" is redundant with the found/wrong counts alongside; drop it to
-     keep the prompt strip uncramped. */
-  .stats-bar .country-info .borders-count { display: none; }
 
   /* ---- Quiz Hard: the silhouette is the question. Give the overlay map (or the
      SVG silhouette) the whole content band; the progress map behind it isn't
