@@ -99,6 +99,16 @@
   color: white;
 }
 
+/* The Learn section names its one page in full ("FLAGS") rather than by initial
+   like the difficulty rows, so it needs horizontal breathing room. Sized to
+   stay narrower than the widest nav label ("Name All") so the column - which
+   stretches to its widest item - doesn't grow because of it. */
+.difficulty-btn.wide {
+  padding: 8px 12px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
 /* Region Selection Styles */
 .region-selection {
   position: absolute;
@@ -191,6 +201,13 @@
   color: #2dd4bf;
   background: rgba(45, 212, 191, 0.12);
   border-color: rgba(45, 212, 191, 0.4);
+}
+
+/* Matches the pink the Stats page already uses for flags runs (.run-quiz-type.flags) */
+.region-difficulty.learn {
+  color: #f472b6;
+  background: rgba(244, 114, 182, 0.12);
+  border-color: rgba(244, 114, 182, 0.4);
 }
 
 .region-description {
@@ -1032,6 +1049,128 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+/* ---- Learn > Flags -------------------------------------------------------
+   The mirror of mix-ups practice: one flag fills the upper area and the two
+   candidate names sit in a panel pinned to the bottom, so the answer is always
+   in the same place whichever flag is up. No map in this mode either. */
+.learn-flag-stage {
+  position: absolute;
+  /* Clears the option panel at the bottom. The space is reserved in every phase
+     so the flag never shifts between rounds. */
+  top: 24px;
+  bottom: 152px;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Stays centred on the page (so it lines up with the option panel below) but
+     narrow enough to clear the score bar with its "It was:" card on the left and
+     the nav column on the right, which both run the full height beside it. */
+  width: min(900px, calc(100vw - 560px));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+
+.learn-flag-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+  /* Hairline so white-edged flags (Japan, Nigeria) read against the dark page. */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), 0 10px 34px rgba(0, 0, 0, 0.55);
+}
+
+.learn-panel {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(820px, calc(100vw - 60px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 1000;
+}
+
+/* Doubles as the prompt before a pick and the verdict after it. Its height is
+   reserved so revealing the verdict doesn't shove the options down. */
+.learn-status {
+  min-height: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  color: #888;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.learn-status.correct { color: #4ade80; }
+.learn-status.incorrect { color: #ef4444; }
+
+.learn-options {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.learn-option {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 66px;
+  padding: 14px 18px;
+  background: #2a2a2a;
+  border: 2px solid #404040;
+  border-radius: 10px;
+  color: #e0e0e0;
+  font-size: 19px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.learn-option:hover:not(:disabled) { border-color: #4a9eff; background: #262b33; }
+.learn-option:disabled { cursor: default; }
+
+/* Both cards are marked once the round resolves - the answer green, the other
+   red - so a correct pick is confirmed and a wrong one still shows the answer. */
+.learn-option.correct {
+  border-color: rgba(74, 222, 128, 0.6);
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ade80;
+}
+
+.learn-option.incorrect {
+  border-color: rgba(239, 68, 68, 0.6);
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+/* Key cap showing which arrow key picks this card (hidden on mobile, which has
+   no keyboard to hint at). */
+.learn-option-key {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e1e1e;
+  border: 1px solid #404040;
+  border-radius: 5px;
+  color: #888;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.learn-option-name { min-width: 0; }
+
 /* Practice mode reuses the Quiz reveal layout (.stats-bar-stacked): a compact
    left column of stats + Finish, with the last-guess card alongside. */
 
@@ -1144,7 +1283,7 @@ body {
 /* "It was" reveal setting off: hide the Quiz Normal/Hard last-guess card even
    though the controller re-shows it inline on each guess (see settings.js).
    Practice always shows its card, so it's excluded. */
-body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-guess {
+body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar):not(.learn-stats-bar) .last-guess {
   display: none !important;
 }
 
@@ -2372,4 +2511,38 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar) .last-g
     height: 27px;
     flex: none;
   }
+
+  /* Learn > Flags: the flag fills the band between the status strip and the
+     option panel, which becomes a full-width row at the bottom edge. */
+  .learn-flag-stage {
+    /* Clears the status strip (~38px) plus the reveal bar hanging below it, whose
+       room is reserved from the start so the flag doesn't shift on the first
+       answer. */
+    top: 94px;
+    bottom: 142px;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    transform: none;
+  }
+
+  .learn-panel {
+    bottom: 12px;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    transform: none;
+    gap: 8px;
+  }
+
+  .learn-options { gap: 8px; }
+
+  .learn-option {
+    min-height: 60px;
+    padding: 10px 12px;
+    font-size: 15px;
+  }
+
+  /* No keyboard to hint at on a phone. */
+  .learn-option-key { display: none; }
 }

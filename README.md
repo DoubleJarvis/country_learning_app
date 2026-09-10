@@ -1,8 +1,8 @@
 # Country Learning
 
 A static, no-build single-page app for learning world geography (quizzes,
-"name all" modes, practice). Stimulus controllers + MapLibre, served as
-plain files.
+"name all" modes, practice, multiple-choice learn modes). Stimulus controllers
++ MapLibre, served as plain files.
 
 - Map basemap: self-hosted Natural Earth vector tiles — see [tiles/README.md](tiles/README.md).
 - Offline support: a service worker ([sw.js](sw.js)) — see below.

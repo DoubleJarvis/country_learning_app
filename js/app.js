@@ -17,6 +17,7 @@ const routes = {
   '#practice_worst':     'practice_worst',
   '#practice_slowest':   'practice_slowest',
   '#practice_pairs':     'practice_pairs',
+  '#learn_flags':        'learn_flags',
   '#stats':              'stats',
 }
 

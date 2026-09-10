@@ -43,6 +43,12 @@ const NAV = (activeMode, activeDifficulty, controllerName = null) => `
       <a href="#practice_pairs" class="difficulty-btn${activeMode === 'practice' && activeDifficulty === 'm' ? ' active' : ''}" title="Mix-ups">M</a>
     </div>
   </div>
+  <div class="nav-item game-mode-nav${activeMode === 'learn' ? ' active' : ''}">
+    <div class="nav-label">Learn</div>
+    <div class="difficulty-buttons">
+      <a href="#learn_flags" class="difficulty-btn wide${activeMode === 'learn' && activeDifficulty === 'f' ? ' active' : ''}" title="Flags">FLAGS</a>
+    </div>
+  </div>
 </div>`;
 
 const REGION_SELECTION = (controllerName, mode, difficulty, description = '') => `
@@ -539,6 +545,70 @@ export const templates = {
         <div class="finished-stat red"><span class="finished-label">Incorrect:</span><span class="finished-value" data-practice-pairs-target="finalIncorrect">0</span></div>
       </div>
       <button class="restart-btn action-btn" data-action="click->practice-pairs#restart">Restart</button>
+    </div>
+  </div>
+</div>`,
+
+  learn_flags: () => `
+<div data-controller="learn-flags" class="quiz-container"
+     data-action="keydown.left@window->learn-flags#selectLeft keydown.right@window->learn-flags#selectRight">
+  ${MOBILE_MENU()}
+  ${NAV('learn', 'f', 'learn-flags')}
+  <div class="start-screen" data-learn-flags-target="startScreen">
+    <div class="region-header">
+      <h1>Learn</h1>
+      <div class="region-difficulty learn">Flags</div>
+    </div>
+    <p class="region-description">One flag, two country names — pick the one it belongs to. Nothing to type and nothing to remember: a wrong pick just labels the flag with its real owner and moves on. Use ← and → to choose. The next flag comes up on its own, and the one you just saw stays on show in the "It was" card. The session keeps going until you press Finish.</p>
+    <button data-action="click->learn-flags#startLearning" data-learn-flags-target="startBtn" class="start-btn">Start learning</button>
+  </div>
+  <div class="stats-bar stats-bar-top-left stats-bar-stacked learn-stats-bar" data-learn-flags-target="statsBar" style="display: none;">
+    <div class="stats-col">
+      <div class="stats-group">
+        <div class="stat green">
+          <span class="stat-label">Correct:</span>
+          <span class="stat-value" data-learn-flags-target="correctCount">0</span>
+        </div>
+        <div class="stat red">
+          <span class="stat-label">Incorrect:</span>
+          <span class="stat-value" data-learn-flags-target="incorrectCount">0</span>
+        </div>
+      </div>
+      <button class="action-btn" data-learn-flags-target="actionBtn" data-action="click->learn-flags#finish">Finish</button>
+    </div>
+    <div class="last-guess" data-learn-flags-target="lastGuess" style="display: none;">
+      <span class="last-guess-label">It was:</span>
+      <div class="guessed-country" data-learn-flags-target="lastGuessCard">
+        <img class="country-flag" data-learn-flags-target="lastGuessShape" alt="" />
+        <div class="country-name" data-learn-flags-target="lastGuessName"></div>
+      </div>
+    </div>
+  </div>
+  <div class="learn-flag-stage" data-learn-flags-target="flagStage" style="display: none;">
+    <img class="learn-flag-img" data-learn-flags-target="flagImage" alt="" />
+  </div>
+  <div class="learn-panel" data-learn-flags-target="panel" style="display: none;">
+    <div class="learn-status" data-learn-flags-target="status">Which country is this?</div>
+    <div class="learn-options">
+      <button class="learn-option" data-learn-flags-target="option" data-side="left" data-action="click->learn-flags#selectOption">
+        <span class="learn-option-key" aria-hidden="true">←</span>
+        <span class="learn-option-name"></span>
+      </button>
+      <button class="learn-option" data-learn-flags-target="option" data-side="right" data-action="click->learn-flags#selectOption">
+        <span class="learn-option-key" aria-hidden="true">→</span>
+        <span class="learn-option-name"></span>
+      </button>
+    </div>
+  </div>
+  <div class="finished-banner" data-learn-flags-target="finishedBanner" style="display: none;">
+    <div class="finished-content">
+      <h2>Session Complete!</h2>
+      <div class="finished-time" data-learn-flags-target="finalTime"></div>
+      <div class="finished-stats">
+        <div class="finished-stat green"><span class="finished-label">Correct:</span><span class="finished-value" data-learn-flags-target="finalCorrect">0</span></div>
+        <div class="finished-stat red"><span class="finished-label">Incorrect:</span><span class="finished-value" data-learn-flags-target="finalIncorrect">0</span></div>
+      </div>
+      <button class="restart-btn action-btn" data-action="click->learn-flags#restart">Restart</button>
     </div>
   </div>
 </div>`,
