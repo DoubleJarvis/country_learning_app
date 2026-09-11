@@ -32,8 +32,27 @@ pattern-matched pkill.
 `npx playwright` v1.61+ is installed globally with chromium cached; `npm i playwright`
 in a scratch dir gives a scriptable module. Gotchas that matter:
 
-- Wait for `#asset-loader` to be **detached** before interacting — the app
-  blocks on downloading tiles/countries.pmtiles first.
+- **Don't** wait on `#asset-loader` being detached. The loader is only created
+  *after* `await initSettings()`, so at t=0 it doesn't exist and the wait
+  resolves instantly against a blank page — every interaction after it then
+  races a half-initialised app. Wait for the app to be genuinely up instead:
+
+  ```js
+  // Synchronous predicate: waitForFunction does NOT await an async one — it
+  // sees a truthy Promise and resolves on the first poll.
+  await page.waitForFunction(() =>
+    !document.getElementById('asset-loader') &&
+    !!document.querySelector('[data-controller]') &&
+    !!document.querySelector('.cmdk'), null, { polling: 100, timeout: 60000 })
+  // evaluate() *does* await promises, so poll the db from Node:
+  while (!await page.evaluate(async () => (await import('db')).quizDb.initialized)) {
+    await new Promise(r => setTimeout(r, 100))
+  }
+  ```
+
+  Symptom of getting this wrong: `quizDb.db` is `null`, `setSetting` silently
+  does nothing (it logs "Database not initialized"), and settings appear not to
+  persist across a reload.
 - The importmap (index.html) maps bare names, so page-context
   `await import('db')` / `import('shared_map')` returns the same module
   instances the controllers use. Seed test data through the app's own db:

@@ -3,7 +3,16 @@
 // Values are persisted in the SQLite db (see db.js, `settings` table) and
 // cached in memory so they can be read synchronously while rendering. To add a
 // new setting, append an entry to SETTINGS below and apply its effect in
-// applySettings(); it will automatically show up on the Stats page.
+// applySettings(); it will automatically show up on the Stats page and in the
+// control panel (see CLAUDE.md).
+//
+// An optional `group` collects a setting into a named family ("Funbox" — the
+// ones that change how a game plays, rather than what the UI shows). Grouped
+// settings get their own heading on the Stats page and a submenu in the control
+// panel instead of a flat row.
+//
+// Settings with exactly two options render as a toggle, anything more as a
+// dropdown; nothing extra is needed for a setting to gain a third value.
 import { quizDb } from "db"
 
 export const SETTINGS = [
@@ -12,6 +21,14 @@ export const SETTINGS = [
     label: "Debug",
     description: "Show debug search/fill controls in the quizzes",
     options: ["off", "on"],
+    default: "off",
+  },
+  {
+    key: "flash",
+    group: "Funbox",
+    label: "Flash",
+    description: "Show the country for a moment, then hide it — answer from memory",
+    options: ["off", "100ms", "500ms", "1000ms"],
     default: "off",
   },
   {
@@ -48,11 +65,20 @@ export function setSetting(key, value) {
   applySettings()
 }
 
+// Modules that own a setting's effect subscribe here rather than being imported
+// by this file — funbox.js reads settings, so importing it back would be a cycle.
+const listeners = []
+
+export function onSettingsApplied(listener) {
+  listeners.push(listener)
+}
+
 // Re-applies every setting's effect to the current DOM. Called on each render
 // (mode switches rebuild the DOM) and whenever a setting changes.
 export function applySettings() {
   applyDebugVisibility()
   applyTimerVisibility()
+  for (const listener of listeners) listener()
 }
 
 function applyDebugVisibility() {

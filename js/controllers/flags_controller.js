@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion } from "country_names"
 import { quizDb } from "db"
 import { flagUrl } from "flags"
+import { presentQuestion } from "funbox"
 
 // Flags mode (difficulty: Normal). Mirrors Quiz Hard, but the country is
 // presented by its flag alone instead of its silhouette. Two guesses per
@@ -103,6 +104,7 @@ export default class extends Controller {
   showFlag(countryCode) {
     this.flagImageTarget.src = flagUrl(countryCode)
     this.flagOverlayTarget.style.display = "block"
+    presentQuestion(this.flagOverlayTarget)
   }
 
   // Kick the next flag into the browser cache so it paints instantly.

@@ -4,6 +4,7 @@ import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion, c
 import { quizDb } from "db"
 import { applyCountryShape, countryShapeMarkup, isShapeOnlyCountry, loadCountrySvg, shapeScaleBar } from "country_shapes"
 import { getSharedMap, whenMapReady, COUNTRIES_SOURCE, GLYPHS_URL } from "shared_map"
+import { presentQuestion } from "funbox"
 
 export default class extends Controller {
   static targets = ["mainContainer", "overlayContainer", "searchInput", "searchBox", "dropdown",
@@ -404,6 +405,7 @@ export default class extends Controller {
     this.overlayShapeTarget.style.display = "none"
     this.overlayContainerTarget.style.display = "block"
     this.overlayMap.resize()
+    presentQuestion(this.overlayContainerTarget)
 
     // Ensure layers exist before filtering
     if (!this.overlayMap.getLayer("isolated-country")) {
@@ -442,6 +444,7 @@ export default class extends Controller {
     this.overlayContainerTarget.style.display = "none"
     this.overlayShapeIconTarget.innerHTML = await loadCountrySvg(countryCode)
     this.overlayShapeTarget.style.display = "block"
+    presentQuestion(this.overlayShapeTarget)
     // Wait for layout so the silhouette's rendered size can be measured
     requestAnimationFrame(() => this.updateShapeScale(countryCode))
   }

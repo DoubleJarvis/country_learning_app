@@ -19,22 +19,23 @@
 //   title     what the player reads
 //   detail    optional dimmer line under the title
 //   keywords  extra search terms, matched but never shown
+//   value     current state, shown right-aligned (used by submenu rows)
 //   active    true if this already describes the current state (shown as a dot)
 //   keepOpen  leave the panel up after running (used by settings, so several
 //             can be flipped in one visit)
 //   run()     do the thing
+//   children  () => commands — makes the row a submenu instead of an action.
+//             Called fresh on every render, so `active` and `value` stay current.
 import { MODES, modeTitle } from './modes.js'
 import { SETTINGS, getSetting, setSetting } from 'settings'
 
 // One-off commands. Append here; everything else is generated.
+//
+// Everything in this file is read by a player, not by us: titles and details are
+// UI copy, so no internal vocabulary (the README, the service worker, module
+// names) and nothing that only makes sense to someone working on the code. If an
+// action can't be explained in player terms, it probably doesn't belong here.
 const ACTIONS = [
-  {
-    id: 'action:reload',
-    title: 'Reload the app',
-    detail: 'Re-fetch the page. The service worker still serves its cache — see README.',
-    keywords: 'refresh restart',
-    run: () => location.reload(),
-  },
   {
     id: 'action:fullscreen',
     title: 'Toggle fullscreen',
@@ -59,19 +60,41 @@ function modeCommands() {
 
 // One command per possible value, rather than a toggle, so a setting that grows
 // a third value some day needs no code here.
+function valueCommands(setting, section) {
+  return setting.options.map(option => ({
+    id: `setting:${setting.key}:${option}`,
+    section,
+    title: setting.group ? option : `${setting.label}: ${option}`,
+    detail: setting.group ? undefined : setting.description,
+    keywords: `${setting.key} ${setting.label} toggle ${setting.options.join(' ')}`,
+    active: getSetting(setting.key) === option,
+    keepOpen: true,
+    run: () => setSetting(setting.key, option),
+  }))
+}
+
+// Ungrouped settings sit flat at the top level, one row per value — they are
+// two-value toggles, so flattening costs one row and saves a keystroke. A
+// grouped setting ("Funbox") gets a single row showing its current value, which
+// opens a submenu of the values instead.
 function settingCommands() {
-  return SETTINGS.flatMap(setting =>
-    setting.options.map(option => ({
-      id: `setting:${setting.key}:${option}`,
-      section: 'Settings',
-      title: `${setting.label}: ${option}`,
+  const flat = SETTINGS
+    .filter(setting => !setting.group)
+    .flatMap(setting => valueCommands(setting, 'Settings'))
+
+  const grouped = SETTINGS
+    .filter(setting => setting.group)
+    .map(setting => ({
+      id: `group:${setting.key}`,
+      section: setting.group,
+      title: `${setting.group} — ${setting.label}`,
       detail: setting.description,
-      keywords: `${setting.key} toggle ${setting.options.join(' ')}`,
-      active: getSetting(setting.key) === option,
-      keepOpen: true,
-      run: () => setSetting(setting.key, option),
+      keywords: `${setting.key} ${setting.options.join(' ')}`,
+      value: getSetting(setting.key),
+      children: () => valueCommands(setting, setting.group),
     }))
-  )
+
+  return [...flat, ...grouped]
 }
 
 function actionCommands() {

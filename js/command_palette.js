@@ -10,7 +10,11 @@ import { buildCommands, rankCommands } from './commands.js'
 let root = null
 let input = null
 let list = null
-let commands = []
+let crumb = null
+let escHint = null
+// Levels of the panel, innermost last. Each holds a `build()` rather than a
+// fixed array so re-rendering after a toggle picks up the new state.
+let stack = []
 let visible = []
 let highlighted = 0
 let previouslyFocused = null
@@ -31,15 +35,18 @@ function render() {
   root.innerHTML = `
     <div class="cmdk-backdrop" data-cmdk-close></div>
     <div class="cmdk-panel" role="dialog" aria-modal="true" aria-label="Control panel">
+      <div class="cmdk-crumb" hidden></div>
       <input class="cmdk-input" type="text" placeholder="Search modes, settings, actions…"
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
       <div class="cmdk-list" role="listbox"></div>
-      <div class="cmdk-footer"><span>↑↓ navigate</span><span>↵ select</span><span>esc close</span></div>
+      <div class="cmdk-footer"><span>↑↓ navigate</span><span>↵ select</span><span class="cmdk-esc-hint">esc close</span></div>
     </div>`
   document.body.appendChild(root)
 
   input = root.querySelector('.cmdk-input')
   list = root.querySelector('.cmdk-list')
+  crumb = root.querySelector('.cmdk-crumb')
+  escHint = root.querySelector('.cmdk-esc-hint')
 
   input.addEventListener('input', () => { highlighted = 0; renderList() })
   input.addEventListener('keydown', onInputKeydown)
@@ -69,7 +76,9 @@ function onGlobalKeydown(event) {
   // this branch see an already-closed panel and reopen it on the same press.
   if (isOpen()) {
     event.preventDefault()
-    return close()
+    // Inside a submenu Escape steps back out rather than dropping the panel -
+    // closing outright would make a mis-click cost the whole visit.
+    return stack.length > 1 ? popLevel() : close()
   }
   // Esc belongs to the autocomplete while it's up — the quiz modes use it to
   // dismiss their suggestion dropdown, and stealing that would be worse than
@@ -95,6 +104,14 @@ function onInputKeydown(event) {
       event.preventDefault()
       run(highlighted)
       break
+    case 'Backspace':
+      // Only on an empty query, so backspacing through a search never
+      // surprises you by leaving the submenu.
+      if (input.value === '' && stack.length > 1) {
+        event.preventDefault()
+        popLevel()
+      }
+      break
   }
 }
 
@@ -107,9 +124,25 @@ function open() {
   // has focus, and restoring to it on close would strand focus in a hidden box.
   const focused = document.activeElement
   previouslyFocused = root.contains(focused) ? null : focused
-  commands = buildCommands()
+  stack = [{ title: null, build: buildCommands }]
   highlighted = 0
   root.hidden = false
+  input.value = ''
+  renderList()
+  input.focus()
+}
+
+function pushLevel(command) {
+  stack.push({ title: command.title, build: command.children })
+  highlighted = 0
+  input.value = ''
+  renderList()
+  input.focus()
+}
+
+function popLevel() {
+  stack.pop()
+  highlighted = 0
   input.value = ''
   renderList()
   input.focus()
@@ -133,11 +166,13 @@ function move(delta) {
 function run(index) {
   const command = visible[index]
   if (!command) return
+
+  if (command.children) return pushLevel(command)
+
   if (command.keepOpen) {
+    // The command changed the state its own `active` dot reflects; renderList
+    // rebuilds from the level's build(), so the dot moves without closing.
     command.run()
-    // The command changed the state its own `active` dot reflects, so rebuild
-    // rather than re-rendering stale flags.
-    commands = buildCommands()
     renderList()
     input.focus()
   } else {
@@ -147,7 +182,15 @@ function run(index) {
 }
 
 function renderList() {
-  visible = rankCommands(commands, input.value.trim())
+  const level = stack[stack.length - 1]
+  const nested = stack.length > 1
+  crumb.textContent = level.title || ''
+  crumb.hidden = !level.title
+  input.placeholder = level.title ? `Search ${level.title}…` : 'Search modes, settings, actions…'
+  // Escape steps out of a submenu rather than closing, so say so.
+  escHint.textContent = nested ? 'esc back' : 'esc close'
+
+  visible = rankCommands(level.build(), input.value.trim())
   if (highlighted >= visible.length) highlighted = Math.max(0, visible.length - 1)
 
   if (visible.length === 0) {
@@ -160,7 +203,8 @@ function renderList() {
   visible.forEach((command, index) => {
     // Section headings only make sense while the list is in declaration order;
     // once a query reorders by score they'd repeat and mislead, so drop them.
-    if (!input.value.trim() && command.section !== section) {
+    // Inside a submenu a heading would just restate the breadcrumb.
+    if (!nested && !input.value.trim() && command.section !== section) {
       section = command.section
       html += `<div class="cmdk-section">${escapeHtml(section)}</div>`
     }
@@ -171,6 +215,8 @@ function renderList() {
           <span class="cmdk-title">${highlightTitle(command.title, command.matchedIndices)}</span>
           ${command.detail ? `<span class="cmdk-detail">${escapeHtml(command.detail)}</span>` : ''}
         </span>
+        ${command.value ? `<span class="cmdk-value">${escapeHtml(command.value)}</span>` : ''}
+        ${command.children ? '<span class="cmdk-chevron">›</span>' : ''}
       </div>`
   })
   list.innerHTML = html

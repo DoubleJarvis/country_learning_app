@@ -33,7 +33,24 @@ export default class extends Controller {
   renderSettings() {
     if (!this.hasSettingsListTarget) return
 
-    this.settingsListTarget.innerHTML = SETTINGS
+    // Ungrouped settings first, then one headed block per group ("Funbox"),
+    // in the order the groups first appear in SETTINGS.
+    const groups = [...new Set(SETTINGS.map(setting => setting.group).filter(Boolean))]
+    const blocks = [
+      { heading: null, settings: SETTINGS.filter(setting => !setting.group) },
+      ...groups.map(group => ({ heading: group, settings: SETTINGS.filter(s => s.group === group) })),
+    ].filter(block => block.settings.length > 0)
+
+    this.settingsListTarget.innerHTML = blocks
+      .map(block => `
+        ${block.heading ? `<h3 class="settings-group-heading">${this.escapeHtml(block.heading)}</h3>` : ""}
+        ${this.renderSettingItems(block.settings)}
+      `)
+      .join("")
+  }
+
+  renderSettingItems(settings) {
+    return settings
       .map(setting => {
         // A two-option setting (e.g. off/on) renders as a light-switch toggle;
         // the second option is the "on"/checked state. Anything else falls back

@@ -26,6 +26,7 @@ automatic, so usually there is nothing extra to do:
 | --- | --- | --- |
 | A game mode / route | `MODES` in `js/modes.js` | **none** — routing *and* the panel both read this list |
 | A setting | `SETTINGS` in `js/settings.js` | **none** — one command per value is generated, any number of values |
+| A Funbox setting | `SETTINGS` with `group: "Funbox"` | **none** — becomes a submenu row |
 | Anything else (a one-off command) | `ACTIONS` in `js/commands.js` | add an entry |
 
 So: a new mode is added to `MODES` and nowhere else — `js/app.js` builds its
@@ -39,6 +40,11 @@ Two things `MODES` does *not* drive:
 - **The template itself** still goes in `templates.js` under the `template` key
   the mode names.
 
+A setting with a `group` renders as a single panel row showing its current value
+(`Funbox — Flash    500ms`) that opens a submenu, and gets its own heading on the
+Stats page. Two options render as a toggle there, more as a dropdown — a setting
+gaining a third value needs no code anywhere.
+
 Notes for when you touch the panel:
 
 - It mounts on `<body>`, not `#app` — every route change replaces `#app`'s
@@ -50,3 +56,40 @@ Notes for when you touch the panel:
   panel's input too would close and reopen on a single press.
 - Setting commands set `keepOpen` so several can be flipped in one visit;
   navigation and actions close the panel first.
+- Submenus are a stack of levels, each holding a `build()` rather than a fixed
+  array, so re-rendering after a toggle picks up the new state. Escape (and
+  Backspace on an empty query) pops a level before it closes the panel.
+
+## Funbox
+
+Settings that change how a game *plays*, rather than what the UI shows. They live
+in `SETTINGS` with `group: "Funbox"`, so the panel and Stats page pick them up
+like any other setting; the behaviour lives in [js/funbox.js](js/funbox.js).
+
+Today there is one: **Flash** (`off` / `100ms` / `500ms` / `1000ms`) — the country
+you have to identify is shown for that long, then hidden.
+
+Every game's score bar carries a `.stat.funbox` slot (`[data-funbox-indicator]`)
+that `funbox.js` fills with the mods currently on, name over value, and hides
+when none are. It needs no per-mod work: a new Funbox setting shows up there as
+soon as it's in `SETTINGS`. A mod counts as on when its value differs from its
+**first** option, so list the off state first.
+
+A mode opts in to *Flash* by calling `presentQuestion(element)` **every time it
+puts a new country on screen**, passing the element that holds it. Wired in Quiz Hard,
+Flags, Practice (worst/slowest) and Learn → Flags. Three modes deliberately
+don't call in:
+
+- **Quiz Normal** highlights the country on the shared map rather than in an
+  element of its own, so there is nothing to hide without map work.
+- **Name All** never presents a single country.
+- **Practice Mix-ups** needs its shapes clickable, and hiding is `visibility:
+  hidden`, which would kill the clicks.
+
+Hiding uses `visibility`, not `display`: Quiz Hard and Practice toggle `display`
+themselves to swap between their overlay map and a local SVG, so hiding that way
+would fight them — and `visibility` leaves MapLibre's canvas sizing alone.
+
+`funbox.js` reads settings, so `settings.js` must not import it back. It
+subscribes via `onSettingsApplied()` instead, which is how switching Flash off
+mid-question reveals the country immediately.

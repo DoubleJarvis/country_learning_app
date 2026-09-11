@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { countriesMapping, getCountriesForRegion } from "country_names"
 import { flagUrl } from "flags"
+import { presentQuestion } from "funbox"
 
 // Learn → Flags. The gentle, no-typing counterpart to the Flags quiz, and the
 // mirror image of Mix-ups practice (practice_pairs): there the player gets one
@@ -85,6 +86,7 @@ export default class extends Controller {
     this.phase = "choose"
 
     this.flagImageTarget.src = flagUrl(this.currentCode)
+    presentQuestion(this.flagStageTarget)
     this.preloadFlag(this.deck[0])
 
     this.optionTargets.forEach((option, index) => {

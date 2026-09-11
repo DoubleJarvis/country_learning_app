@@ -554,6 +554,15 @@ body {
   gap: 2px;
 }
 
+/* display:flex above would otherwise beat the attribute. */
+.stat[hidden] { display: none; }
+
+/* Funbox indicator: the mods currently on, filled in by funbox.js. Reads like
+   any other stat (name over value) and is blue to mark it as a modifier rather
+   than a score. */
+.stat.funbox .stat-label { color: #4a9eff; }
+.stat.funbox .stat-value { color: #4a9eff; font-size: 13px; }
+
 .stat-label {
   color: #888;
   font-size: 9px;
@@ -1694,6 +1703,16 @@ body {
 
 .settings-list { display: flex; flex-direction: column; gap: 12px; }
 
+/* Heading for a settings group ("Funbox") on the Stats page. */
+.settings-group-heading {
+  margin: 8px 0 0;
+  color: #4a9eff;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .setting-item {
   display: flex;
   justify-content: space-between;
@@ -2052,6 +2071,12 @@ body {
   }
 
   .stats-bar .stat-label { display: none; }
+
+  /* The strip hides stat labels in favour of icons, but a funbox mod's name IS
+     the information - keep it, laid out inline beside its value. */
+  .stats-bar .stat.funbox { flex-direction: row; align-items: baseline; gap: 4px; }
+  .stats-bar .stat.funbox .stat-label { display: inline; font-size: 9px; }
+  .stats-bar .stat.funbox .stat-value { font-size: 12px; }
 
   .stats-bar-stacked .stat-value { font-size: 15px; }
 
@@ -2487,6 +2512,13 @@ body {
   .learn-option-key { display: none; }
 }
 
+/* Funbox > Flash: the country has been shown and is now hidden. visibility
+   rather than display so the modes' own display toggling (overlay map vs local
+   SVG) and MapLibre's canvas sizing are left untouched. */
+.funbox-hidden {
+  visibility: hidden;
+}
+
 /* ==========================================================================
    CONTROL PANEL  (Esc / Ctrl+K — see js/command_palette.js)
    --------------------------------------------------------------------------
@@ -2544,6 +2576,17 @@ body {
 }
 
 .cmdk-input::placeholder { color: #777; }
+
+/* Which submenu you are in. Hidden at the top level. */
+.cmdk-crumb {
+  flex: none;
+  padding: 10px 18px 0;
+  color: #4a9eff;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
 .cmdk-list {
   flex: 1;
@@ -2613,6 +2656,27 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* A submenu row's current value, and the affordance that says it opens one. */
+.cmdk-value {
+  margin-left: auto;
+  padding-left: 12px;
+  color: #4a9eff;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cmdk-chevron {
+  margin-left: 8px;
+  color: #777;
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* Without a value the chevron still needs pushing to the right edge. */
+.cmdk-value + .cmdk-chevron { margin-left: 8px; }
+.cmdk-text + .cmdk-chevron { margin-left: auto; }
 
 .cmdk-empty {
   padding: 24px 12px;

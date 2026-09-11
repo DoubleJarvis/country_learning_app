@@ -78,6 +78,7 @@ const STATS_BAR_TOP_LEFT = (controllerName, stats, buttonText, buttonAction, but
       <span class="stat-label">${s.label}:</span>
       <span class="stat-value" data-${controllerName}-target="${s.target}">0</span>
     </div>`).join('')}
+    <div class="stat funbox" data-funbox-indicator hidden></div>
   </div>`
   const button = `<button class="action-btn"${buttonTarget ? ` data-${controllerName}-target="${buttonTarget}"` : ''} data-action="${buttonAction}">${buttonText}</button>`
 
@@ -141,6 +142,7 @@ const PRACTICE_PAGE = (source, navDifficulty, difficultyLabel, description) => `
           <span class="stat-label">Incorrect:</span>
           <span class="stat-value" data-practice-target="incorrectCount">0</span>
         </div>
+        <div class="stat funbox" data-funbox-indicator hidden></div>
       </div>
       <button class="action-btn" data-practice-target="actionBtn" data-action="click->practice#finish">Finish</button>
     </div>
@@ -480,6 +482,7 @@ export const templates = {
         <span class="stat-label">Incorrect:</span>
         <span class="stat-value" data-practice-pairs-target="incorrectCount">0</span>
       </div>
+      <div class="stat funbox" data-funbox-indicator hidden></div>
     </div>
     <button class="action-btn" data-practice-pairs-target="actionBtn" data-action="click->practice-pairs#finish">Finish</button>
   </div>
@@ -538,6 +541,7 @@ export const templates = {
           <span class="stat-label">Incorrect:</span>
           <span class="stat-value" data-learn-flags-target="incorrectCount">0</span>
         </div>
+        <div class="stat funbox" data-funbox-indicator hidden></div>
       </div>
       <button class="action-btn" data-learn-flags-target="actionBtn" data-action="click->learn-flags#finish">Finish</button>
     </div>

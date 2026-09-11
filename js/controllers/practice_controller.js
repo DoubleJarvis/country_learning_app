@@ -4,6 +4,7 @@ import { allCountryNames, nameToCode, countriesMapping, countryBounds } from "co
 import { quizDb } from "db"
 import { getSharedMap, COUNTRIES_SOURCE, GLYPHS_URL } from "shared_map"
 import { applyCountryShape, isShapeOnlyCountry, loadCountrySvg, shapeScaleBar } from "country_shapes"
+import { presentQuestion } from "funbox"
 
 // Practice mode: shows shapes of the player's worst (or slowest) countries in
 // random order, endlessly, until Finish is pressed. One controller serves both
@@ -201,6 +202,7 @@ export default class extends Controller {
 
     this.overlayShapeTarget.style.display = "none"
     this.overlayContainerTarget.style.display = "block"
+    presentQuestion(this.overlayContainerTarget)
     this.overlayMap.resize()
 
     if (!this.overlayMap.getLayer("isolated-country")) {
@@ -236,6 +238,7 @@ export default class extends Controller {
     this.overlayContainerTarget.style.display = "none"
     this.overlayShapeIconTarget.innerHTML = await loadCountrySvg(countryCode)
     this.overlayShapeTarget.style.display = "block"
+    presentQuestion(this.overlayShapeTarget)
     // Wait for layout so the silhouette's rendered size can be measured
     requestAnimationFrame(() => this.updateShapeScale(countryCode))
   }

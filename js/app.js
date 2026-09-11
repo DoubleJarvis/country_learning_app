@@ -4,6 +4,7 @@ import { getSharedMap, getExistingSharedMap, getSharedMapElement, resetSharedMap
 import { initSettings, applySettings, setSetting } from "settings"
 import { routes, controllerOverrides } from "./modes.js"
 import { initCommandPalette } from "./command_palette.js"
+import { initFunbox } from "funbox"
 
 const stimulusApp = Application.start()
 
@@ -120,6 +121,9 @@ async function requestPersistentStorage() {
 async function init() {
   requestPersistentStorage()
   await initSettings()
+  // Before the first render(): render() calls applySettings(), which is what
+  // paints the funbox indicator, so the subscription has to exist by then.
+  initFunbox()
   // Pull the whole tiles archive into memory before the first map is built so
   // every map resolves tiles locally (no HTTP Range requests). Show a loader
   // while it downloads, then render once it's ready.
