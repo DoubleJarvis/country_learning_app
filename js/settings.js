@@ -15,13 +15,6 @@ export const SETTINGS = [
     default: "off",
   },
   {
-    key: "lastGuess",
-    label: "Last guess display",
-    description: "Show the last-guess card on Quiz Normal and Hard",
-    options: ["off", "on"],
-    default: "on",
-  },
-  {
     key: "timer",
     label: "Timer",
     description: "Show the elapsed-time counter during games",
@@ -59,7 +52,6 @@ export function setSetting(key, value) {
 // (mode switches rebuild the DOM) and whenever a setting changes.
 export function applySettings() {
   applyDebugVisibility()
-  applyLastGuessVisibility()
   applyTimerVisibility()
 }
 
@@ -69,14 +61,6 @@ function applyDebugVisibility() {
     // Clearing the inline style lets the stylesheet decide (flex for the fill box)
     el.style.display = enabled ? "" : "none"
   })
-}
-
-// The Quiz Normal/Hard controllers re-show the "It was" card on every guess by
-// setting an inline display, so we hide it via a body class + !important rule
-// (see index.css) rather than touching the element directly.
-function applyLastGuessVisibility() {
-  const enabled = getSetting("lastGuess") === "on"
-  document.body.classList.toggle("setting-hide-last-guess", !enabled)
 }
 
 // The controllers only update the timer's inner value (never the .stat.timer

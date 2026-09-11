@@ -633,60 +633,6 @@ body {
 
 .recenter-btn:hover { background-color: #666666; }
 
-/* Place mode */
-.place-tray {
-  position: absolute;
-  bottom: 30px;
-  /* Centered without a transform: a transformed ancestor would become the
-     containing block for the position:fixed shape while it is dragged */
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  width: fit-content;
-  z-index: 1000;
-  background: #2a2a2a;
-  border: 2px solid #404040;
-  border-radius: 8px;
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-}
-
-.place-tray-name {
-  color: #e0e0e0;
-  font-size: 16px;
-  font-weight: 600;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-.place-shape-slot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.place-shape {
-  color: #ffd700;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  background-color: currentColor;
-  -webkit-mask: var(--shape) center / contain no-repeat;
-  mask: var(--shape) center / contain no-repeat;
-}
-
-.place-shape.dragging {
-  position: fixed;
-  transform: translate(-50%, -50%);
-  z-index: 3000;
-  cursor: grabbing;
-  opacity: 0.85;
-}
-
 /* Autocomplete */
 .autocomplete-dropdown {
   position: absolute;
@@ -1278,13 +1224,6 @@ body {
   justify-content: center;
   text-align: center;
   overflow-wrap: break-word;
-}
-
-/* "It was" reveal setting off: hide the Quiz Normal/Hard last-guess card even
-   though the controller re-shows it inline on each guess (see settings.js).
-   Practice always shows its card, so it's excluded. */
-body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar):not(.learn-stats-bar) .last-guess {
-  display: none !important;
 }
 
 .last-guess-label {
@@ -1901,6 +1840,7 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar):not(.le
 
 .run-quiz-type.quiz { background-color: #4a9eff; color: white; }
 .run-quiz-type.name_all { background-color: #8b5cf6; color: white; }
+/* Place mode is removed; this badge only styles pre-existing runs in old databases. */
 .run-quiz-type.place { background-color: #10b981; color: white; }
 .run-quiz-type.flags { background-color: #ec4899; color: white; }
 
@@ -2545,4 +2485,155 @@ body.setting-hide-last-guess .stats-bar-stacked:not(.practice-stats-bar):not(.le
 
   /* No keyboard to hint at on a phone. */
   .learn-option-key { display: none; }
+}
+
+/* ==========================================================================
+   CONTROL PANEL  (Esc / Ctrl+K — see js/command_palette.js)
+   --------------------------------------------------------------------------
+   Sits on <body>, above everything including the nav (z-index 2000) and the
+   mobile menu sheet (2050). Fixed, not absolute: it is not part of the mobile
+   shell that pins itself to --app-height.
+   ========================================================================== */
+.cmdk {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  display: flex;
+  justify-content: center;
+  /* Near the top rather than centred: the list grows downward, so a centred
+     panel would shift under the player as they type. */
+  align-items: flex-start;
+  padding: 12vh 16px 16px;
+  box-sizing: border-box;
+}
+
+/* Beats the display:flex above, which would otherwise defeat [hidden]. */
+.cmdk[hidden] { display: none; }
+
+.cmdk-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.cmdk-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 560px;
+  max-height: 100%;
+  background: #1e1e1e;
+  border: 2px solid #404040;
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.cmdk-input {
+  flex: none;
+  padding: 16px 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #404040;
+  color: #e0e0e0;
+  font-size: 17px;
+  font-family: inherit;
+  outline: none;
+}
+
+.cmdk-input::placeholder { color: #777; }
+
+.cmdk-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.cmdk-section {
+  padding: 10px 12px 4px;
+  color: #888;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cmdk-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cmdk-item.highlighted { background: #2f3742; }
+
+/* Marks the command that already describes the current state - the mode you're
+   on, the value a setting is set to. */
+.cmdk-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.cmdk-dot.on { background: #4a9eff; }
+
+.cmdk-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cmdk-title {
+  color: #e0e0e0;
+  font-size: 14px;
+}
+
+/* Matched query letters, same treatment as the country search bar's suggestions.
+   The highlighted row's background is subtle enough that blue still reads on it,
+   so unlike that bar this needs no second colour. */
+.cmdk-title mark {
+  background-color: transparent;
+  color: #4a9eff;
+  font-weight: bold;
+  padding: 0;
+}
+
+.cmdk-detail {
+  color: #888;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmdk-empty {
+  padding: 24px 12px;
+  color: #888;
+  font-size: 14px;
+  text-align: center;
+}
+
+.cmdk-footer {
+  flex: none;
+  display: flex;
+  gap: 16px;
+  padding: 8px 14px;
+  border-top: 1px solid #404040;
+  color: #777;
+  font-size: 11px;
+}
+
+@media (max-width: 700px) {
+  .cmdk { padding: 8vh 10px 10px; }
+  .cmdk-input { font-size: 16px; padding: 14px 16px; }
+  /* Nothing to hint at without a keyboard. */
+  .cmdk-footer { display: none; }
 }

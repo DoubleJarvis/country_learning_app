@@ -130,7 +130,7 @@ const PRACTICE_PAGE = (source, navDifficulty, difficultyLabel, description) => `
     <p class="region-description">${description}</p>
     <button data-action="click->practice#startPractice" data-practice-target="startBtn" class="start-btn">Start practice</button>
   </div>
-  <div class="stats-bar stats-bar-top-left stats-bar-stacked practice-stats-bar" data-practice-target="statsBar" style="display: none;">
+  <div class="stats-bar stats-bar-top-left stats-bar-stacked" data-practice-target="statsBar" style="display: none;">
     <div class="stats-col">
       <div class="stats-group">
         <div class="stat green">
@@ -271,41 +271,6 @@ export const templates = {
     <button class="debug-fill-btn" data-action="click->quiz-hard#debugFill">Debug: Fill</button>
     <button class="debug-fast-fill-btn" data-action="click->quiz-hard#debugFastFill">Debug: Fast Fill</button>
     <button class="debug-realistic-fill-btn" data-action="click->quiz-hard#debugRealisticFill">Debug: Fill Realistic</button>
-  </div>
-</div>`,
-
-  quiz_place: () => `
-<div data-controller="quiz-place" class="quiz-container">
-  ${MOBILE_MENU()}
-  ${NAV('place', 'n', 'quiz-place')}
-  ${REGION_SELECTION('quiz-place', 'Place', 'Normal', 'Drag the named country to its real location on an empty world map. Drop it within its true bounds to lock it in.')}
-  ${STATS_BAR_TOP_LEFT('quiz-place',
-    [
-      { label: 'Remaining', target: 'remainingCount' },
-      { label: 'Correct', target: 'correctCount', color_class: 'green' },
-      { label: 'Incorrect', target: 'incorrectCount', color_class: 'red' }
-    ],
-    'Finish', 'click->quiz-place#finish', 'actionBtn'
-  )}
-  <div class="finished-banner" data-quiz-place-target="finishedBanner" style="display: none;">
-    <div class="finished-content">
-      <h2>Game Complete!</h2>
-      <div class="finished-time" data-quiz-place-target="finalTime"></div>
-      <div class="finished-stats">
-        <div class="finished-stat green"><span class="finished-label">Correct:</span><span class="finished-value" data-quiz-place-target="finalCorrect">0</span></div>
-        <div class="finished-stat red"><span class="finished-label">Incorrect:</span><span class="finished-value" data-quiz-place-target="finalIncorrect">0</span></div>
-      </div>
-      <button class="restart-btn action-btn" data-action="click->quiz-place#restart">Restart</button>
-    </div>
-  </div>
-  <div id="quiz-map" data-map-slot data-quiz-place-target="container"></div>
-  <div class="place-tray" data-quiz-place-target="tray" style="display: none;">
-    <div class="place-tray-name" data-quiz-place-target="countryName"></div>
-    <div class="place-shape-slot" data-quiz-place-target="shapeSlot">
-      <div class="place-shape" data-quiz-place-target="shape"
-           data-action="pointerdown->quiz-place#startDrag pointermove->quiz-place#moveDrag pointerup->quiz-place#endDrag pointercancel->quiz-place#cancelDrag"></div>
-    </div>
-    <button class="skip-btn" data-action="click->quiz-place#skip keydown.shift+enter@window->quiz-place#skip" title="Shift+Enter">Skip</button>
   </div>
 </div>`,
 
@@ -562,7 +527,7 @@ export const templates = {
     <p class="region-description">One flag, two country names — pick the one it belongs to. Nothing to type and nothing to remember: a wrong pick just labels the flag with its real owner and moves on. Use ← and → to choose. The next flag comes up on its own, and the one you just saw stays on show in the "It was" card. The session keeps going until you press Finish.</p>
     <button data-action="click->learn-flags#startLearning" data-learn-flags-target="startBtn" class="start-btn">Start learning</button>
   </div>
-  <div class="stats-bar stats-bar-top-left stats-bar-stacked learn-stats-bar" data-learn-flags-target="statsBar" style="display: none;">
+  <div class="stats-bar stats-bar-top-left stats-bar-stacked" data-learn-flags-target="statsBar" style="display: none;">
     <div class="stats-col">
       <div class="stats-group">
         <div class="stat green">

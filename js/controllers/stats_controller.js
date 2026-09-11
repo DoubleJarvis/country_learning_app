@@ -485,6 +485,9 @@ export default class extends Controller {
       name_all:      { mode: "Name All", modeKey: "name_all", difficulty: "Normal", difficultyKey: "normal" },
       name_all_hard: { mode: "Name All", modeKey: "name_all", difficulty: "Hard",   difficultyKey: "hard" },
       flags:         { mode: "Flags",    modeKey: "flags",    difficulty: "Normal", difficultyKey: "normal" },
+      // The Place mode itself is gone, but runs recorded while it existed are
+      // still in players' databases - kept so their history keeps rendering
+      // with a proper name and badge instead of a raw "place".
       place:         { mode: "Place",    modeKey: "place",    difficulty: null,     difficultyKey: "" }
     }
     // Fall back to the raw type (rather than "Unknown") for any future modes

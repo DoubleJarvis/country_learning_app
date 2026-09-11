@@ -2,31 +2,14 @@ import { Application } from "@hotwired/stimulus"
 import { templates } from "./templates.js"
 import { getSharedMap, getExistingSharedMap, getSharedMapElement, resetSharedMap, preloadCountryTiles } from "shared_map"
 import { initSettings, applySettings, setSetting } from "settings"
+import { routes, controllerOverrides } from "./modes.js"
+import { initCommandPalette } from "./command_palette.js"
 
 const stimulusApp = Application.start()
 
-const routes = {
-  '':                    'quiz',
-  '#quiz':               'quiz',
-  '#quiz_hard':          'quiz_hard',
-  '#quiz_name_all_easy': 'quiz_name_all_easy',
-  '#quiz_name_all':      'quiz_name_all',
-  '#quiz_name_all_hard': 'quiz_name_all_hard',
-  '#quiz_place':         'quiz_place',
-  '#flags':              'flags',
-  '#practice_worst':     'practice_worst',
-  '#practice_slowest':   'practice_slowest',
-  '#practice_pairs':     'practice_pairs',
-  '#learn_flags':        'learn_flags',
-  '#stats':              'stats',
-}
-
-// Routes that share a controller: both practice templates use the "practice"
-// controller and differ only in their data-practice-source-value attribute.
-const controllerOverrides = {
-  practice_worst:   'practice',
-  practice_slowest: 'practice',
-}
+// Route table and controller overrides both come from the MODES catalog in
+// modes.js, so a new mode is added in exactly one place (and shows up in the
+// control panel automatically) - see CLAUDE.md.
 
 const registeredControllers = new Set()
 
@@ -140,6 +123,7 @@ async function init() {
   // Pull the whole tiles archive into memory before the first map is built so
   // every map resolves tiles locally (no HTTP Range requests). Show a loader
   // while it downloads, then render once it's ready.
+  initCommandPalette()
   showAssetLoader()
   await preloadCountryTiles(setAssetLoaderProgress)
   await render()
