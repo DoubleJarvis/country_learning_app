@@ -16,7 +16,9 @@
 //   group      mode family, as shown in the nav ("Quiz", "Name All", …)
 //   label      variant within the family ("Normal", "Hard", …); omit if the
 //              group has only one entry and the group name says it all
-//   keywords   extra search terms for the palette; never shown, only matched
+//   keywords   extra search terms for the palette; never shown, matched as whole
+//              words. Synonyms for this mode only — see js/commands.js.
+//              Synonyms for this mode only — see js/commands.js
 export const MODES = [
   { hash: '#stats',               template: 'stats',
     group: 'Stats',    keywords: 'statistics history runs settings export data' },

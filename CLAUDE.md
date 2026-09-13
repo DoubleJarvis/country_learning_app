@@ -25,8 +25,8 @@ automatic, so usually there is nothing extra to do:
 | You added | Where it goes | Panel work |
 | --- | --- | --- |
 | A game mode / route | `MODES` in `js/modes.js` | **none** — routing *and* the panel both read this list |
-| A setting | `SETTINGS` in `js/settings.js` | **none** — one command per value is generated, any number of values |
-| A Funbox setting | `SETTINGS` with `group: "Funbox"` | **none** — becomes a submenu row |
+| A setting | `SETTINGS` in `js/settings.js` | **none** — becomes a row showing its current value, opening a submenu of the values |
+| A Funbox setting | `SETTINGS` with `group: "Funbox"` | **none** — same, under a Funbox heading |
 | Anything else (a one-off command) | `ACTIONS` in `js/commands.js` | add an entry |
 
 So: a new mode is added to `MODES` and nowhere else — `js/app.js` builds its
@@ -40,10 +40,11 @@ Two things `MODES` does *not* drive:
 - **The template itself** still goes in `templates.js` under the `template` key
   the mode names.
 
-A setting with a `group` renders as a single panel row showing its current value
-(`Funbox — Flash    500ms`) that opens a submenu, and gets its own heading on the
-Stats page. Two options render as a toggle there, more as a dropdown — a setting
-gaining a third value needs no code anywhere.
+Every setting renders the same way in the panel — one row with its current value
+on the right (`Debug    off`, `Funbox — Flash    500ms`) opening a submenu of its
+values — regardless of group or how many values it has. On the Stats page a
+`group` gets its own heading, two options render as a toggle and more as a
+dropdown. A setting gaining a third value needs no code anywhere.
 
 Notes for when you touch the panel:
 
