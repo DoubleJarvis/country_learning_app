@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion } from "country_names"
 import { quizDb } from "db"
 import { flagUrl } from "flags"
-import { presentQuestion } from "funbox"
+import { presentQuestion, snapshotFunbox } from "funbox"
 
 // Flags mode (difficulty: Normal). Mirrors Quiz Hard, but the country is
 // presented by its flag alone instead of its silhouette. Two guesses per
@@ -57,6 +57,9 @@ export default class extends Controller {
 
   selectRegion(event) {
     const region = event.currentTarget.dataset.region
+    // Snapshot the funbox now, not at the end: changing a setting mid-run
+    // must not relabel what was already recorded.
+    quizDb.setRunFunbox(snapshotFunbox('flags'))
     this.currentRegion = region
     this.remainingCountries = [...getCountriesForRegion(region)]
     this.remainingCountries.sort(() => Math.random() - 0.5)

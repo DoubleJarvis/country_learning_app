@@ -136,6 +136,20 @@ const MIGRATIONS = [
       db.run('CREATE INDEX IF NOT EXISTS idx_runs_timestamp ON quiz_runs(timestamp)')
     },
   },
+  {
+    version: 20260913000000,
+    name: 'funbox column on guesses and quiz_runs',
+    up: (db) => {
+      // Which Funbox mods were on when the run started, as a JSON object
+      // ({"flash":"100ms"}) so any number of mods can be recorded without
+      // another migration. '' means an ordinary run — everything recorded
+      // before this migration is therefore correctly backfilled as ordinary.
+      db.run(`ALTER TABLE guesses ADD COLUMN funbox TEXT NOT NULL DEFAULT ''`)
+      db.run(`ALTER TABLE quiz_runs ADD COLUMN funbox TEXT NOT NULL DEFAULT ''`)
+      // Every stats query filters guesses on this, so it's worth an index.
+      db.run('CREATE INDEX IF NOT EXISTS idx_guesses_funbox ON guesses(funbox)')
+    },
+  },
 ]
 
 class QuizDatabase {
@@ -143,6 +157,10 @@ class QuizDatabase {
     this.db = null
     this.SQL = null
     this.initialized = false
+    // Funbox mods active when the current run started. Set once at run start
+    // (see setRunFunbox) rather than read per write, so changing a setting
+    // mid-run doesn't retroactively relabel the guesses already recorded.
+    this.runFunbox = ''
   }
 
   async initialize() {
@@ -318,9 +336,9 @@ class QuizDatabase {
     try {
       const timestamp = Date.now()
       this.db.run(
-        `INSERT INTO guesses (country_code, country_display_name, quiz_type, guess_type, guessed_country_code, guessed_country_name, time_ms, timestamp)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [countryCode, displayName, quizType, guessType, guessedCode, guessedName, timeMs, timestamp]
+        `INSERT INTO guesses (country_code, country_display_name, quiz_type, guess_type, guessed_country_code, guessed_country_name, time_ms, timestamp, funbox)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [countryCode, displayName, quizType, guessType, guessedCode, guessedName, timeMs, timestamp, this.runFunbox]
       )
       this.save()
     } catch (error) {
@@ -337,7 +355,7 @@ class QuizDatabase {
           guess_type,
           COUNT(*) as count
         FROM guesses
-        WHERE country_code = ?
+        WHERE country_code = ? AND funbox = ''
         GROUP BY guess_type
       `)
       stmt.bind([countryCode])
@@ -363,6 +381,7 @@ class QuizDatabase {
       const stmt = this.db.prepare(`
         SELECT *
         FROM guesses
+        WHERE funbox = ''
         ORDER BY timestamp DESC
         LIMIT ?
       `)
@@ -390,7 +409,7 @@ class QuizDatabase {
           guess_type,
           COUNT(*) as count
         FROM guesses
-        WHERE quiz_type = ?
+        WHERE quiz_type = ? AND funbox = ''
         GROUP BY guess_type
       `)
       stmt.bind([quizType])
@@ -428,6 +447,26 @@ class QuizDatabase {
     }
   }
 
+  // Guesses the Stats page summarises (Summary, By Difficulty, By Country).
+  // Funboxed guesses are left out: a country you never really saw isn't
+  // evidence about whether you know it. exportData() below keeps everything.
+  getGuessesForStats() {
+    if (!this.db) return []
+
+    try {
+      const stmt = this.db.prepare(`SELECT * FROM guesses WHERE funbox = '' ORDER BY timestamp`)
+      const results = []
+      while (stmt.step()) results.push(stmt.getAsObject())
+      stmt.free()
+      return results
+    } catch (error) {
+      console.error('Failed to read guesses for stats:', error)
+      return []
+    }
+  }
+
+  // Deliberately unfiltered: an export is the whole database, funboxed rows
+  // included, so nothing is silently lost on a backup.
   exportData() {
     if (!this.db) return null
 
@@ -454,9 +493,9 @@ class QuizDatabase {
     try {
       const timestamp = Date.now()
       this.db.run(
-        `INSERT INTO quiz_runs (quiz_type, region, correct_count, shaky_count, incorrect_count, time_ms, completed_fully, timestamp)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [quizType, region, correctCount, shakyCount, incorrectCount, timeMs, completedFully, timestamp]
+        `INSERT INTO quiz_runs (quiz_type, region, correct_count, shaky_count, incorrect_count, time_ms, completed_fully, timestamp, funbox)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [quizType, region, correctCount, shakyCount, incorrectCount, timeMs, completedFully, timestamp, this.runFunbox]
       )
       this.save()
     } catch (error) {
@@ -502,7 +541,7 @@ class QuizDatabase {
           SUM(CASE WHEN guess_type = 'shaky' THEN 1 ELSE 0 END) as shaky_count,
           SUM(CASE WHEN guess_type = 'correct' THEN 1 ELSE 0 END) as correct_count
         FROM guesses
-        WHERE quiz_type != 'flags'
+        WHERE quiz_type != 'flags' AND funbox = ''
         GROUP BY country_code, country_display_name
         HAVING incorrect_count > 0
         ORDER BY incorrect_count DESC, shaky_count DESC
@@ -536,7 +575,7 @@ class QuizDatabase {
           MIN(time_ms) as best_time_ms,
           MAX(time_ms) as worst_time_ms
         FROM guesses
-        WHERE time_ms IS NOT NULL AND time_ms > 0 AND quiz_type != 'flags'
+        WHERE time_ms IS NOT NULL AND time_ms > 0 AND quiz_type != 'flags' AND funbox = ''
         GROUP BY country_code, country_display_name
         HAVING guess_count >= 1
         ORDER BY avg_time_ms DESC
@@ -572,6 +611,7 @@ class QuizDatabase {
           timestamp
         FROM guesses
         WHERE guessed_country_code IS NOT NULL AND guessed_country_code != country_code
+          AND funbox = ''
         ORDER BY timestamp DESC
         LIMIT ?
       `)
@@ -605,7 +645,7 @@ class QuizDatabase {
           MAX(timestamp) as last_timestamp
         FROM guesses
         WHERE guessed_country_code IS NOT NULL AND guessed_country_code != country_code
-          AND quiz_type != 'flags'
+          AND quiz_type != 'flags' AND funbox = ''
         GROUP BY code_a, code_b
         ORDER BY mixup_count DESC, last_timestamp DESC
         LIMIT ?
@@ -643,6 +683,12 @@ class QuizDatabase {
       console.error('Failed to get setting:', error)
       return null
     }
+  }
+
+  // Called by a mode when a run starts, and cleared on every route change (see
+  // app.js) so a mode that doesn't set it can never inherit the last one's.
+  setRunFunbox(funbox) {
+    this.runFunbox = funbox || ''
   }
 
   setSetting(key, value) {

@@ -1859,6 +1859,19 @@ body {
 
 .run-quiz-type.quiz { background-color: #4a9eff; color: white; }
 .run-quiz-type.name_all { background-color: #8b5cf6; color: white; }
+/* One per Funbox mod that was active when the run started. Absent on ordinary
+   runs, so their row is unchanged. */
+.run-funbox {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #4a9eff;
+  background: rgba(74, 158, 255, 0.12);
+  border: 1px solid rgba(74, 158, 255, 0.4);
+  white-space: nowrap;
+}
+
 /* Place mode is removed; this badge only styles pre-existing runs in old databases. */
 .run-quiz-type.place { background-color: #10b981; color: white; }
 .run-quiz-type.flags { background-color: #ec4899; color: white; }

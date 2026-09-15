@@ -4,7 +4,7 @@ import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion, c
 import { quizDb } from "db"
 import { applyCountryShape, countryShapeMarkup, isShapeOnlyCountry, loadCountrySvg, shapeScaleBar } from "country_shapes"
 import { getSharedMap, whenMapReady, COUNTRIES_SOURCE, GLYPHS_URL } from "shared_map"
-import { presentQuestion } from "funbox"
+import { presentQuestion, snapshotFunbox } from "funbox"
 
 export default class extends Controller {
   static targets = ["mainContainer", "overlayContainer", "searchInput", "searchBox", "dropdown",
@@ -258,6 +258,9 @@ export default class extends Controller {
 
   selectRegion(event) {
     const region = event.currentTarget.dataset.region
+    // Snapshot the funbox now, not at the end: changing a setting mid-run
+    // must not relabel what was already recorded.
+    quizDb.setRunFunbox(snapshotFunbox('hard'))
     this.currentRegion = region
     this.remainingCountries = [...getCountriesForRegion(region)]
     this.remainingCountries.sort(() => Math.random() - 0.5)

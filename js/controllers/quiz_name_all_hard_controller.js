@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import maplibregl from "maplibre-gl"
 import { allCountryNames, nameToCode, countriesMapping, getCountriesForRegion } from "country_names"
 import { quizDb } from "db"
+import { snapshotFunbox } from "funbox"
 import { getSharedMap, whenMapReady } from "shared_map"
 import { countryShapeMarkup } from "country_shapes"
 
@@ -146,6 +147,9 @@ export default class extends Controller {
 
   selectRegion(event) {
     this.currentRegion = event.currentTarget.dataset.region
+    // Snapshot the funbox now, not at the end: changing a setting mid-run
+    // must not relabel what was already recorded.
+    quizDb.setRunFunbox(snapshotFunbox('name_all_hard'))
     this.regionCountries = getCountriesForRegion(this.currentRegion)
 
     this.regionSelectionTarget.style.display = 'none'

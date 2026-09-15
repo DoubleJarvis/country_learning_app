@@ -48,6 +48,49 @@ function reveal() {
   hiddenElement = null
 }
 
+// Which recorded quiz types each mod actually changes. A run is only stamped
+// with the mods that affected IT — Flash is wired into Quiz Hard and Flags, so a
+// Name All run played while Flash is on is an ordinary run and must not be
+// marked otherwise. Extend this when a mod starts affecting another mode; the
+// keys are quiz_type values as recorded in the database.
+const APPLIES_TO = {
+  flash: ["hard", "flags"],
+}
+
+// The mods that were on for a run, as stored in `guesses.funbox` /
+// `quiz_runs.funbox`: a JSON object of key -> value, or "" for an ordinary run.
+// Keys are sorted so the same set always serializes identically (handy for
+// grouping later), and the format is an object rather than a list precisely so
+// several mods can be recorded on one run without the schema changing.
+export function snapshotFunbox(quizType) {
+  const active = enabledMods()
+    .filter(setting => APPLIES_TO[setting.key]?.includes(quizType))
+    .sort((a, b) => a.key.localeCompare(b.key))
+
+  if (active.length === 0) return ""
+  return JSON.stringify(Object.fromEntries(active.map(s => [s.key, getSetting(s.key)])))
+}
+
+// Stored funbox -> [{ key, label, value }] for display. Labels are resolved from
+// SETTINGS at read time and fall back to the stored key, so a run recorded under
+// a mod that has since been removed still renders something meaningful rather
+// than disappearing (same approach as the Place badge in stats_controller).
+export function parseFunbox(stored) {
+  if (!stored) return []
+  let parsed
+  try {
+    parsed = JSON.parse(stored)
+  } catch (error) {
+    console.error("Unreadable funbox record:", stored, error)
+    return []
+  }
+  return Object.entries(parsed).map(([key, value]) => ({
+    key,
+    label: SETTINGS.find(setting => setting.key === key)?.label || key,
+    value,
+  }))
+}
+
 // Every Funbox setting's first option is its off state, by convention.
 function enabledMods() {
   return SETTINGS.filter(setting =>

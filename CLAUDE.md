@@ -94,3 +94,26 @@ would fight them — and `visibility` leaves MapLibre's canvas sizing alone.
 `funbox.js` reads settings, so `settings.js` must not import it back. It
 subscribes via `onSettingsApplied()` instead, which is how switching Flash off
 mid-question reveals the country immediately.
+
+### Funbox in the database
+
+`guesses.funbox` and `quiz_runs.funbox` record which mods were on, as a JSON
+object (`{"flash":"100ms"}`) — an object, not a flag, so any number of mods can
+be recorded together without another migration. `''` means an ordinary run, which
+is also what every pre-existing row backfills to.
+
+Three rules when adding a mod:
+
+1. **List the modes it affects** in `APPLIES_TO` in `js/funbox.js`, keyed by
+   `quiz_type`. A run is only stamped with mods that actually changed *it* —
+   Flash is wired into Quiz Hard and Flags, so a Name All run played while Flash
+   is on is an ordinary run and must not be marked otherwise.
+2. **The snapshot is taken at run start**, by `quizDb.setRunFunbox(snapshotFunbox(type))`
+   in each recording controller's `selectRegion()`. Changing a setting mid-run
+   must not relabel guesses already recorded. `app.js` clears it on every route
+   change so a mode that forgets can't inherit the previous one's.
+3. **Funboxed *guesses* are excluded from every display query** (`funbox = ''`):
+   Summary, By Difficulty, By Country, and the Practice pools — a country you
+   never really saw is not evidence about whether you know it. `exportData()` is
+   deliberately unfiltered; `getGuessesForStats()` is the filtered read the Stats
+   page uses. Funboxed *runs* stay in Recent Games and show a badge per mod.

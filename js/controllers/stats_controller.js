@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { quizDb } from "db"
 import { countriesMapping } from "country_names"
 import { SETTINGS, getSetting, setSetting, initSettings, applySettings } from "settings"
+import { parseFunbox } from "funbox"
 
 export default class extends Controller {
   static targets = [
@@ -114,7 +115,9 @@ export default class extends Controller {
 
   async loadStats() {
     // Get all guesses
-    const allGuesses = quizDb.exportData()
+    // Funboxed guesses are excluded here (but not from the export button) —
+    // a country you only half-saw isn't evidence about whether you know it.
+    const allGuesses = quizDb.getGuessesForStats()
 
     if (!allGuesses || allGuesses.length === 0) {
       this.showEmptyState()
@@ -451,6 +454,10 @@ export default class extends Controller {
         const total = run.correct_count + run.shaky_count + run.incorrect_count
         const { mode, modeKey, difficulty, difficultyKey } = this.quizTypeInfo(run.quiz_type)
         const regionLabel = this.formatRegionName(run.region)
+        // Only funboxed runs gain anything; an ordinary run renders unchanged.
+        const funboxBadges = parseFunbox(run.funbox)
+          .map(mod => `<span class="run-funbox">${this.escapeHtml(mod.label)}: ${this.escapeHtml(mod.value)}</span>`)
+          .join("")
 
         // For all Name All variants, shaky_count stores the remaining count
         const isNameAll = run.quiz_type.startsWith("name_all")
@@ -464,6 +471,7 @@ export default class extends Controller {
                 <span class="run-quiz-type ${modeKey}">${mode}</span>
                 ${difficulty ? `<span class="run-difficulty ${difficultyKey}">${difficulty}</span>` : ''}
                 <span class="run-region">${regionLabel}</span>
+                ${funboxBadges}
                 <span class="run-date">${dateStr} ${timeStr}</span>
               </div>
               <div class="run-time">${durationStr}</div>
